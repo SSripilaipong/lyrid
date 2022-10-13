@@ -7,3 +7,9 @@ class ProcessorMock:
 
     def process(self, command: Command):
         self.process_command = command
+
+    def start(self):
+        pass
+
+    def stop(self):
+        pass
