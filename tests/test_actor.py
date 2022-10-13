@@ -1,7 +1,7 @@
 from lyrid import ActorBase
-from lyrid.core.messenger import Address, Message
-from lyrid.message import TextMessage
+from lyrid.core.messaging import Address, Message
 from tests.actor_factory import create_actor_with_address_and_messenger
+from tests.message_dummy import MessageDummy
 from tests.messenger_mock import MessengerMock
 
 
@@ -11,11 +11,11 @@ def test_should_send_message_via_messenger():
     class MyActor(ActorBase):
 
         def receive(self, sender: Address, message: Message):
-            self.tell(Address("$.you"), TextMessage("Hello!"))
+            self.tell(Address("$.you"), MessageDummy("Hello!"))
 
     actor = create_actor_with_address_and_messenger(MyActor, Address("$.me"), messenger)
     actor.receive(Address("$"), Message())
 
     assert messenger.send__sender == Address("$.me") and \
            messenger.send__receiver == Address("$.you") and \
-           messenger.send__message == TextMessage("Hello!")
+           messenger.send__message == MessageDummy("Hello!")

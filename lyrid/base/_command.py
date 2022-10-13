@@ -5,13 +5,7 @@ from lyrid.core.processor import Command
 
 
 @dataclass
-class SendingCommand(Command):
+class ActorMessageSendingCommand(Command):
     sender: Address
     receiver: Address
     message: Message
-
-
-@dataclass
-class RegisterAddressCommand(Command):
-    addr: Address
-    manager_key: str

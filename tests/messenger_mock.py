@@ -1,4 +1,4 @@
-from lyrid.core.messenger import Address, Message
+from lyrid.core.messaging import Address, Message
 from lyrid.core.processor import Command
 
 

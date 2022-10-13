@@ -1,7 +1,8 @@
 from typing import TypeVar, Type
 
 from lyrid import ActorBase
-from lyrid.core.messenger import IMessenger, Address
+from lyrid.core.messaging import Address
+from lyrid.core.messenger import IMessenger
 
 T = TypeVar("T", bound=ActorBase)
 

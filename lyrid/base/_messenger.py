@@ -1,6 +1,7 @@
 from typing import Dict
 
-from lyrid.core.messenger import IMessenger, Address, Message, IManager, RegisterAddressCommand, SendingCommand
+from lyrid.core.messaging import Address, Message
+from lyrid.core.messenger import IMessenger, IManager, RegisterAddressCommand, SendingCommand
 from lyrid.core.processor import IProcessor, Command
 
 

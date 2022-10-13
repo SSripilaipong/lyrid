@@ -1,6 +1,7 @@
 from abc import ABC, abstractmethod
 
-from lyrid.core.messenger import Address, Message, IMessenger
+from lyrid.core.messaging import Address, Message
+from lyrid.core.messenger import IMessenger
 
 
 class ActorBase(ABC):
