@@ -1,2 +1,1 @@
-from ._actor import ActorBase
-from ._messenger import MessengerBase
+from lyrid.base import ActorBase
