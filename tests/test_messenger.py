@@ -1,9 +1,9 @@
 from lyrid.core.messaging import Address
 from lyrid.core.messenger import SendingCommand, RegisterAddressCommand
-from tests.manager_mock import ManagerMock
+from tests.factory.messenger import create_messenger
 from tests.message_dummy import MessageDummy
-from tests.messenger_factory import create_messenger
-from tests.processor_mock import ProcessorMock
+from tests.mock.manager import ManagerMock
+from tests.mock.processor import ProcessorMock
 
 
 def test_should_pass_sending_command_to_processor_when_send_method_is_called():

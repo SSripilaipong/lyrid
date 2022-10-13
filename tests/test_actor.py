@@ -1,8 +1,8 @@
 from lyrid import ActorBase
 from lyrid.core.messaging import Address, Message
-from tests.actor_factory import create_actor_with_address_and_messenger
+from tests.factory.actor import create_actor_with_address_and_messenger
 from tests.message_dummy import MessageDummy
-from tests.messenger_mock import MessengerMock
+from tests.mock.messenger import MessengerMock
 
 
 def test_should_send_message_via_messenger():

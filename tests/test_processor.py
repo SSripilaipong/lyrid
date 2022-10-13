@@ -2,7 +2,7 @@ import multiprocessing as mp
 from dataclasses import dataclass
 
 from lyrid.core.processor import ProcessorStopCommand, Command
-from tests.processor_factory import create_processor
+from tests.factory.processor import create_processor
 
 
 def test_should_stop_processor():
