@@ -9,3 +9,9 @@ class SendingCommand(Command):
     sender: Address
     receiver: Address
     message: Message
+
+
+@dataclass
+class RegisterAddressCommand(Command):
+    addr: Address
+    manager_key: str

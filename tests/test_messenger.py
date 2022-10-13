@@ -1,4 +1,5 @@
 from lyrid.core.messenger import Address, SendingCommand
+from lyrid.core.messenger._processor_command import RegisterAddressCommand
 from lyrid.message import TextMessage
 from tests.manager_mock import ManagerMock
 from tests.messenger_factory import create_messenger
@@ -18,16 +19,23 @@ def test_should_pass_sending_command_to_processor_when_send_method_is_called():
     )
 
 
-def test_should_let_manager_of_the_registered_address_handle_the_message_on_sending():
+def test_should_let_manager_of_the_registered_address_handle_the_message_when_handling_sending_command():
     manager = ManagerMock()
     messenger = create_messenger(managers={
         "manager0": ManagerMock(),
         "manager1": manager,
         "manager2": ManagerMock(),
     })
-    messenger.on_registering(Address("$.you"), "manager1")
+    messenger.handle_processor_command(RegisterAddressCommand(
+        addr=Address("$.you"),
+        manager_key="manager1",
+    ))
 
-    messenger.on_sending(Address("$.me"), Address("$.you"), TextMessage("Hello"))
+    messenger.handle_processor_command(SendingCommand(
+        sender=Address("$.me"),
+        receiver=Address("$.you"),
+        message=TextMessage("Hello"),
+    ))
 
     assert manager.handle_sender == Address("$.me") and \
            manager.handle_receiver == Address("$.you") and \
