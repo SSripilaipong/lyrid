@@ -1,4 +1,5 @@
 from lyrid.core.messenger import Address, Message
+from lyrid.core.processor import Command
 
 
 class MessengerMock:
@@ -12,3 +13,6 @@ class MessengerMock:
         self.send__sender = sender
         self.send__receiver = receiver
         self.send__message = message
+
+    def handle_processor_command(self, command: Command):
+        pass
