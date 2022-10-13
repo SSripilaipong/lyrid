@@ -1,4 +1,5 @@
 from lyrid.core.messaging import Address, Message
+from lyrid.core.processor import Command
 
 
 class ManagerMock:
@@ -11,3 +12,6 @@ class ManagerMock:
         self.handle_message__sender = sender
         self.handle_message__receiver = receiver
         self.handle_message__message = message
+
+    def handle_processor_command(self, command: Command):
+        pass
