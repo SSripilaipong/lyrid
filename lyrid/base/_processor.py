@@ -5,9 +5,9 @@ from lyrid.core.processor import Command, IProcessor, ProcessorStopCommand
 
 
 class ProcessorBase(IProcessor):
-    def __init__(self, handle: Callable[[Command], None]):
+    def __init__(self, handle: Callable[[Command], None], command_queue: mp.Queue):
         self._handle = handle
-        self._command_queue = mp.Queue()
+        self._command_queue = command_queue
 
         self._process: Optional[mp.Process] = None
 
@@ -15,10 +15,10 @@ class ProcessorBase(IProcessor):
         self._command_queue.put(command)
 
     def start(self):
-        self._process = mp.Process(target=self._processor_loop)
+        self._process = mp.Process(target=self.processor_loop)
         self._process.start()
 
-    def _processor_loop(self):
+    def processor_loop(self):
         command: Command = self._command_queue.get(block=True)
         self._handle(command)
 
