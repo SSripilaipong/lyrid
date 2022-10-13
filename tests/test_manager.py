@@ -1,5 +1,5 @@
-from lyrid.base._command import ActorMessageSendingCommand
-from lyrid.core.manager._task import ActorTask
+from lyrid.core.manager import ActorTask
+from lyrid.core.manager._command import ActorMessageSendingCommand
 from lyrid.core.messaging import Address
 from tests.factory.manager import create_manager
 from tests.message_dummy import MessageDummy
