@@ -1,5 +1,4 @@
-from lyrid.core.messenger import Address, SendingCommand
-from lyrid.core.messenger._processor_command import RegisterAddressCommand
+from lyrid.core.messenger import Address, SendingCommand, RegisterAddressCommand
 from lyrid.message import TextMessage
 from tests.manager_mock import ManagerMock
 from tests.messenger_factory import create_messenger
