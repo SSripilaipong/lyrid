@@ -19,10 +19,10 @@ def test_should_stop_processor_loop_by_processor_stop_command():
 
 
 def test_should_pass_non_processor_command_to_handle():
-    def handle(command: Command):
-        handle.command = command
+    commands = []
 
-    handle.command = None
+    def handle(command: Command):
+        commands.append(command)
 
     command_queue = mp.Queue()
     command_queue.put(MyCommand("Hello"))
@@ -31,14 +31,14 @@ def test_should_pass_non_processor_command_to_handle():
     processor = create_processor(command_queue=command_queue, handle=handle)
     processor.processor_loop()
 
-    assert handle.command == MyCommand("Hello")
+    assert commands == [MyCommand("Hello")]
 
 
 def test_should_handle_multiple_commands():
-    def handle(command: Command):
-        handle.commands.append(command)
+    commands = []
 
-    handle.commands = []
+    def handle(command: Command):
+        commands.append(command)
 
     command_queue = mp.Queue()
     command_queue.put(MyCommand("Hello1"))
@@ -48,7 +48,7 @@ def test_should_handle_multiple_commands():
     processor = create_processor(command_queue=command_queue, handle=handle)
     processor.processor_loop()
 
-    assert handle.commands == [MyCommand("Hello1"), MyCommand("Hello2")]
+    assert commands == [MyCommand("Hello1"), MyCommand("Hello2")]
 
 
 @dataclass

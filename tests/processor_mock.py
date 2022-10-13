@@ -3,10 +3,10 @@ from lyrid.core.processor import Command
 
 class ProcessorMock:
     def __init__(self):
-        self.process_command = None
+        self.process__command = None
 
     def process(self, command: Command):
-        self.process_command = command
+        self.process__command = command
 
     def start(self):
         pass

@@ -22,7 +22,7 @@ class MessengerBase(IMessenger):
             raise NotImplementedError()
 
     def _on_sending(self, sender: Address, receiver: Address, message: Message):
-        self._addr_to_manager[receiver].handle(sender, receiver, message)
+        self._addr_to_manager[receiver].handle_message(sender, receiver, message)
 
     def _on_registering(self, addr: Address, manager_key: str):
         self._addr_to_manager[addr] = self._managers[manager_key]

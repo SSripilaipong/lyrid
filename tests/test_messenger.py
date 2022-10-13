@@ -11,7 +11,7 @@ def test_should_pass_sending_command_to_processor_when_send_method_is_called():
 
     messenger.send(Address("$.me"), Address("$.you"), TextMessage("Hello"))
 
-    assert processor.process_command == SendingCommand(
+    assert processor.process__command == SendingCommand(
         sender=Address("$.me"),
         receiver=Address("$.you"),
         message=TextMessage("Hello"),
@@ -36,6 +36,6 @@ def test_should_let_manager_of_the_registered_address_handle_the_message_when_ha
         message=TextMessage("Hello"),
     ))
 
-    assert manager.handle_sender == Address("$.me") and \
-           manager.handle_receiver == Address("$.you") and \
-           manager.handle_message == TextMessage("Hello")
+    assert manager.handle_message__sender == Address("$.me") and \
+           manager.handle_message__receiver == Address("$.you") and \
+           manager.handle_message__message == TextMessage("Hello")

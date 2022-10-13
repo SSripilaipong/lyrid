@@ -8,5 +8,5 @@ from ._message import Message
 class IManager(Protocol):
 
     @abstractmethod
-    def handle(self, sender: Address, receiver: Address, message: Message):
+    def handle_message(self, sender: Address, receiver: Address, message: Message):
         pass
