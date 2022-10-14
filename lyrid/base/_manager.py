@@ -1,5 +1,4 @@
-from lyrid.core.manager import ITaskScheduler, ActorMessageDeliveryTask
-from lyrid.core.manager._command import ActorMessageSendingCommand
+from lyrid.core.manager import ITaskScheduler, ActorMessageDeliveryTask, ActorMessageSendingCommand
 from lyrid.core.messaging import Address, Message
 from lyrid.core.processor import Command, IProcessor
 

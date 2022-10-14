@@ -14,7 +14,6 @@ class MyActor(ActorBase):
         self.receive__message = None
 
     def receive(self, sender: Address, message: Message):
-        print("received", sender, message)
         self.receive__sender = sender
         self.receive__message = message
 
