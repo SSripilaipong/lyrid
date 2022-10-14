@@ -1,7 +1,7 @@
 import multiprocessing as mp
 from typing import Callable, Optional
 
-from lyrid.core.processor import Command, IProcessor, ProcessorStopCommand
+from lyrid.core.processor import Command, IProcessor, ProcessorStopCommand, ProcessorStartCommand
 
 
 class ProcessorBase(IProcessor):
@@ -19,6 +19,7 @@ class ProcessorBase(IProcessor):
         self._process.start()
 
     def processor_loop(self):
+        self._handle(ProcessorStartCommand())
         while True:
             command: Command = self._command_queue.get(block=True)
             if isinstance(command, ProcessorStopCommand):

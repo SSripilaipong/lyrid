@@ -1,7 +1,7 @@
 import multiprocessing as mp
 from dataclasses import dataclass
 
-from lyrid.core.processor import ProcessorStopCommand, Command
+from lyrid.core.processor import ProcessorStopCommand, Command, ProcessorStartCommand
 from tests.factory.processor import create_processor
 
 
@@ -18,6 +18,21 @@ def test_should_stop_processor_loop_by_processor_stop_command():
     processor.processor_loop()
 
 
+def test_should_pass_processor_start_command_to_handle_when_started():
+    commands = []
+
+    def handle(command: Command):
+        commands.append(command)
+
+    command_queue = mp.Queue()
+    command_queue.put(ProcessorStopCommand())
+
+    processor = create_processor(command_queue=command_queue, handle=handle)
+    processor.processor_loop()
+
+    assert commands == [ProcessorStartCommand()]
+
+
 def test_should_pass_non_processor_command_to_handle():
     commands = []
 
@@ -31,7 +46,7 @@ def test_should_pass_non_processor_command_to_handle():
     processor = create_processor(command_queue=command_queue, handle=handle)
     processor.processor_loop()
 
-    assert commands == [MyCommand("Hello")]
+    assert commands == [ProcessorStartCommand(), MyCommand("Hello")]
 
 
 def test_should_handle_multiple_commands():
@@ -48,7 +63,7 @@ def test_should_handle_multiple_commands():
     processor = create_processor(command_queue=command_queue, handle=handle)
     processor.processor_loop()
 
-    assert commands == [MyCommand("Hello1"), MyCommand("Hello2")]
+    assert commands == [ProcessorStartCommand(), MyCommand("Hello1"), MyCommand("Hello2")]
 
 
 @dataclass
