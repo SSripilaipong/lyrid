@@ -1,5 +1,6 @@
 from lyrid.core.manager import ActorMessageDeliveryTask, ActorMessageSendingCommand
 from lyrid.core.messaging import Address
+from lyrid.core.processor import ProcessorStartCommand
 from tests.factory.manager import create_manager
 from tests.message_dummy import MessageDummy
 from tests.mock.processor import ProcessorMock
@@ -17,6 +18,15 @@ def test_should_let_processor_process_actor_message_sending_command_when_handle_
         receiver=Address("$.you"),
         message=MessageDummy("Hello"),
     )
+
+
+def test_should_start_task_scheduler_when_receive_processor_start_command():
+    scheduler = SchedulerMock()
+    manager = create_manager(scheduler=scheduler)
+
+    manager.handle_processor_command(ProcessorStartCommand())
+
+    assert scheduler.start__is_called
 
 
 def test_should_schedule_actor_task_when_handling_actor_message_sending_command():
