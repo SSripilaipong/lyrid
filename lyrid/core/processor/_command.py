@@ -10,5 +10,6 @@ class ProcessorStartCommand(Command):
     pass
 
 
+@dataclass
 class ProcessorStopCommand(Command):
     pass

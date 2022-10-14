@@ -22,9 +22,9 @@ class ProcessorBase(IProcessor):
         self._handle(ProcessorStartCommand())
         while True:
             command: Command = self._command_queue.get(block=True)
+            self._handle(command)
             if isinstance(command, ProcessorStopCommand):
                 break
-            self._handle(command)
 
     def stop(self):
         self.process(ProcessorStopCommand())

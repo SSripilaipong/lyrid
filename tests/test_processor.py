@@ -18,7 +18,7 @@ def test_should_stop_processor_loop_by_processor_stop_command():
     processor.processor_loop()
 
 
-def test_should_pass_processor_start_command_to_handle_when_started():
+def test_should_pass_processor_start_and_stop_command_to_handle_when_started_and_stopping():
     commands = []
 
     def handle(command: Command):
@@ -30,7 +30,7 @@ def test_should_pass_processor_start_command_to_handle_when_started():
     processor = create_processor(command_queue=command_queue, handle=handle)
     processor.processor_loop()
 
-    assert commands == [ProcessorStartCommand()]
+    assert commands == [ProcessorStartCommand(), ProcessorStopCommand()]
 
 
 def test_should_pass_non_processor_command_to_handle():
@@ -46,7 +46,7 @@ def test_should_pass_non_processor_command_to_handle():
     processor = create_processor(command_queue=command_queue, handle=handle)
     processor.processor_loop()
 
-    assert commands == [ProcessorStartCommand(), MyCommand("Hello")]
+    assert commands == [ProcessorStartCommand(), MyCommand("Hello"), ProcessorStopCommand()]
 
 
 def test_should_handle_multiple_commands():
@@ -63,7 +63,7 @@ def test_should_handle_multiple_commands():
     processor = create_processor(command_queue=command_queue, handle=handle)
     processor.processor_loop()
 
-    assert commands == [ProcessorStartCommand(), MyCommand("Hello1"), MyCommand("Hello2")]
+    assert commands == [ProcessorStartCommand(), MyCommand("Hello1"), MyCommand("Hello2"), ProcessorStopCommand()]
 
 
 @dataclass
