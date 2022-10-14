@@ -1,4 +1,4 @@
-from lyrid.core.manager import ITaskScheduler, ActorTask
+from lyrid.core.manager import ITaskScheduler, ActorMessageDeliveryTask
 from lyrid.core.manager._command import ActorMessageSendingCommand
 from lyrid.core.messaging import Address, Message
 from lyrid.core.processor import Command, IProcessor
@@ -14,7 +14,7 @@ class ManagerBase:
 
     def handle_processor_command(self, command: Command):
         if isinstance(command, ActorMessageSendingCommand):
-            self._scheduler.schedule(ActorTask(
+            self._scheduler.schedule(ActorMessageDeliveryTask(
                 target=command.receiver,
                 message=command.message,
                 sender=command.sender,

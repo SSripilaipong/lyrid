@@ -1,4 +1,4 @@
-from lyrid.core.manager import ActorTask, ActorMessageSendingCommand
+from lyrid.core.manager import ActorMessageDeliveryTask, ActorMessageSendingCommand
 from lyrid.core.messaging import Address
 from tests.factory.manager import create_manager
 from tests.message_dummy import MessageDummy
@@ -29,7 +29,7 @@ def test_should_schedule_actor_task_when_handling_actor_message_sending_command(
         message=MessageDummy("Hello"),
     ))
 
-    assert scheduler.schedule__task == ActorTask(
+    assert scheduler.schedule__task == ActorMessageDeliveryTask(
         target=Address("$.you"),
         message=MessageDummy("Hello"),
         sender=Address("$.me"),

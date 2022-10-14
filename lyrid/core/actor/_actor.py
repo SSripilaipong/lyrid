@@ -4,7 +4,7 @@ from typing import Protocol
 from lyrid.core.messaging import Address, Message
 
 
-class IReceiver(Protocol):
+class IActor(Protocol):
 
     @abstractmethod
     def receive(self, sender: Address, message: Message):
