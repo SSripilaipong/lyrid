@@ -1,6 +1,6 @@
 from lyrid.core.manager import ITaskScheduler, ActorMessageDeliveryTask, ActorMessageSendingCommand
 from lyrid.core.messaging import Address, Message
-from lyrid.core.processor import Command, IProcessor, ProcessorStartCommand
+from lyrid.core.processor import Command, IProcessor, ProcessorStartCommand, ProcessorStopCommand
 
 
 class ManagerBase:
@@ -20,5 +20,7 @@ class ManagerBase:
             ))
         elif isinstance(command, ProcessorStartCommand):
             self._scheduler.start()
+        elif isinstance(command, ProcessorStopCommand):
+            self._scheduler.stop()
         else:
             raise NotImplementedError()
