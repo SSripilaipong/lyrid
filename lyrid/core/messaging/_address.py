@@ -7,3 +7,6 @@ class Address:
 
     def child(self, key: str) -> 'Address':
         return Address(self.addr + '.' + key)
+
+    def is_manager(self) -> bool:
+        return self.addr.startswith("#")

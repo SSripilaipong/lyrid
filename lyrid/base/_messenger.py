@@ -6,10 +6,10 @@ from lyrid.core.processor import IProcessor, Command, ProcessorStartCommand, Pro
 
 
 class MessengerBase(IMessenger):
-    def __init__(self, managers: Dict[str, IManager], processor: IProcessor):
+    def __init__(self, managers: Dict[Address, IManager], processor: IProcessor):
         self._managers = managers
         self._processor = processor
-        self._addr_to_manager: Dict[Address, IManager] = dict()
+        self._address_to_manager: Dict[Address, IManager] = dict()
 
     def send(self, sender: Address, receiver: Address, message: Message):
         self._processor.process(SendingCommand(sender=sender, receiver=receiver, message=message))
@@ -18,14 +18,18 @@ class MessengerBase(IMessenger):
         if isinstance(command, SendingCommand):
             self._on_sending(command.sender, command.receiver, command.message)
         elif isinstance(command, RegisterAddressCommand):
-            self._on_registering(command.addr, command.manager_key)
+            self._on_registering(command.address, command.manager_address)
         elif isinstance(command, (ProcessorStartCommand, ProcessorStopCommand)):
             pass
         else:
             raise NotImplementedError()
 
     def _on_sending(self, sender: Address, receiver: Address, message: Message):
-        self._addr_to_manager[receiver].handle_message(sender, receiver, message)
+        if receiver.is_manager():
+            manager = self._managers[receiver]
+        else:
+            manager = self._address_to_manager[receiver]
+        manager.handle_message(sender, receiver, message)
 
-    def _on_registering(self, addr: Address, manager_key: str):
-        self._addr_to_manager[addr] = self._managers[manager_key]
+    def _on_registering(self, address: Address, manager_address: Address):
+        self._address_to_manager[address] = self._managers[manager_address]

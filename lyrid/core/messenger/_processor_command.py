@@ -13,5 +13,5 @@ class SendingCommand(Command):
 
 @dataclass
 class RegisterAddressCommand(Command):
-    addr: Address
-    manager_key: str
+    address: Address
+    manager_address: Address
