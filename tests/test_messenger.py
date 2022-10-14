@@ -1,6 +1,6 @@
 from lyrid.core.messaging import Address
 from lyrid.core.messenger import SendingCommand, RegisterAddressCommand
-from lyrid.core.processor import ProcessorStartCommand
+from lyrid.core.processor import ProcessorStartCommand, ProcessorStopCommand
 from tests.factory.messenger import create_messenger
 from tests.message_dummy import MessageDummy
 from tests.mock.manager import ManagerMock
@@ -47,3 +47,9 @@ def test_should_receive_processor_start_command_safely():
     messenger = create_messenger()
 
     messenger.handle_processor_command(ProcessorStartCommand())
+
+
+def test_should_receive_processor_stop_command_safely():
+    messenger = create_messenger()
+
+    messenger.handle_processor_command(ProcessorStopCommand())

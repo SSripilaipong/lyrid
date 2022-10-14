@@ -2,7 +2,7 @@ from typing import Dict
 
 from lyrid.core.messaging import Address, Message
 from lyrid.core.messenger import IMessenger, IManager, RegisterAddressCommand, SendingCommand
-from lyrid.core.processor import IProcessor, Command, ProcessorStartCommand
+from lyrid.core.processor import IProcessor, Command, ProcessorStartCommand, ProcessorStopCommand
 
 
 class MessengerBase(IMessenger):
@@ -19,7 +19,7 @@ class MessengerBase(IMessenger):
             self._on_sending(command.sender, command.receiver, command.message)
         elif isinstance(command, RegisterAddressCommand):
             self._on_registering(command.addr, command.manager_key)
-        elif isinstance(command, ProcessorStartCommand):
+        elif isinstance(command, (ProcessorStartCommand, ProcessorStopCommand)):
             pass
         else:
             raise NotImplementedError()
