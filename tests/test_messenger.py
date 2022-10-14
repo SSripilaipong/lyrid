@@ -1,5 +1,6 @@
 from lyrid.core.messaging import Address
 from lyrid.core.messenger import SendingCommand, RegisterAddressCommand
+from lyrid.core.processor import ProcessorStartCommand
 from tests.factory.messenger import create_messenger
 from tests.message_dummy import MessageDummy
 from tests.mock.manager import ManagerMock
@@ -40,3 +41,9 @@ def test_should_let_manager_of_the_registered_address_handle_the_message_when_ha
     assert manager.handle_message__sender == Address("$.me") and \
            manager.handle_message__receiver == Address("$.you") and \
            manager.handle_message__message == MessageDummy("Hello")
+
+
+def test_should_receive_processor_start_command_safely():
+    messenger = create_messenger()
+
+    messenger.handle_processor_command(ProcessorStartCommand())
