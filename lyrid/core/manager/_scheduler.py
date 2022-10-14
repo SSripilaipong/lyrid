@@ -1,7 +1,7 @@
 from abc import abstractmethod
 from typing import Protocol
 
-from ._task import Task
+from ._task import ActorTargetedTask
 from ..actor import IActor
 from ..messaging import Address
 
@@ -9,7 +9,7 @@ from ..messaging import Address
 class ITaskScheduler(Protocol):
 
     @abstractmethod
-    def schedule(self, task: Task):
+    def schedule(self, task: ActorTargetedTask):
         pass
 
     @abstractmethod

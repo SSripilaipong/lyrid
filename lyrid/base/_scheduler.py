@@ -4,7 +4,9 @@ from queue import Queue
 from typing import Dict, Optional
 
 from lyrid.core.actor import IActor
-from lyrid.core.manager import Task, ActorMessageDeliveryTask, StopSchedulerTask, ActorTargetedTaskGroup
+from lyrid.core.manager import (
+    Task, ActorMessageDeliveryTask, StopSchedulerTask, ActorTargetedTaskGroup, ActorTargetedTask,
+)
 from lyrid.core.messaging import Address
 
 
@@ -17,7 +19,7 @@ class TaskSchedulerBase:
         self._lock = threading.Lock()
         self._thread: Optional[threading.Thread] = None
 
-    def schedule(self, task: Task):
+    def schedule(self, task: ActorTargetedTask):
         if isinstance(task, ActorMessageDeliveryTask):
             with self._lock:
                 if task.target not in self._actors:
