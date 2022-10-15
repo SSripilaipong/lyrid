@@ -4,8 +4,6 @@ from tests.test_manager._assertion import (
     assert_start_task_scheduler_when_receive_processor_start_command,
     assert_stop_task_scheduler_when_receive_processor_stop_command,
     assert_schedule_actor_task_when_handling_actor_message_sending_command,
-    assert_let_processor_process_spawn_actor_command_when_handle_manager_spawn_actor_message,
-    assert_register_actor_in_scheduler_when_handling_spawn_actor_command, assert_reply_spawn_actor_completed_message,
 )
 
 
@@ -25,15 +23,3 @@ def test_should_stop_task_scheduler_when_receive_processor_stop_command():
 
 def test_should_schedule_actor_task_when_handling_actor_message_sending_command():
     assert_schedule_actor_task_when_handling_actor_message_sending_command(create_manager)
-
-
-def test_should_let_processor_process_spawn_actor_command_when_handle_manager_spawn_actor_message():
-    assert_let_processor_process_spawn_actor_command_when_handle_manager_spawn_actor_message(create_manager)
-
-
-def test_should_register_actor_in_scheduler_when_handling_spawn_actor_command():
-    assert_register_actor_in_scheduler_when_handling_spawn_actor_command(create_manager)
-
-
-def test_should_reply_spawn_actor_completed_message():
-    assert_reply_spawn_actor_completed_message(create_manager)
