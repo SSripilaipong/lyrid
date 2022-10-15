@@ -1,16 +1,19 @@
 from typing import Protocol
 
-from lyrid.core.manager import ActorMessageDeliveryTask, ActorMessageSendingCommand, ITaskScheduler
-from lyrid.core.messaging import Address
+from lyrid.core.actor import IActor
+from lyrid.core.manager import ActorMessageDeliveryTask, ActorMessageSendingCommand, ITaskScheduler, SpawnActorCommand
+from lyrid.core.messaging import Address, Message
 from lyrid.core.messenger import IManager
 from lyrid.core.processor import ProcessorStartCommand, ProcessorStopCommand, IProcessor
+from lyrid.core.system import ManagerSpawnActorMessage
 from tests.message_dummy import MessageDummy
 from tests.mock.processor import ProcessorMock
 from tests.mock.scheduler import SchedulerMock
 
 
 class ManagerFactory(Protocol):
-    def __call__(self, *, processor: IProcessor = None, scheduler: ITaskScheduler = None) -> IManager: ...
+    def __call__(self, *, address: Address = None, processor: IProcessor = None,
+                 scheduler: ITaskScheduler = None) -> IManager: ...
 
 
 def assert_let_processor_process_actor_message_sending_command_when_handle_message_with_address_of_a_registered_actor(
@@ -69,6 +72,20 @@ def assert_schedule_actor_task_when_handling_actor_message_sending_command(
     )
 
 
+def assert_let_processor_process_spawn_actor_command_when_handle_manager_spawn_actor_message(
+        create_manager: ManagerFactory,
+):
+    processor = ProcessorMock()
+    manager = create_manager(address=Address("#manager1"), processor=processor)
+
+    manager.handle_message(Address("$.me"), Address("#manager1"), ManagerSpawnActorMessage(
+        address=Address("$.new"),
+        type_=MyActor,
+    ))
+
+    assert processor.process__command == SpawnActorCommand(address=Address("$.new"), type_=MyActor)
+
+
 def assert_have_all_manager_behaviors(
         create_manager: ManagerFactory,
 ):
@@ -84,3 +101,11 @@ def assert_have_all_manager_behaviors(
     assert_schedule_actor_task_when_handling_actor_message_sending_command(
         create_manager,
     )
+    assert_let_processor_process_spawn_actor_command_when_handle_manager_spawn_actor_message(
+        create_manager,
+    )
+
+
+class MyActor(IActor):
+    def receive(self, sender: Address, message: Message):
+        pass

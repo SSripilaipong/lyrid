@@ -10,7 +10,8 @@ from tests.mock.processor import ProcessorMock
 from tests.mock.scheduler import SchedulerMock
 
 
-def create_actor_system(*, scheduler: ITaskScheduler = None, processor: IProcessor = None, messenger: IMessenger = None,
+def create_actor_system(*, address: Address = None, scheduler: ITaskScheduler = None, processor: IProcessor = None,
+                        messenger: IMessenger = None,
                         manager_addresses: List[Address] = None) -> ActorSystemBase:
     scheduler = scheduler or SchedulerMock()
     processor = processor or ProcessorMock()
