@@ -10,7 +10,8 @@ from tests.mock.scheduler import SchedulerMock
 
 def create_manager(*, address: Address = None, scheduler: ITaskScheduler = None,
                    processor: IProcessor = None, messenger: IMessenger = None) -> ManagerBase:
+    address = address or Address("$.me")
     scheduler = scheduler or SchedulerMock()
     processor = processor or ProcessorMock()
     messenger = messenger or MessengerMock()
-    return ManagerBase(scheduler=scheduler, processor=processor, messenger=messenger)
+    return ManagerBase(address=address, scheduler=scheduler, processor=processor, messenger=messenger)

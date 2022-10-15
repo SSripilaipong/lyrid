@@ -17,5 +17,5 @@ def create_actor_system(*, address: Address = None, scheduler: ITaskScheduler = 
     processor = processor or ProcessorMock()
     messenger = messenger or MessengerMock()
     manager_addresses = manager_addresses or []
-    return ActorSystemBase(scheduler=scheduler, processor=processor, messenger=messenger,
+    return ActorSystemBase(address=address, scheduler=scheduler, processor=processor, messenger=messenger,
                            manager_addresses=manager_addresses)

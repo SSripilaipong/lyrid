@@ -11,12 +11,12 @@ from ..core.actor import IActorFactory
 
 class ActorSystemBase(ManagerBase):
     def __init__(self, scheduler: ITaskScheduler, processor: IProcessor, messenger: IMessenger,
-                 manager_addresses: List[Address]):
-        super().__init__(scheduler=scheduler, processor=processor, messenger=messenger)
+                 manager_addresses: List[Address], address: Address = None):
+        address = address or Address("$")
+        super().__init__(address=address, scheduler=scheduler, processor=processor, messenger=messenger)
 
         self._messenger = messenger
         self._manager_addresses = manager_addresses
-        self._address = Address("$")
 
     def handle_processor_command(self, command: Command):
         if isinstance(command, SpawnActorCommand):

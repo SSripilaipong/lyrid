@@ -14,5 +14,6 @@ class ActorMessageSendingCommand(Command):
 
 @dataclass
 class SpawnActorCommand(Command):
+    reply_to: Address
     address: Address
     type_: IActorFactory

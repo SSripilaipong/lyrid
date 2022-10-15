@@ -2,11 +2,10 @@ from lyrid.core.actor import IActor
 from lyrid.core.messaging import Address, Message
 from lyrid.core.messenger import IManager, IMessenger
 from lyrid.core.system import ManagerSpawnActorMessage, SpawnActorCommand
-from tests.assert_manager import \
-    assert_have_all_manager_behaviors
 from tests.factory.system import create_actor_system
 from tests.mock.messenger import MessengerMock
 from tests.mock.processor import ProcessorMock
+from tests.test_manager.assertion import assert_have_all_manager_behaviors
 
 
 class MyActor(IActor):

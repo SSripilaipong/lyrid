@@ -6,7 +6,7 @@ from lyrid.core.manager import ActorMessageDeliveryTask, ActorMessageSendingComm
 from lyrid.core.messaging import Address, Message
 from lyrid.core.messenger import IManager, IMessenger
 from lyrid.core.processor import ProcessorStartCommand, ProcessorStopCommand, IProcessor
-from lyrid.core.system import ManagerSpawnActorMessage
+from lyrid.core.system import ManagerSpawnActorMessage, ManagerSpawnActorCompletedMessage
 from tests.message_dummy import MessageDummy
 from tests.mock.messenger import MessengerMock
 from tests.mock.processor import ProcessorMock
@@ -85,7 +85,9 @@ def assert_let_processor_process_spawn_actor_command_when_handle_manager_spawn_a
         type_=MyActor,
     ))
 
-    assert processor.process__command == SpawnActorCommand(address=Address("$.new"), type_=MyActor)
+    assert processor.process__command == SpawnActorCommand(
+        address=Address("$.new"), type_=MyActor, reply_to=Address("$.me"),
+    )
 
 
 def assert_register_actor_in_scheduler_when_handling_spawn_actor_command(
@@ -95,33 +97,24 @@ def assert_register_actor_in_scheduler_when_handling_spawn_actor_command(
     messenger = MessengerMock()
     manager = create_manager(scheduler=scheduler, messenger=messenger)
 
-    manager.handle_processor_command(SpawnActorCommand(address=Address("$.new"), type_=MyActor))
+    manager.handle_processor_command(SpawnActorCommand(address=Address("$.new"), type_=MyActor, reply_to=Address("$")))
 
     assert scheduler.register_actor__address == Address("$.new") and \
            scheduler.register_actor__actor == MyActor(address=Address("$.new"), messenger=messenger)
 
 
-def assert_have_all_manager_behaviors(
+def assert_reply_spawn_actor_completed_message(
         create_manager: ManagerFactory,
 ):
-    assert_let_processor_process_actor_message_sending_command_when_handle_message_with_address_of_a_registered_actor(
-        create_manager,
-    )
-    assert_start_task_scheduler_when_receive_processor_start_command(
-        create_manager,
-    )
-    assert_stop_task_scheduler_when_receive_processor_stop_command(
-        create_manager,
-    )
-    assert_schedule_actor_task_when_handling_actor_message_sending_command(
-        create_manager,
-    )
-    assert_let_processor_process_spawn_actor_command_when_handle_manager_spawn_actor_message(
-        create_manager,
-    )
-    assert_register_actor_in_scheduler_when_handling_spawn_actor_command(
-        create_manager,
-    )
+    messenger = MessengerMock()
+    manager = create_manager(address=Address("#manager1"), messenger=messenger)
+
+    manager.handle_processor_command(SpawnActorCommand(address=Address("$.new"), type_=MyActor, reply_to=Address("$")))
+
+    assert messenger.send__sender == Address("#manager1") and \
+           messenger.send__receiver == Address("$") and \
+           messenger.send__message == ManagerSpawnActorCompletedMessage(actor_address=Address("$.new"),
+                                                                        manager_address=Address("#manager1"))
 
 
 @dataclass

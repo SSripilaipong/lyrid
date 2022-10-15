@@ -8,3 +8,9 @@ from lyrid.core.messaging import Message, Address
 class ManagerSpawnActorMessage(Message):
     address: Address
     type_: IActorFactory
+
+
+@dataclass
+class ManagerSpawnActorCompletedMessage(Message):
+    actor_address: Address
+    manager_address: Address
