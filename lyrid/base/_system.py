@@ -1,18 +1,18 @@
-from typing import Type, List
+from typing import List
 
 from lyrid.base import ManagerBase
-from lyrid.core.actor import IActor
 from lyrid.core.manager import ITaskScheduler
 from lyrid.core.messaging import Address
 from lyrid.core.messenger import IMessenger
 from lyrid.core.processor import IProcessor, Command
 from lyrid.core.system import ManagerSpawnActorMessage, SpawnActorCommand
+from ..core.actor import IActorFactory
 
 
 class ActorSystemBase(ManagerBase):
     def __init__(self, scheduler: ITaskScheduler, processor: IProcessor, messenger: IMessenger,
                  manager_addresses: List[Address]):
-        super().__init__(scheduler=scheduler, processor=processor)
+        super().__init__(scheduler=scheduler, processor=processor, messenger=messenger)
 
         self._messenger = messenger
         self._manager_addresses = manager_addresses
@@ -25,5 +25,5 @@ class ActorSystemBase(ManagerBase):
         else:
             super(ActorSystemBase, self).handle_processor_command(command)
 
-    def spawn(self, key: str, actor_type: Type[IActor]):
+    def spawn(self, key: str, actor_type: IActorFactory):
         self._processor.process(SpawnActorCommand(key=key, type_=actor_type))

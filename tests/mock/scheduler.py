@@ -6,6 +6,8 @@ from lyrid.core.messaging import Address
 class SchedulerMock:
 
     def __init__(self):
+        self.register_actor__actor = None
+        self.register_actor__address = None
         self.stop__is_called = False
         self.start__is_called = False
         self.schedule__task = None
@@ -14,7 +16,8 @@ class SchedulerMock:
         self.schedule__task = task
 
     def register_actor(self, address: Address, actor: IActor):
-        pass
+        self.register_actor__address = address
+        self.register_actor__actor = actor
 
     def stop(self):
         self.stop__is_called = True

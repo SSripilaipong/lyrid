@@ -1,6 +1,6 @@
 from lyrid.core.actor import IActor
 from lyrid.core.messaging import Address, Message
-from lyrid.core.messenger import IManager
+from lyrid.core.messenger import IManager, IMessenger
 from lyrid.core.system import ManagerSpawnActorMessage, SpawnActorCommand
 from tests.assert_manager import \
     assert_have_all_manager_behaviors
@@ -11,6 +11,10 @@ from tests.mock.processor import ProcessorMock
 
 class MyActor(IActor):
     def receive(self, sender: Address, message: Message):
+        pass
+
+    @classmethod
+    def create(cls, address: Address, messenger: IMessenger) -> IActor:
         pass
 
 

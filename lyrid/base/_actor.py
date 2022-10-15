@@ -1,7 +1,10 @@
 from abc import ABC, abstractmethod
+from typing import TypeVar
 
 from lyrid.core.messaging import Address, Message
 from lyrid.core.messenger import IMessenger
+
+T = TypeVar("T", bound='ActorBase')
 
 
 class ActorBase(ABC):
