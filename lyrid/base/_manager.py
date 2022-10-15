@@ -38,11 +38,3 @@ class ManagerBase:
             self._messenger.send(self._address, command.reply_to, reply_message)
         else:
             raise NotImplementedError()
-
-
-class MessengerDummy(IMessenger):
-    def send(self, sender: Address, receiver: Address, message: Message):
-        pass
-
-    def handle_processor_command(self, command: Command):
-        pass
