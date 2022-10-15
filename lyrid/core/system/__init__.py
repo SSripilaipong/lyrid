@@ -1,2 +1,1 @@
-from ._command import SpawnActorCommand
-from ._message import ManagerSpawnActorMessage, ManagerSpawnActorCompletedMessage
+from ._command import SystemSpawnActorCommand, AcknowledgeManagerSpawnActorCompletedCommand

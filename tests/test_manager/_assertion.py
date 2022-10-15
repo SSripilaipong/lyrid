@@ -2,11 +2,13 @@ from dataclasses import dataclass
 from typing import Protocol, TYPE_CHECKING
 
 from lyrid.core.actor import IActor
-from lyrid.core.manager import ActorMessageDeliveryTask, ActorMessageSendingCommand, ITaskScheduler, SpawnActorCommand
+from lyrid.core.manager import (
+    ActorMessageDeliveryTask, ActorMessageSendingCommand, ITaskScheduler, SpawnActorCommand, ManagerSpawnActorMessage,
+    ManagerSpawnActorCompletedMessage
+)
 from lyrid.core.messaging import Address, Message
 from lyrid.core.messenger import IManager, IMessenger
 from lyrid.core.processor import ProcessorStartCommand, ProcessorStopCommand, IProcessor
-from lyrid.core.system import ManagerSpawnActorMessage, ManagerSpawnActorCompletedMessage
 from tests.message_dummy import MessageDummy
 from tests.mock.messenger import MessengerMock
 from tests.mock.processor import ProcessorMock

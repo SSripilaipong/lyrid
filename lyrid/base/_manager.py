@@ -1,8 +1,10 @@
-from lyrid.core.manager import ITaskScheduler, ActorMessageDeliveryTask, ActorMessageSendingCommand, SpawnActorCommand
+from lyrid.core.manager import (
+    ITaskScheduler, ActorMessageDeliveryTask, ActorMessageSendingCommand, SpawnActorCommand, ManagerSpawnActorMessage,
+    ManagerSpawnActorCompletedMessage,
+)
 from lyrid.core.messaging import Address, Message
 from lyrid.core.messenger import IMessenger
 from lyrid.core.processor import Command, IProcessor, ProcessorStartCommand, ProcessorStopCommand
-from lyrid.core.system import ManagerSpawnActorMessage, ManagerSpawnActorCompletedMessage
 
 
 class ManagerBase:

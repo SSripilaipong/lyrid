@@ -1,20 +1,12 @@
 from lyrid.core.actor import IActor
+from lyrid.core.manager import ManagerSpawnActorMessage, ManagerSpawnActorCompletedMessage
 from lyrid.core.messaging import Address, Message
 from lyrid.core.messenger import IManager, IMessenger
-from lyrid.core.system import ManagerSpawnActorMessage, SpawnActorCommand
+from lyrid.core.system import SystemSpawnActorCommand, AcknowledgeManagerSpawnActorCompletedCommand
 from tests.factory.system import create_actor_system
 from tests.mock.messenger import MessengerMock
 from tests.mock.processor import ProcessorMock
 from tests.test_manager.assertion import assert_have_all_manager_behaviors
-
-
-class MyActor(IActor):
-    def receive(self, sender: Address, message: Message):
-        pass
-
-    @classmethod
-    def create(cls, address: Address, messenger: IMessenger) -> IActor:
-        pass
 
 
 def test_should_be_a_manager():
@@ -29,7 +21,7 @@ def test_should_send_spawn_actor_message_to_manager_via_messenger_when_handling_
     messenger = MessengerMock()
     system = create_actor_system(messenger=messenger, manager_addresses=[Address("#manager1")])
 
-    system.handle_processor_command(SpawnActorCommand(key="hello", type_=MyActor))
+    system.handle_processor_command(SystemSpawnActorCommand(key="hello", type_=MyActor))
 
     assert messenger.send__message == ManagerSpawnActorMessage(address=Address("$.hello"), type_=MyActor) and \
            messenger.send__sender == Address("$") and \
@@ -42,4 +34,27 @@ def test_should_let_processor_process_spawn_actor_command_when_spawn_is_called()
 
     system.spawn("hello", MyActor)
 
-    assert processor.process__command == SpawnActorCommand(key="hello", type_=MyActor)
+    assert processor.process__command == SystemSpawnActorCommand(key="hello", type_=MyActor)
+
+
+def test_should_let_processor_process_acknowledge_spawn_actor_completed_command_when_handling_message_manager_spawn_actor_completed_message():
+    processor = ProcessorMock()
+    system = create_actor_system(processor=processor)
+
+    system.handle_message(
+        sender=Address("#manager1"),
+        receiver=Address("$"),
+        message=ManagerSpawnActorCompletedMessage(actor_address=Address("$.new"), manager_address=Address("#manager1"))
+    )
+
+    assert processor.process__command == AcknowledgeManagerSpawnActorCompletedCommand(
+        actor_address=Address("$.new"), manager_address=Address("#manager1"),
+    )
+
+
+class MyActor(IActor):
+    def __init__(self, address: Address, messenger: IMessenger):
+        pass
+
+    def receive(self, sender: Address, message: Message):
+        pass
