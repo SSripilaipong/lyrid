@@ -20,21 +20,26 @@ class ManagerBase:
 
     def handle_processor_command(self, command: Command):
         if isinstance(command, ActorMessageSendingCommand):
-            self._scheduler.schedule(ActorMessageDeliveryTask(
-                target=command.receiver,
-                message=command.message,
-                sender=command.sender,
-            ))
+            self._schedule_message_delivery(command)
         elif isinstance(command, ProcessorStartCommand):
             self._scheduler.start()
         elif isinstance(command, ProcessorStopCommand):
             self._scheduler.stop()
         elif isinstance(command, SpawnActorCommand):
-            self._scheduler.register_actor(command.address, command.type_(command.address, self._messenger))
-
-            reply_message = ManagerSpawnActorCompletedMessage(
-                actor_address=command.address, manager_address=self._address,
-            )
-            self._messenger.send(self._address, command.reply_to, reply_message)
+            self._spawn_actor(command)
         else:
             raise NotImplementedError()
+
+    def _spawn_actor(self, command: SpawnActorCommand):
+        self._scheduler.register_actor(command.address, command.type_(command.address, self._messenger))
+        reply_message = ManagerSpawnActorCompletedMessage(
+            actor_address=command.address, manager_address=self._address,
+        )
+        self._messenger.send(self._address, command.reply_to, reply_message)
+
+    def _schedule_message_delivery(self, command: ActorMessageSendingCommand):
+        self._scheduler.schedule(ActorMessageDeliveryTask(
+            target=command.receiver,
+            message=command.message,
+            sender=command.sender,
+        ))
