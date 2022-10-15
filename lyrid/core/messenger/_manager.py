@@ -1,10 +1,11 @@
 from abc import abstractmethod
-from typing import Protocol
+from typing import Protocol, runtime_checkable
 
 from lyrid.core.messaging import Address, Message
 from lyrid.core.processor import Command
 
 
+@runtime_checkable
 class IManager(Protocol):
 
     @abstractmethod

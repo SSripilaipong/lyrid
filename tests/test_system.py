@@ -1,5 +1,6 @@
 from lyrid.core.actor import IActor
 from lyrid.core.messaging import Address, Message
+from lyrid.core.messenger import IManager
 from lyrid.core.system import ManagerSpawnActorCommand
 from tests.factory.system import create_actor_system
 from tests.mock.messenger import MessengerMock
@@ -8,6 +9,10 @@ from tests.mock.messenger import MessengerMock
 class MyActor(IActor):
     def receive(self, sender: Address, message: Message):
         pass
+
+
+def test_should_be_a_manager():
+    assert isinstance(create_actor_system(), IManager)
 
 
 def test_should_send_spawn_actor_message_to_manager_via_messenger():
