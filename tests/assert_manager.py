@@ -14,7 +14,7 @@ class ManagerFactory(Protocol):
 
 
 def assert_let_processor_process_actor_message_sending_command_when_handle_message_with_address_of_a_registered_actor(
-        create_manager: ManagerFactory
+        create_manager: ManagerFactory,
 ):
     processor = ProcessorMock()
     manager = create_manager(processor=processor)
@@ -29,7 +29,7 @@ def assert_let_processor_process_actor_message_sending_command_when_handle_messa
 
 
 def assert_start_task_scheduler_when_receive_processor_start_command(
-        create_manager: ManagerFactory
+        create_manager: ManagerFactory,
 ):
     scheduler = SchedulerMock()
     manager = create_manager(scheduler=scheduler)
@@ -40,7 +40,7 @@ def assert_start_task_scheduler_when_receive_processor_start_command(
 
 
 def assert_stop_task_scheduler_when_receive_processor_stop_command(
-        create_manager: ManagerFactory
+        create_manager: ManagerFactory,
 ):
     scheduler = SchedulerMock()
     manager = create_manager(scheduler=scheduler)
@@ -51,7 +51,7 @@ def assert_stop_task_scheduler_when_receive_processor_stop_command(
 
 
 def assert_schedule_actor_task_when_handling_actor_message_sending_command(
-        create_manager: ManagerFactory
+        create_manager: ManagerFactory,
 ):
     scheduler = SchedulerMock()
     manager = create_manager(scheduler=scheduler)
@@ -66,4 +66,21 @@ def assert_schedule_actor_task_when_handling_actor_message_sending_command(
         target=Address("$.you"),
         message=MessageDummy("Hello"),
         sender=Address("$.me"),
+    )
+
+
+def assert_have_all_manager_behaviors(
+        create_manager: ManagerFactory,
+):
+    assert_let_processor_process_actor_message_sending_command_when_handle_message_with_address_of_a_registered_actor(
+        create_manager,
+    )
+    assert_start_task_scheduler_when_receive_processor_start_command(
+        create_manager,
+    )
+    assert_stop_task_scheduler_when_receive_processor_stop_command(
+        create_manager,
+    )
+    assert_schedule_actor_task_when_handling_actor_message_sending_command(
+        create_manager,
     )
