@@ -26,5 +26,4 @@ class ActorSystemBase(ManagerBase):
             super(ActorSystemBase, self).handle_processor_command(command)
 
     def spawn(self, key: str, actor_type: Type[IActor]):
-        cmd = ManagerSpawnActorMessage(address=self._address.child(key), type_=actor_type)
-        self._messenger.send(self._address, self._manager_addresses[0], cmd)
+        self._processor.process(SpawnActorCommand(key=key, type_=actor_type))

@@ -6,6 +6,7 @@ from tests.assert_manager import \
     assert_have_all_manager_behaviors
 from tests.factory.system import create_actor_system
 from tests.mock.messenger import MessengerMock
+from tests.mock.processor import ProcessorMock
 
 
 class MyActor(IActor):
@@ -15,6 +16,10 @@ class MyActor(IActor):
 
 def test_should_be_a_manager():
     assert isinstance(create_actor_system(), IManager)
+
+
+def test_should_have_behaviors_of_a_manager():
+    assert_have_all_manager_behaviors(create_actor_system)
 
 
 def test_should_send_spawn_actor_message_to_manager_via_messenger_when_handling_spawn_actor_processor_command():
@@ -28,5 +33,10 @@ def test_should_send_spawn_actor_message_to_manager_via_messenger_when_handling_
            messenger.send__receiver == Address("#manager1")
 
 
-def test_should_have_behaviors_of_a_manager():
-    assert_have_all_manager_behaviors(create_actor_system)
+def test_should_let_processor_process_spawn_actor_command_when_spawn_is_called():
+    processor = ProcessorMock()
+    system = create_actor_system(processor=processor)
+
+    system.spawn("hello", MyActor)
+
+    assert processor.process__command == SpawnActorCommand(key="hello", type_=MyActor)
