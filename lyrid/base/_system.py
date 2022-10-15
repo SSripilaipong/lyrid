@@ -5,8 +5,8 @@ from lyrid.core.actor import IActor
 from lyrid.core.manager import ITaskScheduler
 from lyrid.core.messaging import Address
 from lyrid.core.messenger import IMessenger
-from lyrid.core.processor import IProcessor
-from lyrid.core.system import ManagerSpawnActorCommand
+from lyrid.core.processor import IProcessor, Command
+from lyrid.core.system import ManagerSpawnActorMessage, SpawnActorCommand
 
 
 class ActorSystemBase(ManagerBase):
@@ -18,6 +18,11 @@ class ActorSystemBase(ManagerBase):
         self._manager_addresses = manager_addresses
         self._address = Address("$")
 
+    def handle_processor_command(self, command: Command):
+        if isinstance(command, SpawnActorCommand):
+            cmd = ManagerSpawnActorMessage(address=self._address.child(command.key), type_=command.type_)
+            self._messenger.send(self._address, self._manager_addresses[0], cmd)
+
     def spawn(self, key: str, actor_type: Type[IActor]):
-        cmd = ManagerSpawnActorCommand(address=self._address.child(key), type_=actor_type)
+        cmd = ManagerSpawnActorMessage(address=self._address.child(key), type_=actor_type)
         self._messenger.send(self._address, self._manager_addresses[0], cmd)

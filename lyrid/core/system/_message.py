@@ -2,10 +2,10 @@ from dataclasses import dataclass
 from typing import Type
 
 from lyrid.core.actor import IActor
-from lyrid.core.processor import Command
+from lyrid.core.messaging import Message, Address
 
 
 @dataclass
-class SpawnActorCommand(Command):
-    key: str
+class ManagerSpawnActorMessage(Message):
+    address: Address
     type_: Type[IActor]
