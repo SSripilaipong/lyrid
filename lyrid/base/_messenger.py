@@ -1,7 +1,8 @@
 from typing import Dict
 
 from lyrid.core.messaging import Address, Message
-from lyrid.core.messenger import IMessenger, IManager, RegisterAddressCommand, SendingCommand
+from lyrid.core.messenger import IMessenger, IManager, RegisterAddressCommand, SendingCommand, \
+    MessengerRegisterAddressMessage
 from lyrid.core.processor import IProcessor, Command, ProcessorStartCommand, ProcessorStopCommand
 
 
@@ -12,7 +13,14 @@ class MessengerBase(IMessenger):
         self._address_to_manager: Dict[Address, IManager] = dict()
 
     def send(self, sender: Address, receiver: Address, message: Message):
-        self._processor.process(SendingCommand(sender=sender, receiver=receiver, message=message))
+        if isinstance(message, MessengerRegisterAddressMessage):
+            self._processor.process(RegisterAddressCommand(
+                address=message.address,
+                manager_address=message.manager_address,
+                requester_address=sender,
+            ))
+        else:
+            self._processor.process(SendingCommand(sender=sender, receiver=receiver, message=message))
 
     def handle_processor_command(self, command: Command):
         if isinstance(command, SendingCommand):

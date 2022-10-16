@@ -35,7 +35,7 @@ class ActorSystemBase(ManagerBase):
             super(ActorSystemBase, self).handle_processor_command(command)
 
     def _messenger_register_address(self, command):
-        msg = MessengerRegisterAddressMessage(address=command.actor_address, manager=command.manager_address)
+        msg = MessengerRegisterAddressMessage(address=command.actor_address, manager_address=command.manager_address)
         self._messenger.send(self._address, self._messenger_address, msg)
 
     def _manager_spawn_actor(self, command):
