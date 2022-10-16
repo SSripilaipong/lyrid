@@ -1,7 +1,7 @@
 from lyrid.core.actor import IActor
 from lyrid.core.manager import ManagerSpawnActorMessage, ManagerSpawnActorCompletedMessage
 from lyrid.core.messaging import Address, Message
-from lyrid.core.messenger import IManager, IMessenger
+from lyrid.core.messenger import IManager, IMessenger, MessengerRegisterAddressMessage
 from lyrid.core.system import SystemSpawnActorCommand, AcknowledgeManagerSpawnActorCompletedCommand
 from tests.factory.system import create_actor_system
 from tests.mock.messenger import MessengerMock
@@ -19,7 +19,7 @@ def test_should_have_behaviors_of_a_manager():
 
 def test_should_send_spawn_actor_message_to_manager_via_messenger_when_handling_spawn_actor_processor_command():
     messenger = MessengerMock()
-    system = create_actor_system(messenger=messenger, manager_addresses=[Address("#manager1")])
+    system = create_actor_system(address=Address("$"), messenger=messenger, manager_addresses=[Address("#manager1")])
 
     system.handle_processor_command(SystemSpawnActorCommand(key="hello", type_=MyActor))
 
@@ -50,6 +50,20 @@ def test_should_let_processor_process_acknowledge_spawn_actor_completed_command_
     assert processor.process__command == AcknowledgeManagerSpawnActorCompletedCommand(
         actor_address=Address("$.new"), manager_address=Address("#manager1"),
     )
+
+
+def test_should_send_messenger_register_address_message_to_messenger_when_handling_acknowledge_manager_spawn_actor_completed_command():
+    messenger = MessengerMock()
+    system = create_actor_system(address=Address("$"), messenger=messenger, messenger_address=Address("#messenger"))
+
+    system.handle_processor_command(AcknowledgeManagerSpawnActorCompletedCommand(
+        actor_address=Address("$.new"), manager_address=Address("#manager1"),
+    ))
+
+    assert messenger.send__sender == Address("$") and \
+           messenger.send__receiver == Address("#messenger") and \
+           messenger.send__message == MessengerRegisterAddressMessage(address=Address("$.new"),
+                                                                      manager=Address("#manager1"))
 
 
 class MyActor(IActor):
