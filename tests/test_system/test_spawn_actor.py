@@ -1,4 +1,4 @@
-import multiprocessing as mp
+import queue
 
 from lyrid.core.manager import ManagerSpawnActorMessage, ManagerSpawnActorCompletedMessage
 from lyrid.core.messaging import Address
@@ -24,7 +24,9 @@ def test_should_send_spawn_actor_message_to_manager_via_messenger_when_handling_
 
 def test_should_let_processor_process_spawn_actor_command_when_spawn_is_called():
     processor = ProcessorMock()
-    system = create_actor_system(processor=processor)
+    reply_queue = queue.Queue()
+    reply_queue.put(SystemSpawnActorCompletedReply(address=Address("$.hello")))
+    system = create_actor_system(processor=processor, reply_queue=reply_queue)
 
     system.spawn("hello", MyActor)
 
@@ -61,7 +63,7 @@ def test_should_send_messenger_register_address_message_to_messenger_when_handli
 
 
 def test_should_put_system_spawn_actor_completed_reply_to_reply_queue_when_handling_acknowledge_messenger_register_address_completed_command():
-    reply_queue = mp.Manager().Queue()
+    reply_queue = queue.Queue()
     system = create_actor_system(reply_queue=reply_queue)
 
     system.handle_processor_command(AcknowledgeMessengerRegisterAddressCompletedCommand(
@@ -69,3 +71,13 @@ def test_should_put_system_spawn_actor_completed_reply_to_reply_queue_when_handl
     ))
 
     assert reply_queue.get() == SystemSpawnActorCompletedReply(address=Address("$.new"))
+
+
+def test_should_get_reply_from_reply_queue_and_return_spawned_address():
+    reply_queue = queue.Queue()
+    reply_queue.put(SystemSpawnActorCompletedReply(address=Address("$.new")))
+    system = create_actor_system(reply_queue=reply_queue)
+
+    address = system.spawn("new", MyActor)
+
+    assert address == Address("$.new")

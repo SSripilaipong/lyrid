@@ -48,8 +48,10 @@ class ActorSystemBase(ManagerBase):
         msg = ManagerSpawnActorMessage(address=self._address.child(command.key), type_=command.type_)
         self._messenger.send(self._address, self._manager_addresses[0], msg)
 
-    def spawn(self, key: str, actor_type: IActorFactory):
+    def spawn(self, key: str, actor_type: IActorFactory) -> Address:
         self._processor.process(SystemSpawnActorCommand(key=key, type_=actor_type))
+        reply: SystemSpawnActorCompletedReply = self._reply_queue.get()
+        return reply.address
 
     def _reply_system_spawn_completed(self, command: AcknowledgeMessengerRegisterAddressCompletedCommand):
         self._reply_queue.put(SystemSpawnActorCompletedReply(address=command.actor_address))
