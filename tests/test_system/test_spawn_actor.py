@@ -1,20 +1,14 @@
-from lyrid.core.actor import IActor
+import multiprocessing as mp
+
 from lyrid.core.manager import ManagerSpawnActorMessage, ManagerSpawnActorCompletedMessage
-from lyrid.core.messaging import Address, Message
-from lyrid.core.messenger import IManager, IMessenger, MessengerRegisterAddressMessage
-from lyrid.core.system import SystemSpawnActorCommand, AcknowledgeManagerSpawnActorCompletedCommand
+from lyrid.core.messaging import Address
+from lyrid.core.messenger import MessengerRegisterAddressMessage
+from lyrid.core.system import SystemSpawnActorCommand, AcknowledgeManagerSpawnActorCompletedCommand, \
+    AcknowledgeMessengerRegisterAddressCompletedCommand, SystemSpawnActorCompletedReply
 from tests.factory.system import create_actor_system
 from tests.mock.messenger import MessengerMock
 from tests.mock.processor import ProcessorMock
-from tests.test_manager.assertion import assert_have_all_manager_behaviors
-
-
-def test_should_be_a_manager():
-    assert isinstance(create_actor_system(), IManager)
-
-
-def test_should_have_behaviors_of_a_manager():
-    assert_have_all_manager_behaviors(create_actor_system)
+from tests.test_system.actor_dummy import MyActor
 
 
 def test_should_send_spawn_actor_message_to_manager_via_messenger_when_handling_spawn_actor_processor_command():
@@ -66,9 +60,12 @@ def test_should_send_messenger_register_address_message_to_messenger_when_handli
                                                                       manager_address=Address("#manager1"))
 
 
-class MyActor(IActor):
-    def __init__(self, address: Address, messenger: IMessenger):
-        pass
+def test_should_put_system_spawn_actor_completed_reply_to_reply_queue_when_handling_acknowledge_messenger_register_address_completed_command():
+    reply_queue = mp.Manager().Queue()
+    system = create_actor_system(reply_queue=reply_queue)
 
-    def receive(self, sender: Address, message: Message):
-        pass
+    system.handle_processor_command(AcknowledgeMessengerRegisterAddressCompletedCommand(
+        actor_address=Address("$.new"), manager_address=Address("#manager1"),
+    ))
+
+    assert reply_queue.get() == SystemSpawnActorCompletedReply(address=Address("$.new"))

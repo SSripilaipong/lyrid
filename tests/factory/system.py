@@ -1,3 +1,4 @@
+import queue
 from typing import List
 
 from lyrid.base import ActorSystemBase
@@ -11,7 +12,7 @@ from tests.mock.scheduler import SchedulerMock
 
 
 def create_actor_system(*, address: Address = None, scheduler: ITaskScheduler = None, processor: IProcessor = None,
-                        messenger: IMessenger = None,
+                        messenger: IMessenger = None, reply_queue: queue.Queue = None,
                         manager_addresses: List[Address] = None, messenger_address: Address = None) -> ActorSystemBase:
     address = address or Address("$")
     scheduler = scheduler or SchedulerMock()
@@ -19,5 +20,7 @@ def create_actor_system(*, address: Address = None, scheduler: ITaskScheduler = 
     messenger = messenger or MessengerMock()
     manager_addresses = manager_addresses or []
     messenger_address = messenger_address or Address("#default-messenger")
+    reply_queue = reply_queue or queue.Queue()
     return ActorSystemBase(address=address, scheduler=scheduler, processor=processor, messenger=messenger,
-                           manager_addresses=manager_addresses, messenger_address=messenger_address)
+                           manager_addresses=manager_addresses, messenger_address=messenger_address,
+                           reply_queue=reply_queue)
