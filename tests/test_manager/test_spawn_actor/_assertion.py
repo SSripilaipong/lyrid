@@ -37,7 +37,8 @@ def assert_register_actor_in_scheduler_when_handling_spawn_actor_command(
     manager.handle_processor_command(SpawnActorCommand(address=Address("$.new"), type_=MyActor, reply_to=Address("$")))
 
     assert scheduler.register_actor__address == Address("$.new") and \
-           scheduler.register_actor__actor == MyActor(address=Address("$.new"), messenger=messenger)
+           scheduler.register_actor__actor == MyActor(address=Address("$.new"), messenger=messenger,
+                                                      supervisor_address=Address(""))
 
 
 def assert_reply_spawn_actor_completed_message(
@@ -58,9 +59,10 @@ def assert_reply_spawn_actor_completed_message(
 class MyActor(IActor):
     address: Address
     messenger: IMessenger
+    supervisor_address: Address
 
     def receive(self, sender: Address, message: Message):
         pass
 
     if TYPE_CHECKING:
-        def __init__(self, address: Address, messenger: IMessenger): ...
+        def __init__(self, address: Address, messenger: IMessenger, supervisor_address: Address): ...

@@ -33,7 +33,7 @@ class ManagerBase:
             raise NotImplementedError()
 
     def _spawn_actor(self, command: SpawnActorCommand):
-        self._scheduler.register_actor(command.address, command.type_(command.address, self._messenger))
+        self._scheduler.register_actor(command.address, command.type_(command.address, self._messenger, Address("")))
         reply_message = ManagerSpawnActorCompletedMessage(
             actor_address=command.address, manager_address=self._address,
         )

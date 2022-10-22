@@ -4,7 +4,7 @@ from lyrid.core.messenger import IMessenger
 
 
 class MyActor(IActor):
-    def __init__(self, address: Address, messenger: IMessenger):
+    def __init__(self, address: Address, messenger: IMessenger, supervisor_address: Address):
         pass
 
     def receive(self, sender: Address, message: Message):

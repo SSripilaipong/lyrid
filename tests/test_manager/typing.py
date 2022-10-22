@@ -8,4 +8,5 @@ from lyrid.core.processor import IProcessor
 
 class ManagerFactory(Protocol):
     def __call__(self, *, address: Address = None, processor: IProcessor = None,
-                 scheduler: ITaskScheduler = None, messenger: IMessenger = None) -> IManager: ...
+                 scheduler: ITaskScheduler = None, messenger: IMessenger = None,
+                 supervisor_address: Address = None) -> IManager: ...

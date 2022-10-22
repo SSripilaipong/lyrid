@@ -3,15 +3,18 @@ from collections import deque
 from queue import Queue
 from typing import Dict, Optional
 
-from lyrid.core.actor import IActor, ActorStoppedSignal
+from lyrid.core.actor import IActor, ActorStoppedSignal, ChildActorTerminatedMessage
 from lyrid.core.manager import (
     Task, ActorMessageDeliveryTask, StopSchedulerTask, ActorTargetedTaskGroup, ActorTargetedTask,
 )
 from lyrid.core.messaging import Address
+from lyrid.core.messenger import IMessenger
 
 
 class TaskSchedulerBase:
-    def __init__(self):
+    def __init__(self, messenger: IMessenger):
+        self._messenger = messenger
+
         self._task_queue: Queue[Task] = Queue()
         self._actor_tasks: Dict[Address, ActorTargetedTaskGroup] = dict()
         self._actors: Dict[Address, IActor] = dict()
@@ -82,3 +85,9 @@ class TaskSchedulerBase:
     def _handle_stopped_actor(self, address: Address):
         with self._lock:
             del self._actors[address]
+
+        self._messenger.send(
+            sender=address,
+            receiver=address.supervisor(),
+            message=ChildActorTerminatedMessage(address),
+        )

@@ -10,3 +10,6 @@ class Address:
 
     def is_manager(self) -> bool:
         return self.addr.startswith("#")
+
+    def supervisor(self) -> 'Address':
+        return Address(self.addr.rsplit(".", 1)[0])
