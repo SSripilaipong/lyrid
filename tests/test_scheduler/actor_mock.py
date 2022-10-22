@@ -7,8 +7,8 @@ from lyrid.core.messenger import IMessenger
 
 
 class MyActor(ActorBase):
-    def __init__(self, address: Address, messenger: IMessenger, supervisor_address: Address):
-        super().__init__(address=address, messenger=messenger, supervisor_address=supervisor_address)
+    def __init__(self, address: Address, messenger: IMessenger):
+        super().__init__(address=address, messenger=messenger)
 
         self.receive__sender: Optional[Address] = None
         self.receive__message: Optional[Message] = None
@@ -19,8 +19,8 @@ class MyActor(ActorBase):
 
 
 class WillStop(ActorBase):
-    def __init__(self, address: Address, messenger: IMessenger, supervisor_address: Address):
-        super().__init__(address=address, messenger=messenger, supervisor_address=supervisor_address)
+    def __init__(self, address: Address, messenger: IMessenger):
+        super().__init__(address=address, messenger=messenger)
 
         self.receive__senders: List[Address] = []
         self.receive__messages: List[Message] = []

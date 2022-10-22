@@ -9,7 +9,7 @@ T = TypeVar("T", bound='ActorBase')
 
 class ActorBase(ABC):
 
-    def __init__(self, address: Address, messenger: IMessenger, supervisor_address: Address):
+    def __init__(self, address: Address, messenger: IMessenger):
         self._address = address
         self._messenger = messenger
 

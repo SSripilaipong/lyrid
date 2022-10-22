@@ -1,14 +1,10 @@
-from dataclasses import dataclass
-from typing import TYPE_CHECKING
-
-from lyrid.core.actor import IActor
 from lyrid.core.manager import ManagerSpawnActorMessage, SpawnActorCommand, ManagerSpawnActorCompletedMessage
-from lyrid.core.messaging import Address, Message
-from lyrid.core.messenger import IMessenger
+from lyrid.core.messaging import Address
 from tests.mock.messenger import MessengerMock
 from tests.mock.processor import ProcessorMock
 from tests.mock.scheduler import SchedulerMock
 from tests.test_manager.typing import ManagerFactory
+from ._actor_dummy import MyActor
 
 
 def assert_let_processor_process_spawn_actor_command_when_handle_manager_spawn_actor_message(
@@ -37,8 +33,7 @@ def assert_register_actor_in_scheduler_when_handling_spawn_actor_command(
     manager.handle_processor_command(SpawnActorCommand(address=Address("$.new"), type_=MyActor, reply_to=Address("$")))
 
     assert scheduler.register_actor__address == Address("$.new") and \
-           scheduler.register_actor__actor == MyActor(address=Address("$.new"), messenger=messenger,
-                                                      supervisor_address=Address(""))
+           scheduler.register_actor__actor == MyActor(address=Address("$.new"), messenger=messenger)
 
 
 def assert_reply_spawn_actor_completed_message(
@@ -53,16 +48,3 @@ def assert_reply_spawn_actor_completed_message(
            messenger.send__receiver == Address("$") and \
            messenger.send__message == ManagerSpawnActorCompletedMessage(actor_address=Address("$.new"),
                                                                         manager_address=Address("#manager1"))
-
-
-@dataclass
-class MyActor(IActor):
-    address: Address
-    messenger: IMessenger
-    supervisor_address: Address
-
-    def receive(self, sender: Address, message: Message):
-        pass
-
-    if TYPE_CHECKING:
-        def __init__(self, address: Address, messenger: IMessenger, supervisor_address: Address): ...
