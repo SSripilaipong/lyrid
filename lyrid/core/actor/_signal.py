@@ -1,0 +1,2 @@
+class ActorStoppedSignal(Exception):
+    pass
