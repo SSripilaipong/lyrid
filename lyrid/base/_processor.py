@@ -4,13 +4,18 @@ from typing import Callable, Optional
 
 from lyrid.core.processor import Command, IProcessor, ProcessorStopCommand, ProcessorStartCommand
 
+HandleFunc = Callable[[Command], None]
+
 
 class ProcessorBase(IProcessor):
-    def __init__(self, handle: Callable[[Command], None], command_queue: queue.Queue):
+    def __init__(self, command_queue: queue.Queue, handle: HandleFunc = None):
         self._handle = handle
         self._command_queue = command_queue
 
         self._process: Optional[mp.Process] = None
+
+    def set_handle(self, handle: HandleFunc):
+        self._handle = handle
 
     def process(self, command: Command):
         self._command_queue.put(command)

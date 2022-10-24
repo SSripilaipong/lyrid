@@ -10,6 +10,5 @@ from tests.mock.processor import ProcessorMock
 def create_messenger(*, address: Address = None, managers: Dict[Address, IManager] = None,
                      processor: IProcessor = None) -> MessengerBase:
     address = address or Address("#default-messenger")
-    managers = managers or dict()
     processor = processor or ProcessorMock()
-    return MessengerBase(address, managers, processor)
+    return MessengerBase(address=address, processor=processor, managers=managers)
