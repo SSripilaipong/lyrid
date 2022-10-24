@@ -2,7 +2,7 @@ import queue
 
 from lyrid.core.manager import ManagerSpawnActorMessage, ManagerSpawnActorCompletedMessage
 from lyrid.core.messaging import Address
-from lyrid.core.messenger import MessengerRegisterAddressMessage
+from lyrid.core.messenger import MessengerRegisterAddressMessage, MessengerRegisterAddressCompletedMessage
 from lyrid.core.system import SystemSpawnActorCommand, AcknowledgeManagerSpawnActorCompletedCommand, \
     AcknowledgeMessengerRegisterAddressCompletedCommand, SystemSpawnActorCompletedReply
 from tests.factory.system import create_actor_system
@@ -60,6 +60,21 @@ def test_should_send_messenger_register_address_message_to_messenger_when_handli
            messenger.send__receiver == Address("#messenger") and \
            messenger.send__message == MessengerRegisterAddressMessage(address=Address("$.new"),
                                                                       manager_address=Address("#manager1"))
+
+
+def test_should_let_processor_process_acknowledge_messenger_register_address_completed_command_when_handling_messenger_register_address_completed_message():
+    processor = ProcessorMock()
+    system = create_actor_system(messenger_address=Address("#messenger"), processor=processor)
+
+    system.handle_message(
+        sender=Address("#messenger"),
+        receiver=Address("$"),
+        message=MessengerRegisterAddressCompletedMessage(address=Address("$.new"), manager_address=Address("#manager1"))
+    )
+
+    assert processor.process__command == AcknowledgeMessengerRegisterAddressCompletedCommand(
+        actor_address=Address("$.new"), manager_address=Address("#manager1"),
+    )
 
 
 def test_should_put_system_spawn_actor_completed_reply_to_reply_queue_when_handling_acknowledge_messenger_register_address_completed_command():

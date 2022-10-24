@@ -4,7 +4,7 @@ from typing import List
 from lyrid.base import ManagerBase
 from lyrid.core.manager import ITaskScheduler, ManagerSpawnActorMessage, ManagerSpawnActorCompletedMessage
 from lyrid.core.messaging import Address, Message, Ask, Reply
-from lyrid.core.messenger import IMessenger, MessengerRegisterAddressMessage
+from lyrid.core.messenger import IMessenger, MessengerRegisterAddressMessage, MessengerRegisterAddressCompletedMessage
 from lyrid.core.processor import IProcessor, Command
 from lyrid.core.system import SystemSpawnActorCommand, AcknowledgeManagerSpawnActorCompletedCommand, \
     AcknowledgeMessengerRegisterAddressCompletedCommand, SystemSpawnActorCompletedReply, ActorReplyAskCommand, \
@@ -30,6 +30,10 @@ class ActorSystemBase(ManagerBase):
         if isinstance(message, ManagerSpawnActorCompletedMessage):
             self._processor.process(AcknowledgeManagerSpawnActorCompletedCommand(
                 actor_address=message.actor_address, manager_address=message.manager_address,
+            ))
+        elif isinstance(message, MessengerRegisterAddressCompletedMessage):
+            self._processor.process(AcknowledgeMessengerRegisterAddressCompletedCommand(
+                actor_address=message.address, manager_address=message.manager_address,
             ))
         elif isinstance(message, Reply):
             self._processor.process(ActorReplyAskCommand(
