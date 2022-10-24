@@ -1,7 +1,7 @@
 from dataclasses import dataclass
 
 from lyrid.core.actor import IActorFactory
-from lyrid.core.messaging import Address
+from lyrid.core.messaging import Address, Message
 from lyrid.core.processor import Command
 
 
@@ -21,3 +21,10 @@ class AcknowledgeManagerSpawnActorCompletedCommand(Command):
 class AcknowledgeMessengerRegisterAddressCompletedCommand(Command):
     actor_address: Address
     manager_address: Address
+
+
+@dataclass
+class SystemAskCommand(Command):
+    address: Address
+    message: Message
+    ref_id: str

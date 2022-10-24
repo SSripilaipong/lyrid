@@ -9,18 +9,21 @@ from lyrid.core.processor import IProcessor, Command
 from lyrid.core.system import SystemSpawnActorCommand, AcknowledgeManagerSpawnActorCompletedCommand, \
     AcknowledgeMessengerRegisterAddressCompletedCommand, SystemSpawnActorCompletedReply
 from ..core.actor import IActorFactory
+from ..core.common import IIdGenerator
+from ..core.system import SystemAskCommand
 
 
 class ActorSystemBase(ManagerBase):
     def __init__(self, scheduler: ITaskScheduler, processor: IProcessor, messenger: IMessenger,
                  manager_addresses: List[Address], address: Address, messenger_address: Address,
-                 reply_queue: queue.Queue):
+                 reply_queue: queue.Queue, id_generator: IIdGenerator):
         super().__init__(address=address, scheduler=scheduler, processor=processor, messenger=messenger)
 
         self._messenger = messenger
         self._manager_addresses = manager_addresses
         self._messenger_address = messenger_address
         self._reply_queue = reply_queue
+        self._id_generator = id_generator
 
     def handle_message(self, sender: Address, receiver: Address, message: Message):
         if isinstance(message, ManagerSpawnActorCompletedMessage):
@@ -55,3 +58,7 @@ class ActorSystemBase(ManagerBase):
 
     def _reply_system_spawn_completed(self, command: AcknowledgeMessengerRegisterAddressCompletedCommand):
         self._reply_queue.put(SystemSpawnActorCompletedReply(address=command.actor_address))
+
+    def ask(self, address: Address, message: Message):
+        ref_id = self._id_generator.generate()
+        self._processor.process(SystemAskCommand(address=address, message=message, ref_id=ref_id))
