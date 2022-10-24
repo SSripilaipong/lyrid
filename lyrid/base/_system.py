@@ -68,9 +68,11 @@ class ActorSystemBase(ManagerBase):
     def _reply_system_spawn_completed(self, command: AcknowledgeMessengerRegisterAddressCompletedCommand):
         self._reply_queue.put(SystemSpawnActorCompletedReply(address=command.actor_address))
 
-    def ask(self, address: Address, message: Message):
+    def ask(self, address: Address, message: Message) -> Message:
         ref_id = self._id_generator.generate()
         self._processor.process(SystemAskCommand(address=address, message=message, ref_id=ref_id))
+        reply: Reply = self._reply_queue.get()
+        return reply.message
 
     def _system_ask(self, command: SystemAskCommand):
         self._messenger.send(self._address, command.address, Ask(message=command.message, ref_id=command.ref_id))
