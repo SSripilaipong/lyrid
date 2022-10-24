@@ -16,29 +16,21 @@ from ..core.system import SystemAskCommand
 
 class ActorSystemBase(ManagerBase):
     def __init__(self, scheduler: ITaskScheduler, processor: IProcessor, messenger: IMessenger,
-                 manager_addresses: List[Address], address: Address, messenger_address: Address,
-                 reply_queue: queue.Queue, id_generator: IIdGenerator):
+                 manager_addresses: List[Address], root_address: Address, address: Address, messenger_address: Address,
+                 reply_queue: queue.Queue, id_generator: IIdGenerator, processors: List[IProcessor] = None):
         super().__init__(address=address, scheduler=scheduler, processor=processor, messenger=messenger)
 
+        self._root_address = root_address
         self._messenger = messenger
         self._manager_addresses = manager_addresses
         self._messenger_address = messenger_address
         self._reply_queue = reply_queue
         self._id_generator = id_generator
+        self._processors = processors or []
 
     def handle_message(self, sender: Address, receiver: Address, message: Message):
-        if isinstance(message, ManagerSpawnActorCompletedMessage):
-            self._processor.process(AcknowledgeManagerSpawnActorCompletedCommand(
-                actor_address=message.actor_address, manager_address=message.manager_address,
-            ))
-        elif isinstance(message, MessengerRegisterAddressCompletedMessage):
-            self._processor.process(AcknowledgeMessengerRegisterAddressCompletedCommand(
-                actor_address=message.address, manager_address=message.manager_address,
-            ))
-        elif isinstance(message, Reply):
-            self._processor.process(ActorReplyAskCommand(
-                address=sender, message=message.message, ref_id=message.ref_id,
-            ))
+        if receiver == self._root_address:
+            self._handle_message_as_root_actor(sender, message)
         else:
             super(ActorSystemBase, self).handle_message(sender, receiver, message)
 
@@ -83,3 +75,21 @@ class ActorSystemBase(ManagerBase):
 
     def _actor_reply_ask(self, command: ActorReplyAskCommand):
         self._reply_queue.put(ActorAskReply(address=command.address, message=command.message, ref_id=command.ref_id))
+
+    def _handle_message_as_root_actor(self, sender: Address, message: Message):
+        if isinstance(message, ManagerSpawnActorCompletedMessage):
+            self._processor.process(AcknowledgeManagerSpawnActorCompletedCommand(
+                actor_address=message.actor_address, manager_address=message.manager_address,
+            ))
+        elif isinstance(message, MessengerRegisterAddressCompletedMessage):
+            self._processor.process(AcknowledgeMessengerRegisterAddressCompletedCommand(
+                actor_address=message.address, manager_address=message.manager_address,
+            ))
+        elif isinstance(message, Reply):
+            self._processor.process(ActorReplyAskCommand(
+                address=sender, message=message.message, ref_id=message.ref_id,
+            ))
+
+    def join(self):
+        for processor in self._processors:
+            processor.stop()

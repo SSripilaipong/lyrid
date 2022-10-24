@@ -17,11 +17,9 @@ class Greeter(ActorBase):
             raise ActorStoppedSignal()
 
 
-def _test_should_should_reply_ask():
+def test_should_should_reply_ask():
     system = ActorSystem()
     greeter = system.spawn("greeter", Greeter)
-    print("spawned", greeter)
     reply = system.ask(greeter, Greeting("Hello there"))
-    print("replied", reply)
-
+    system.join()
     assert reply == Greeting("Hi!")

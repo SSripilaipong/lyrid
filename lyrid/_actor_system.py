@@ -18,7 +18,8 @@ def ActorSystem() -> ActorSystemBase:
 
     manager_addresses = [Address("#manager1")]
 
-    system, system_processor = _create_actor_system(manager_addresses, messenger, messenger_address)
+    system, system_processor = _create_actor_system(manager_addresses, messenger, messenger_address,
+                                                    processors=[manager_processor, messenger_processor])
 
     manager_processor.start()
     messenger_processor.start()
@@ -27,7 +28,8 @@ def ActorSystem() -> ActorSystemBase:
     return system
 
 
-def _create_actor_system(manager_addresses: List[Address], messenger: IMessenger, messenger_address: Address) \
+def _create_actor_system(manager_addresses: List[Address], messenger: IMessenger, messenger_address: Address,
+                         processors: List[IProcessor]) \
         -> Tuple[ActorSystemBase, IProcessor]:
     command_queue = multiprocessing.Manager().Queue()
     processor = ProcessorBase(command_queue=command_queue)
@@ -37,7 +39,7 @@ def _create_actor_system(manager_addresses: List[Address], messenger: IMessenger
     system = ActorSystemBase(scheduler=scheduler, processor=processor, messenger=messenger,
                              manager_addresses=manager_addresses, address=Address("$"),
                              messenger_address=messenger_address, reply_queue=reply_queue,
-                             id_generator=id_generator)
+                             id_generator=id_generator, root_address=Address("$"), processors=processors + [processor])
     processor.set_handle(system.handle_processor_command)
 
     messenger.add_manager(Address("$"), system)
