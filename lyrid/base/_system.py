@@ -3,7 +3,7 @@ from typing import List
 
 from lyrid.base import ManagerBase
 from lyrid.core.manager import ITaskScheduler, ManagerSpawnActorMessage, ManagerSpawnActorCompletedMessage
-from lyrid.core.messaging import Address, Message
+from lyrid.core.messaging import Address, Message, Ask
 from lyrid.core.messenger import IMessenger, MessengerRegisterAddressMessage
 from lyrid.core.processor import IProcessor, Command
 from lyrid.core.system import SystemSpawnActorCommand, AcknowledgeManagerSpawnActorCompletedCommand, \
@@ -40,6 +40,8 @@ class ActorSystemBase(ManagerBase):
             self._messenger_register_address(command)
         elif isinstance(command, AcknowledgeMessengerRegisterAddressCompletedCommand):
             self._reply_system_spawn_completed(command)
+        elif isinstance(command, SystemAskCommand):
+            self._system_ask(command)
         else:
             super(ActorSystemBase, self).handle_processor_command(command)
 
@@ -62,3 +64,6 @@ class ActorSystemBase(ManagerBase):
     def ask(self, address: Address, message: Message):
         ref_id = self._id_generator.generate()
         self._processor.process(SystemAskCommand(address=address, message=message, ref_id=ref_id))
+
+    def _system_ask(self, command: SystemAskCommand):
+        self._messenger.send(self._address, command.address, Ask(message=command.message, ref_id=command.ref_id))

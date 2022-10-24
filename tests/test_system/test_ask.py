@@ -1,8 +1,9 @@
-from lyrid.core.messaging import Address
+from lyrid.core.messaging import Address, Ask
 from lyrid.core.system import SystemAskCommand
 from tests.factory.system import create_actor_system
 from tests.message_dummy import MessageDummy
 from tests.mock.id_generator import IdGeneratorMock
+from tests.mock.messenger import MessengerMock
 from tests.mock.processor import ProcessorMock
 
 
@@ -18,3 +19,18 @@ def test_should_let_processor_process_system_ask_command_when_ask_is_called():
         message=MessageDummy("Hello"),
         ref_id="AskId123",
     )
+
+
+def test_should_send_ask_message_via_messenger_when_handling_system_ask_command():
+    messenger = MessengerMock()
+    system = create_actor_system(address=Address("$"), messenger=messenger, manager_addresses=[Address("#manager1")])
+
+    system.handle_processor_command(SystemAskCommand(
+        address=Address("$.my_actor"),
+        message=MessageDummy("Hello"),
+        ref_id="AskId123",
+    ))
+
+    assert messenger.send__message == Ask(message=MessageDummy("Hello"), ref_id="AskId123") and \
+           messenger.send__sender == Address("$") and \
+           messenger.send__receiver == Address("$.my_actor")
