@@ -28,3 +28,10 @@ class SystemAskCommand(Command):
     address: Address
     message: Message
     ref_id: str
+
+
+@dataclass
+class ActorReplyAskCommand(Command):
+    address: Address
+    message: Message
+    ref_id: str

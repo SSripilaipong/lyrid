@@ -1,5 +1,5 @@
-from lyrid.core.messaging import Address, Ask
-from lyrid.core.system import SystemAskCommand
+from lyrid.core.messaging import Address, Ask, Reply
+from lyrid.core.system import SystemAskCommand, ActorReplyAskCommand
 from tests.factory.system import create_actor_system
 from tests.message_dummy import MessageDummy
 from tests.mock.id_generator import IdGeneratorMock
@@ -34,3 +34,20 @@ def test_should_send_ask_message_via_messenger_when_handling_system_ask_command(
     assert messenger.send__message == Ask(message=MessageDummy("Hello"), ref_id="AskId123") and \
            messenger.send__sender == Address("$") and \
            messenger.send__receiver == Address("$.my_actor")
+
+
+def test_should_let_processor_process_actor_reply_ask_command_when_handling_reply_message():
+    processor = ProcessorMock()
+    system = create_actor_system(processor=processor)
+
+    system.handle_message(
+        sender=Address("$.my_actor"),
+        receiver=Address("$"),
+        message=Reply(message=MessageDummy("Hi"), ref_id="AskId123")
+    )
+
+    assert processor.process__command == ActorReplyAskCommand(
+        address=Address("$.my_actor"),
+        message=MessageDummy("Hi"),
+        ref_id="AskId123",
+    )

@@ -3,11 +3,11 @@ from typing import List
 
 from lyrid.base import ManagerBase
 from lyrid.core.manager import ITaskScheduler, ManagerSpawnActorMessage, ManagerSpawnActorCompletedMessage
-from lyrid.core.messaging import Address, Message, Ask
+from lyrid.core.messaging import Address, Message, Ask, Reply
 from lyrid.core.messenger import IMessenger, MessengerRegisterAddressMessage
 from lyrid.core.processor import IProcessor, Command
 from lyrid.core.system import SystemSpawnActorCommand, AcknowledgeManagerSpawnActorCompletedCommand, \
-    AcknowledgeMessengerRegisterAddressCompletedCommand, SystemSpawnActorCompletedReply
+    AcknowledgeMessengerRegisterAddressCompletedCommand, SystemSpawnActorCompletedReply, ActorReplyAskCommand
 from ..core.actor import IActorFactory
 from ..core.common import IIdGenerator
 from ..core.system import SystemAskCommand
@@ -29,6 +29,10 @@ class ActorSystemBase(ManagerBase):
         if isinstance(message, ManagerSpawnActorCompletedMessage):
             self._processor.process(AcknowledgeManagerSpawnActorCompletedCommand(
                 actor_address=message.actor_address, manager_address=message.manager_address,
+            ))
+        elif isinstance(message, Reply):
+            self._processor.process(ActorReplyAskCommand(
+                address=sender, message=message.message, ref_id=message.ref_id,
             ))
         else:
             super(ActorSystemBase, self).handle_message(sender, receiver, message)
