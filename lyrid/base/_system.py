@@ -7,7 +7,8 @@ from lyrid.core.messaging import Address, Message, Ask, Reply
 from lyrid.core.messenger import IMessenger, MessengerRegisterAddressMessage
 from lyrid.core.processor import IProcessor, Command
 from lyrid.core.system import SystemSpawnActorCommand, AcknowledgeManagerSpawnActorCompletedCommand, \
-    AcknowledgeMessengerRegisterAddressCompletedCommand, SystemSpawnActorCompletedReply, ActorReplyAskCommand
+    AcknowledgeMessengerRegisterAddressCompletedCommand, SystemSpawnActorCompletedReply, ActorReplyAskCommand, \
+    ActorAskReply
 from ..core.actor import IActorFactory
 from ..core.common import IIdGenerator
 from ..core.system import SystemAskCommand
@@ -46,6 +47,8 @@ class ActorSystemBase(ManagerBase):
             self._reply_system_spawn_completed(command)
         elif isinstance(command, SystemAskCommand):
             self._system_ask(command)
+        elif isinstance(command, ActorReplyAskCommand):
+            self._actor_reply_ask(command)
         else:
             super(ActorSystemBase, self).handle_processor_command(command)
 
@@ -71,3 +74,6 @@ class ActorSystemBase(ManagerBase):
 
     def _system_ask(self, command: SystemAskCommand):
         self._messenger.send(self._address, command.address, Ask(message=command.message, ref_id=command.ref_id))
+
+    def _actor_reply_ask(self, command: ActorReplyAskCommand):
+        self._reply_queue.put(ActorAskReply(address=command.address, message=command.message, ref_id=command.ref_id))

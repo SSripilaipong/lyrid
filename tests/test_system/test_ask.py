@@ -1,5 +1,7 @@
+import queue
+
 from lyrid.core.messaging import Address, Ask, Reply
-from lyrid.core.system import SystemAskCommand, ActorReplyAskCommand
+from lyrid.core.system import SystemAskCommand, ActorReplyAskCommand, ActorAskReply
 from tests.factory.system import create_actor_system
 from tests.message_dummy import MessageDummy
 from tests.mock.id_generator import IdGeneratorMock
@@ -47,6 +49,23 @@ def test_should_let_processor_process_actor_reply_ask_command_when_handling_repl
     )
 
     assert processor.process__command == ActorReplyAskCommand(
+        address=Address("$.my_actor"),
+        message=MessageDummy("Hi"),
+        ref_id="AskId123",
+    )
+
+
+def test_should_put_actor_ask_reply_to_reply_queue_when_handling_actor_reply_ask_command():
+    reply_queue = queue.Queue()
+    system = create_actor_system(reply_queue=reply_queue)
+
+    system.handle_processor_command(ActorReplyAskCommand(
+        address=Address("$.my_actor"),
+        message=MessageDummy("Hi"),
+        ref_id="AskId123",
+    ))
+
+    assert reply_queue.get() == ActorAskReply(
         address=Address("$.my_actor"),
         message=MessageDummy("Hi"),
         ref_id="AskId123",
