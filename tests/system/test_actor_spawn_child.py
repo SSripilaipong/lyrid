@@ -26,8 +26,7 @@ def test_should_let_processor_process_actor_spawn_child_actor_command_when_handl
 def test_should_send_manager_spawn_actor_message_to_manager_with_generated_ref_id():
     messenger = MessengerMock()
     id_gen = IdGeneratorMock(generate__return="GenId123")
-    system = create_actor_system(address=Address("$"),
-                                 messenger=messenger,
+    system = create_actor_system(messenger=messenger,
                                  manager_addresses=[Address("#manager1")],
                                  id_generator=id_gen)
 

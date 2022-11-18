@@ -1,5 +1,5 @@
 from tests.factory.manager import create_manager
-from tests.test_manager._assertion import (
+from tests.manager._assertion import (
     assert_let_processor_process_actor_message_sending_command_when_handle_message_with_address_of_a_registered_actor,
     assert_start_task_scheduler_when_receive_processor_start_command,
     assert_stop_task_scheduler_when_receive_processor_stop_command,

@@ -9,7 +9,7 @@ from tests.factory.system import create_actor_system
 from tests.mock.id_generator import IdGeneratorMock
 from tests.mock.messenger import MessengerMock
 from tests.mock.processor import ProcessorMock
-from tests.test_system.actor_dummy import MyActor
+from tests.system.actor_dummy import MyActor
 
 
 def test_should_send_spawn_actor_message_to_manager_via_messenger_when_handling_spawn_actor_processor_command():

@@ -1,9 +1,9 @@
 from lyrid.core.manager import ManagerSpawnActorMessage, SpawnActorCommand, ManagerSpawnActorCompletedMessage
 from lyrid.core.messaging import Address
+from tests.manager.typing import ManagerFactory
 from tests.mock.messenger import MessengerMock
 from tests.mock.processor import ProcessorMock
 from tests.mock.scheduler import SchedulerMock
-from tests.test_manager.typing import ManagerFactory
 from ._actor_dummy import MyActor
 
 

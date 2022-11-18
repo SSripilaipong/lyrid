@@ -3,7 +3,7 @@ from lyrid.core.messaging import Address
 from tests.factory.actor import create_actor
 from tests.factory.scheduler import create_scheduler
 from tests.message_dummy import MessageDummy
-from tests.test_scheduler.actor_mock import MyActor
+from tests.scheduler.actor_mock import MyActor
 
 
 def test_should_let_actor_do_scheduled_task():

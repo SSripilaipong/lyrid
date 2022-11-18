@@ -8,10 +8,10 @@ from lyrid.core.manager import (
 from lyrid.core.messaging import Address, Message
 from lyrid.core.messenger import IMessenger
 from lyrid.core.processor import ProcessorStartCommand, ProcessorStopCommand
+from tests.manager.typing import ManagerFactory
 from tests.message_dummy import MessageDummy
 from tests.mock.processor import ProcessorMock
 from tests.mock.scheduler import SchedulerMock
-from tests.test_manager.typing import ManagerFactory
 
 
 def assert_let_processor_process_actor_message_sending_command_when_handle_message_with_address_of_a_registered_actor(

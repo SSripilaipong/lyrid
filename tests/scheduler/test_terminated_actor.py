@@ -5,7 +5,7 @@ from tests.factory.actor import create_actor
 from tests.factory.scheduler import create_scheduler
 from tests.message_dummy import MessageDummy
 from tests.mock.messenger import MessengerMock
-from tests.test_scheduler.actor_mock import WillStop
+from tests.scheduler.actor_mock import WillStop
 
 
 def test_should_not_pass_message_to_actor_after_actor_stopped_signal_is_raised():

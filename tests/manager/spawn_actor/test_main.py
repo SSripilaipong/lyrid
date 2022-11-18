@@ -1,5 +1,5 @@
 from tests.factory.manager import create_manager
-from tests.test_manager.test_spawn_actor._assertion import (
+from tests.manager.spawn_actor._assertion import (
     assert_let_processor_process_spawn_actor_command_when_handle_manager_spawn_actor_message,
     assert_register_actor_in_scheduler_when_handling_spawn_actor_command, assert_reply_spawn_actor_completed_message,
 )
