@@ -6,6 +6,7 @@ from lyrid.core.messenger import MessengerRegisterAddressMessage, MessengerRegis
 from lyrid.core.system import SystemSpawnActorCommand, AcknowledgeManagerSpawnActorCompletedCommand, \
     AcknowledgeMessengerRegisterAddressCompletedCommand, SystemSpawnActorCompletedReply
 from tests.factory.system import create_actor_system
+from tests.mock.id_generator import IdGeneratorMock
 from tests.mock.messenger import MessengerMock
 from tests.mock.processor import ProcessorMock
 from tests.test_system.actor_dummy import MyActor
@@ -13,13 +14,16 @@ from tests.test_system.actor_dummy import MyActor
 
 def test_should_send_spawn_actor_message_to_manager_via_messenger_when_handling_spawn_actor_processor_command():
     messenger = MessengerMock()
-    system = create_actor_system(address=Address("$"), messenger=messenger, manager_addresses=[Address("#manager1")])
+    id_gen = IdGeneratorMock(generate__return="GenId123")
+    system = create_actor_system(address=Address("$"), messenger=messenger,
+                                 manager_addresses=[Address("#manager1")], id_generator=id_gen)
 
     system.handle_processor_command(SystemSpawnActorCommand(key="hello", type_=MyActor))
 
-    assert messenger.send__message == ManagerSpawnActorMessage(address=Address("$.hello"), type_=MyActor) and \
-           messenger.send__sender == Address("$") and \
-           messenger.send__receiver == Address("#manager1")
+    assert messenger.send__sender == Address("$") and \
+           messenger.send__receiver == Address("#manager1") and \
+           messenger.send__message == \
+           ManagerSpawnActorMessage(address=Address("$.hello"), type_=MyActor, ref_id="GenId123")
 
 
 def test_should_let_processor_process_spawn_actor_command_when_spawn_is_called():

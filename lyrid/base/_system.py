@@ -36,7 +36,9 @@ class ActorSystemBase(ManagerBase):
 
     def handle_processor_command(self, command: Command):
         if isinstance(command, SystemSpawnActorCommand):
-            self._manager_spawn_actor(command)
+            self._manager_spawn_actor_for_user(command)
+        elif isinstance(command, ActorSpawnChildActorCommand):
+            self._manager_spawn_child_for_actor(command)
         elif isinstance(command, AcknowledgeManagerSpawnActorCompletedCommand):
             self._messenger_register_address(command)
         elif isinstance(command, AcknowledgeMessengerRegisterAddressCompletedCommand):
@@ -52,8 +54,20 @@ class ActorSystemBase(ManagerBase):
         msg = MessengerRegisterAddressMessage(address=command.actor_address, manager_address=command.manager_address)
         self._messenger.send(self._address, self._messenger_address, msg)
 
-    def _manager_spawn_actor(self, command: SystemSpawnActorCommand):
-        msg = ManagerSpawnActorMessage(address=self._address.child(command.key), type_=command.type_)
+    def _manager_spawn_actor_for_user(self, command: SystemSpawnActorCommand):
+        msg = ManagerSpawnActorMessage(
+            address=self._address.child(command.key),
+            type_=command.type_,
+            ref_id=self._id_generator.generate(),
+        )
+        self._messenger.send(self._address, self._manager_addresses[0], msg)
+
+    def _manager_spawn_child_for_actor(self, command: ActorSpawnChildActorCommand):
+        msg = ManagerSpawnActorMessage(
+            address=command.actor_address.child(command.child_key),
+            type_=command.child_type,
+            ref_id=self._id_generator.generate(),
+        )
         self._messenger.send(self._address, self._manager_addresses[0], msg)
 
     def spawn(self, key: str, actor_type: IActorFactory) -> Address:

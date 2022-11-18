@@ -16,6 +16,7 @@ def assert_let_processor_process_spawn_actor_command_when_handle_manager_spawn_a
     manager.handle_message(Address("$.me"), Address("#manager1"), ManagerSpawnActorMessage(
         address=Address("$.new"),
         type_=MyActor,
+        ref_id="RefId123",
     ))
 
     assert processor.process__command == SpawnActorCommand(
