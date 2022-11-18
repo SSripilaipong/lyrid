@@ -8,7 +8,7 @@ from lyrid.core.messenger import IMessenger, MessengerRegisterAddressMessage, Me
 from lyrid.core.processor import IProcessor, Command
 from lyrid.core.system import SystemSpawnActorCommand, AcknowledgeManagerSpawnActorCompletedCommand, \
     AcknowledgeMessengerRegisterAddressCompletedCommand, SystemSpawnActorCompletedReply, ActorReplyAskCommand, \
-    ActorAskReply
+    ActorAskReply, ActorSpawnChildActorMessage, ActorSpawnChildActorCommand
 from ..core.actor import IActorFactory
 from ..core.common import IIdGenerator
 from ..core.system import SystemAskCommand
@@ -88,6 +88,10 @@ class ActorSystemBase(ManagerBase):
         elif isinstance(message, Reply):
             self._processor.process(ActorReplyAskCommand(
                 address=sender, message=message.message, ref_id=message.ref_id,
+            ))
+        elif isinstance(message, ActorSpawnChildActorMessage):
+            self._processor.process(ActorSpawnChildActorCommand(
+                actor_address=sender, child_key=message.key, child_type=message.type_,
             ))
 
     def join(self):

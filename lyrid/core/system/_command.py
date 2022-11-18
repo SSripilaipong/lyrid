@@ -35,3 +35,10 @@ class ActorReplyAskCommand(Command):
     address: Address
     message: Message
     ref_id: str
+
+
+@dataclass
+class ActorSpawnChildActorCommand(Command):
+    actor_address: Address
+    child_key: str
+    child_type: IActorFactory
