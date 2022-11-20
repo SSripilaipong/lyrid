@@ -3,5 +3,5 @@ from ._command import (
     AcknowledgeMessengerRegisterAddressCompletedCommand, SystemAskCommand, ActorReplyAskCommand,
     ActorSpawnChildActorCommand,
 )
-from ._message import ActorSpawnChildActorMessage
+from ._message import SpawnChildMessage, SpawnChildCompletedMessage
 from ._reply import SystemSpawnActorCompletedReply, ActorAskReply

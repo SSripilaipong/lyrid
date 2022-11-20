@@ -1,6 +1,8 @@
 from lyrid.core.manager import ManagerSpawnActorMessage
 from lyrid.core.messaging import Address
-from lyrid.core.system import ActorSpawnChildActorMessage, ActorSpawnChildActorCommand
+from lyrid.core.system import SpawnChildMessage, ActorSpawnChildActorCommand, \
+    AcknowledgeMessengerRegisterAddressCompletedCommand, SpawnChildCompletedMessage, \
+    AcknowledgeManagerSpawnActorCompletedCommand
 from tests.factory.system import create_actor_system
 from tests.mock.id_generator import IdGeneratorMock
 from tests.mock.messenger import MessengerMock
@@ -15,7 +17,7 @@ def test_should_let_processor_process_actor_spawn_child_actor_command_when_handl
     system.handle_message(
         sender=Address("$.actor"),
         receiver=Address("$"),
-        message=ActorSpawnChildActorMessage(key="my_child", type_=ActorDummy)
+        message=SpawnChildMessage(key="my_child", type_=ActorDummy)
     )
 
     assert processor.process__command == ActorSpawnChildActorCommand(
@@ -38,3 +40,26 @@ def test_should_send_manager_spawn_actor_message_to_manager_with_generated_ref_i
            messenger.send__receiver == Address("#manager1") and \
            messenger.send__message == \
            ManagerSpawnActorMessage(address=Address("$.actor.my_child"), type_=ActorDummy, ref_id="GenId123")
+
+
+def test_should_send_spawn_child_completed_message_to_actor_when_handling_acknowledge_messenger_register_address_completed_command():
+    messenger = MessengerMock()
+    id_gen = IdGeneratorMock(generate__return="RefId999")
+    system = create_actor_system(messenger=messenger,
+                                 manager_addresses=[Address("#manager1")],
+                                 id_generator=id_gen)
+
+    system.handle_processor_command(ActorSpawnChildActorCommand(
+        actor_address=Address("$.my_actor"), child_key="my_child", child_type=ActorDummy,
+    ))
+    system.handle_processor_command(AcknowledgeManagerSpawnActorCompletedCommand(
+        actor_address=Address("$.my_actor.my_child"), manager_address=Address("#manager1"), ref_id="RefId999"
+    ))
+    system.handle_processor_command(AcknowledgeMessengerRegisterAddressCompletedCommand(
+        actor_address=Address("$.my_actor.my_child"), manager_address=Address("#manager1"), ref_id="RefId999",
+    ))
+
+    assert messenger.send__sender == Address("$") and \
+           messenger.send__receiver == Address("$.my_actor") and \
+           messenger.send__message == \
+           SpawnChildCompletedMessage(key="my_child", address=Address("$.my_actor.my_child"))

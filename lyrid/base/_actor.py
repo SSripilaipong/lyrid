@@ -4,7 +4,7 @@ from typing import TypeVar
 from lyrid.core.actor import IActorFactory
 from lyrid.core.messaging import Address, Message
 from lyrid.core.messenger import IMessenger
-from lyrid.core.system import ActorSpawnChildActorMessage
+from lyrid.core.system import SpawnChildMessage
 
 T = TypeVar("T", bound='ActorBase')
 
@@ -20,7 +20,7 @@ class ActorBase(ABC):
         self._messenger.send(self._address, receiver, message)
 
     def spawn(self, key: str, type_: 'IActorFactory'):
-        self._messenger.send(self._address, self._system_address, ActorSpawnChildActorMessage(key=key, type_=type_))
+        self._messenger.send(self._address, self._system_address, SpawnChildMessage(key=key, type_=type_))
 
     @abstractmethod
     def receive(self, sender: Address, message: Message):

@@ -1,6 +1,6 @@
 from lyrid import ActorBase
 from lyrid.core.messaging import Address, Message
-from lyrid.core.system import ActorSpawnChildActorMessage
+from lyrid.core.system import SpawnChildMessage
 from tests.factory.actor import create_actor
 from tests.message_dummy import MessageDummy
 from tests.mock.messenger import MessengerMock
@@ -19,7 +19,7 @@ def test_should_send_actor_spawn_child_actor_message_to_system():
 
     assert messenger.send__sender == Address("$.supervisor.me") and \
            messenger.send__receiver == Address("$") and \
-           messenger.send__message == ActorSpawnChildActorMessage(key="my_child", type_=ChildActor)
+           messenger.send__message == SpawnChildMessage(key="my_child", type_=ChildActor)
 
 
 class ChildActor(ActorBase):
