@@ -1,4 +1,3 @@
-import time
 from dataclasses import dataclass
 from typing import TYPE_CHECKING
 
@@ -60,11 +59,12 @@ class Second(ActorBase):
             raise ActorStoppedSignal()
 
 
-def _test_should_spawn_and_ask_second_actor():
+def test_should_spawn_and_ask_second_actor():
     system = ActorSystem()
     first = system.spawn("first", First)
+
     system.ask(first, SpawnSecond())
     second_response = system.ask(first, GreetSecond())
-    time.sleep(0.5)
+
     system.join()
     assert second_response == MessageDummy("second said: i'm good, thanks")
