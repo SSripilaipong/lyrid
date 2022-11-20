@@ -3,11 +3,11 @@ from lyrid.core.manager import (
     ManagerSpawnActorCompletedMessage,
 )
 from lyrid.core.messaging import Address, Message
-from lyrid.core.messenger import IMessenger
+from lyrid.core.messenger import IMessenger, IManager
 from lyrid.core.processor import Command, IProcessor, ProcessorStartCommand, ProcessorStopCommand
 
 
-class ManagerBase:
+class ManagerBase(IManager):
     def __init__(self, address: Address, scheduler: ITaskScheduler, processor: IProcessor, messenger: IMessenger):
         self._address = address
         self._scheduler = scheduler
@@ -16,7 +16,8 @@ class ManagerBase:
 
     def handle_message(self, sender: Address, receiver: Address, message: Message):
         if isinstance(message, ManagerSpawnActorMessage):
-            self._processor.process(SpawnActorCommand(address=message.address, type_=message.type_, reply_to=sender))
+            self._processor.process(
+                SpawnActorCommand(address=message.address, type_=message.type_, reply_to=sender, ref_id=message.ref_id))
         else:
             self._processor.process(ActorMessageSendingCommand(sender=sender, receiver=receiver, message=message))
 
@@ -35,7 +36,7 @@ class ManagerBase:
     def _spawn_actor(self, command: SpawnActorCommand):
         self._scheduler.register_actor(command.address, command.type_(command.address, self._messenger))
         reply_message = ManagerSpawnActorCompletedMessage(
-            actor_address=command.address, manager_address=self._address,
+            actor_address=command.address, manager_address=self._address, ref_id=command.ref_id
         )
         self._messenger.send(self._address, command.reply_to, reply_message)
 

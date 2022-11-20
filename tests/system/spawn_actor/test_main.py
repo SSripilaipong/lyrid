@@ -15,7 +15,8 @@ def test_should_let_processor_process_acknowledge_spawn_actor_completed_command_
     system.handle_message(
         sender=Address("#manager1"),
         receiver=Address("$"),
-        message=ManagerSpawnActorCompletedMessage(actor_address=Address("$.new"), manager_address=Address("#manager1"))
+        message=ManagerSpawnActorCompletedMessage(actor_address=Address("$.new"), manager_address=Address("#manager1"),
+                                                  ref_id="RefId123")
     )
 
     assert processor.process__command == AcknowledgeManagerSpawnActorCompletedCommand(

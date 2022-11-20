@@ -15,3 +15,4 @@ class ManagerSpawnActorMessage(Message):
 class ManagerSpawnActorCompletedMessage(Message):
     actor_address: Address
     manager_address: Address
+    ref_id: str
