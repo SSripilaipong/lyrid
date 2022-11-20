@@ -8,7 +8,7 @@ from tests.factory.system import create_actor_system
 from tests.mock.id_generator import IdGeneratorMock
 from tests.mock.messenger import MessengerMock
 from tests.mock.processor import ProcessorMock
-from tests.system.actor_dummy import MyActor
+from tests.system.actor_dummy import ActorDummy
 
 
 def test_should_let_processor_process_spawn_actor_command_when_spawn_is_called():
@@ -17,9 +17,9 @@ def test_should_let_processor_process_spawn_actor_command_when_spawn_is_called()
     reply_queue.put(SystemSpawnActorCompletedReply(address=Address("$.hello")))
     system = create_actor_system(processor=processor, reply_queue=reply_queue)
 
-    system.spawn("hello", MyActor)
+    system.spawn("hello", ActorDummy)
 
-    assert processor.process__command == SystemSpawnActorCommand(key="hello", type_=MyActor)
+    assert processor.process__command == SystemSpawnActorCommand(key="hello", type_=ActorDummy)
 
 
 def test_should_send_spawn_actor_message_to_manager_via_messenger_when_handling_spawn_actor_processor_command():
@@ -28,12 +28,12 @@ def test_should_send_spawn_actor_message_to_manager_via_messenger_when_handling_
     system = create_actor_system(address=Address("$"), messenger=messenger,
                                  manager_addresses=[Address("#manager1")], id_generator=id_gen)
 
-    system.handle_processor_command(SystemSpawnActorCommand(key="hello", type_=MyActor))
+    system.handle_processor_command(SystemSpawnActorCommand(key="hello", type_=ActorDummy))
 
     assert messenger.send__sender == Address("$") and \
            messenger.send__receiver == Address("#manager1") and \
            messenger.send__message == \
-           ManagerSpawnActorMessage(address=Address("$.hello"), type_=MyActor, ref_id="GenId123")
+           ManagerSpawnActorMessage(address=Address("$.hello"), type_=ActorDummy, ref_id="GenId123")
 
 
 def test_should_put_system_spawn_actor_completed_reply_to_reply_queue_when_handling_acknowledge_messenger_register_address_completed_command():
@@ -52,6 +52,6 @@ def test_should_get_reply_from_reply_queue_and_return_spawned_address():
     reply_queue.put(SystemSpawnActorCompletedReply(address=Address("$.new")))
     system = create_actor_system(reply_queue=reply_queue)
 
-    address = system.spawn("new", MyActor)
+    address = system.spawn("new", ActorDummy)
 
     assert address == Address("$.new")

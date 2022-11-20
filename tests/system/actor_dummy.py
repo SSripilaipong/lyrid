@@ -3,7 +3,7 @@ from lyrid.core.messaging import Address, Message
 from lyrid.core.messenger import IMessenger
 
 
-class MyActor(IActor):
+class ActorDummy(IActor):
     def __init__(self, address: Address, messenger: IMessenger, supervisor_address: Address):
         pass
 
