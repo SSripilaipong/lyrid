@@ -26,7 +26,7 @@ class TaskSchedulerBase:
         if isinstance(task, ActorMessageDeliveryTask):
             with self._lock:
                 if task.target not in self._actors:
-                    raise NotImplementedError()
+                    return
 
                 tasks_in_queue = self._actor_tasks.get(task.target,
                                                        ActorTargetedTaskGroup(target=task.target,
@@ -42,9 +42,10 @@ class TaskSchedulerBase:
         with self._lock:
             self._actors[address] = actor
 
-    def stop(self):
+    def stop(self, block: bool = True):
         self._task_queue.put(StopSchedulerTask())
-        self._thread.join()
+        if block:
+            self._thread.join()
 
     def start(self):
         self._thread = threading.Thread(target=self._scheduler_loop)

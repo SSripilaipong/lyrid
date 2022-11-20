@@ -19,3 +19,12 @@ def test_should_let_actor_do_scheduled_task():
 
     assert actor.receive__sender == Address("$.me") and \
            actor.receive__message == MessageDummy("Hello")
+
+
+def test_should_ignore_when_schedule_message_to_unknown_actor():
+    scheduler = create_scheduler()
+    scheduler.start()
+
+    scheduler.schedule(ActorMessageDeliveryTask(Address("$.who"), MessageDummy("Hello Stranger"), Address("$.me")))
+
+    scheduler.stop()
