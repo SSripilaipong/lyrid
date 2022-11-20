@@ -16,3 +16,4 @@ class RegisterAddressCommand(Command):
     address: Address
     manager_address: Address
     requester_address: Address
+    ref_id: str

@@ -20,7 +20,7 @@ def test_should_let_processor_process_acknowledge_spawn_actor_completed_command_
     )
 
     assert processor.process__command == AcknowledgeManagerSpawnActorCompletedCommand(
-        actor_address=Address("$.new"), manager_address=Address("#manager1"),
+        actor_address=Address("$.new"), manager_address=Address("#manager1"), ref_id="RefId123",
     )
 
 
@@ -29,13 +29,14 @@ def test_should_send_messenger_register_address_message_to_messenger_when_handli
     system = create_actor_system(address=Address("$"), messenger=messenger, messenger_address=Address("#messenger"))
 
     system.handle_processor_command(AcknowledgeManagerSpawnActorCompletedCommand(
-        actor_address=Address("$.new"), manager_address=Address("#manager1"),
+        actor_address=Address("$.new"), manager_address=Address("#manager1"), ref_id="RefId999"
     ))
 
     assert messenger.send__sender == Address("$") and \
            messenger.send__receiver == Address("#messenger") and \
            messenger.send__message == MessengerRegisterAddressMessage(address=Address("$.new"),
-                                                                      manager_address=Address("#manager1"))
+                                                                      manager_address=Address("#manager1"),
+                                                                      ref_id="RefId999")
 
 
 def test_should_let_processor_process_acknowledge_messenger_register_address_completed_command_when_handling_messenger_register_address_completed_message():
@@ -45,9 +46,10 @@ def test_should_let_processor_process_acknowledge_messenger_register_address_com
     system.handle_message(
         sender=Address("#messenger"),
         receiver=Address("$"),
-        message=MessengerRegisterAddressCompletedMessage(address=Address("$.new"), manager_address=Address("#manager1"))
+        message=MessengerRegisterAddressCompletedMessage(address=Address("$.new"), manager_address=Address("#manager1"),
+                                                         ref_id="RefId123")
     )
 
     assert processor.process__command == AcknowledgeMessengerRegisterAddressCompletedCommand(
-        actor_address=Address("$.new"), manager_address=Address("#manager1"),
+        actor_address=Address("$.new"), manager_address=Address("#manager1"), ref_id="RefId123",
     )

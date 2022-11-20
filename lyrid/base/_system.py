@@ -51,7 +51,8 @@ class ActorSystemBase(ManagerBase):
             super(ActorSystemBase, self).handle_processor_command(command)
 
     def _messenger_register_address(self, command: AcknowledgeManagerSpawnActorCompletedCommand):
-        msg = MessengerRegisterAddressMessage(address=command.actor_address, manager_address=command.manager_address)
+        msg = MessengerRegisterAddressMessage(address=command.actor_address, manager_address=command.manager_address,
+                                              ref_id=command.ref_id)
         self._messenger.send(self._address, self._messenger_address, msg)
 
     def _manager_spawn_actor_for_user(self, command: SystemSpawnActorCommand):
@@ -93,11 +94,11 @@ class ActorSystemBase(ManagerBase):
     def _handle_message_as_root_actor(self, sender: Address, message: Message):
         if isinstance(message, ManagerSpawnActorCompletedMessage):
             self._processor.process(AcknowledgeManagerSpawnActorCompletedCommand(
-                actor_address=message.actor_address, manager_address=message.manager_address,
+                actor_address=message.actor_address, manager_address=message.manager_address, ref_id=message.ref_id,
             ))
         elif isinstance(message, MessengerRegisterAddressCompletedMessage):
             self._processor.process(AcknowledgeMessengerRegisterAddressCompletedCommand(
-                actor_address=message.address, manager_address=message.manager_address,
+                actor_address=message.address, manager_address=message.manager_address, ref_id=message.ref_id,
             ))
         elif isinstance(message, Reply):
             self._processor.process(ActorReplyAskCommand(

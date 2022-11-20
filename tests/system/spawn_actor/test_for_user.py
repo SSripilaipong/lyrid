@@ -41,7 +41,7 @@ def test_should_put_system_spawn_actor_completed_reply_to_reply_queue_when_handl
     system = create_actor_system(reply_queue=reply_queue)
 
     system.handle_processor_command(AcknowledgeMessengerRegisterAddressCompletedCommand(
-        actor_address=Address("$.new"), manager_address=Address("#manager1"),
+        actor_address=Address("$.new"), manager_address=Address("#manager1"), ref_id="RefId999",
     ))
 
     assert reply_queue.get() == SystemSpawnActorCompletedReply(address=Address("$.new"))

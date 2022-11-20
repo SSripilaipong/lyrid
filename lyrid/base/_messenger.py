@@ -22,6 +22,7 @@ class MessengerBase(IMessenger):
                 address=message.address,
                 manager_address=message.manager_address,
                 requester_address=sender,
+                ref_id=message.ref_id,
             ))
         else:
             self._processor.process(SendingCommand(sender=sender, receiver=receiver, message=message))
@@ -51,6 +52,7 @@ class MessengerBase(IMessenger):
             message=MessengerRegisterAddressCompletedMessage(
                 address=command.address,
                 manager_address=command.manager_address,
+                ref_id=command.ref_id,
             )
         ))
 

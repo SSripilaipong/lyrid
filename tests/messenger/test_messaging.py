@@ -30,6 +30,7 @@ def test_should_let_manager_of_the_registered_address_handle_the_message_when_ha
         address=Address("$.you"),
         manager_address=Address("#manager1"),
         requester_address=Address("$"),
+        ref_id="...",
     ))
 
     messenger.handle_processor_command(SendingCommand(
