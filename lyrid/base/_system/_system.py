@@ -88,7 +88,8 @@ class ActorSystemBase(ManagerBase):
             self._messenger.send(self._address, task.requester,
                                  SpawnChildCompletedMessage(key=task.child_key, address=command.actor_address))
             del self._tasks[command.ref_id]
-        self._reply_queue.put(SystemSpawnActorCompletedReply(address=command.actor_address))
+        else:
+            self._reply_queue.put(SystemSpawnActorCompletedReply(address=command.actor_address))
 
     def ask(self, address: Address, message: Message) -> Message:
         ref_id = self._id_generator.generate()

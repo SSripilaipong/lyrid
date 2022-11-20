@@ -1,3 +1,7 @@
+import queue
+
+import pytest
+
 from lyrid.core.manager import ManagerSpawnActorMessage
 from lyrid.core.messaging import Address
 from lyrid.core.system import SpawnChildMessage, ActorSpawnChildActorCommand, \
@@ -49,6 +53,7 @@ def test_should_send_spawn_child_completed_message_to_actor_when_handling_acknow
                                  manager_addresses=[Address("#manager1")],
                                  id_generator=id_gen)
 
+    # noinspection DuplicatedCode
     system.handle_processor_command(ActorSpawnChildActorCommand(
         actor_address=Address("$.my_actor"), child_key="my_child", child_type=ActorDummy,
     ))
@@ -63,3 +68,25 @@ def test_should_send_spawn_child_completed_message_to_actor_when_handling_acknow
            messenger.send__receiver == Address("$.my_actor") and \
            messenger.send__message == \
            SpawnChildCompletedMessage(key="my_child", address=Address("$.my_actor.my_child"))
+
+
+def test_should_not_put_reply_in_reply_queue_when_completing_spawning_child_for_actor():
+    messenger = MessengerMock()
+    reply_queue = queue.Queue()
+    id_gen = IdGeneratorMock(generate__return="RefId999")
+    system = create_actor_system(messenger=messenger, manager_addresses=[Address("#manager1")],
+                                 id_generator=id_gen, reply_queue=reply_queue)
+
+    # noinspection DuplicatedCode
+    system.handle_processor_command(ActorSpawnChildActorCommand(
+        actor_address=Address("$.my_actor"), child_key="my_child", child_type=ActorDummy,
+    ))
+    system.handle_processor_command(AcknowledgeManagerSpawnActorCompletedCommand(
+        actor_address=Address("$.my_actor.my_child"), manager_address=Address("#manager1"), ref_id="RefId999"
+    ))
+    system.handle_processor_command(AcknowledgeMessengerRegisterAddressCompletedCommand(
+        actor_address=Address("$.my_actor.my_child"), manager_address=Address("#manager1"), ref_id="RefId999",
+    ))
+
+    with pytest.raises(queue.Empty):
+        reply_queue.get(block=False)
