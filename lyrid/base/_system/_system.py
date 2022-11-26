@@ -8,7 +8,7 @@ from lyrid.core.messenger import IMessenger
 from lyrid.core.processor import IProcessor, Command
 from lyrid.core.system import SystemSpawnActorCommand, SystemSpawnActorCompletedReply, ActorReplyAskCommand, \
     ActorAskReply
-from .root import RootActor
+from ._root import RootActor
 from ...core.actor import IActorFactory
 from ...core.common import IIdGenerator
 from ...core.system import SystemAskCommand
