@@ -9,7 +9,7 @@ from lyrid.core.messenger import IMessenger, MessengerRegisterAddressMessage, Me
 from lyrid.core.processor import IProcessor, Command
 from lyrid.core.system import SystemSpawnActorCommand, AcknowledgeMessengerRegisterAddressCompletedCommand, \
     SystemSpawnActorCompletedReply, ActorReplyAskCommand, \
-    ActorAskReply, SpawnChildMessage, ActorSpawnChildActorCommand, SpawnChildCompletedMessage
+    ActorAskReply, SpawnChildCompletedMessage, SpawnChildMessage
 from ._task import ActorSpawnChildTask, Task
 from ...core.actor import IActorFactory
 from ...core.common import IIdGenerator
@@ -40,14 +40,12 @@ class ActorSystemBase(ManagerBase):
         if isinstance(command, ActorMessageSendingCommand):
             if isinstance(command.message, ManagerSpawnActorCompletedMessage):
                 self._messenger_register_address(command)
+            if isinstance(command.message, SpawnChildMessage):
+                self._actor_spawn_child_actor(command)
             else:
                 super(ActorSystemBase, self).handle_processor_command(command)
         elif isinstance(command, SystemSpawnActorCommand):
             self._manager_spawn_actor_for_user(command)
-        elif isinstance(command, ActorSpawnChildActorCommand):
-            self._actor_spawn_child_actor(command)
-        # elif isinstance(command, AcknowledgeManagerSpawnActorCompletedCommand):
-        #     self._messenger_register_address(command)
         elif isinstance(command, AcknowledgeMessengerRegisterAddressCompletedCommand):
             self._complete_spawning_actor(command)
         elif isinstance(command, SystemAskCommand):
@@ -71,13 +69,14 @@ class ActorSystemBase(ManagerBase):
         )
         self._messenger.send(self._address, self._manager_addresses[0], msg)
 
-    def _actor_spawn_child_actor(self, command: ActorSpawnChildActorCommand):
+    def _actor_spawn_child_actor(self, command: ActorMessageSendingCommand[SpawnChildMessage]):
+        requester, child_key = command.sender, command.message.key
         ref_id = self._id_generator.generate()
-        self._tasks[ref_id] = ActorSpawnChildTask(requester=command.actor_address, child_key=command.child_key)
+        self._tasks[ref_id] = ActorSpawnChildTask(requester=requester, child_key=child_key)
 
         msg = ManagerSpawnActorMessage(
-            address=command.actor_address.child(command.child_key),
-            type_=command.child_type,
+            address=requester.child(child_key),
+            type_=command.message.type_,
             ref_id=ref_id,
         )
         self._messenger.send(self._address, self._manager_addresses[0], msg)
@@ -112,10 +111,6 @@ class ActorSystemBase(ManagerBase):
         is_handled = True
         if receiver != self._root_address:
             is_handled = False
-        # if isinstance(message, ManagerSpawnActorCompletedMessage):
-        #     self._processor.process(AcknowledgeManagerSpawnActorCompletedCommand(
-        #         actor_address=message.actor_address, manager_address=message.manager_address, ref_id=message.ref_id,
-        #     ))
         elif isinstance(message, MessengerRegisterAddressCompletedMessage):
             self._processor.process(AcknowledgeMessengerRegisterAddressCompletedCommand(
                 actor_address=message.address, manager_address=message.manager_address, ref_id=message.ref_id,
@@ -123,10 +118,6 @@ class ActorSystemBase(ManagerBase):
         elif isinstance(message, Reply):
             self._processor.process(ActorReplyAskCommand(
                 address=sender, message=message.message, ref_id=message.ref_id,
-            ))
-        elif isinstance(message, SpawnChildMessage):
-            self._processor.process(ActorSpawnChildActorCommand(
-                actor_address=sender, child_key=message.key, child_type=message.type_,
             ))
         else:
             is_handled = False
