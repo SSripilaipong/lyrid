@@ -45,6 +45,7 @@ class TaskSchedulerBase:
     def stop(self, block: bool = True):
         self._task_queue.put(StopSchedulerTask())
         if block:
+            assert self._thread is not None
             self._thread.join()
 
     def start(self):

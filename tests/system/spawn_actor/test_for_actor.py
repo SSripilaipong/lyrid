@@ -2,11 +2,10 @@ import queue
 
 import pytest
 
-from lyrid.core.manager import ManagerSpawnActorMessage
+from lyrid.core.manager import ManagerSpawnActorMessage, ActorMessageSendingCommand, ManagerSpawnActorCompletedMessage
 from lyrid.core.messaging import Address
 from lyrid.core.system import SpawnChildMessage, ActorSpawnChildActorCommand, \
-    AcknowledgeMessengerRegisterAddressCompletedCommand, SpawnChildCompletedMessage, \
-    AcknowledgeManagerSpawnActorCompletedCommand
+    AcknowledgeMessengerRegisterAddressCompletedCommand, SpawnChildCompletedMessage
 from tests.factory.system import create_actor_system
 from tests.mock.id_generator import IdGeneratorMock
 from tests.mock.messenger import MessengerMock
@@ -57,9 +56,13 @@ def test_should_send_spawn_child_completed_message_to_actor_when_handling_acknow
     system.handle_processor_command(ActorSpawnChildActorCommand(
         actor_address=Address("$.my_actor"), child_key="my_child", child_type=ActorDummy,
     ))
-    system.handle_processor_command(AcknowledgeManagerSpawnActorCompletedCommand(
-        actor_address=Address("$.my_actor.my_child"), manager_address=Address("#manager1"), ref_id="RefId999"
-    ))
+    system.handle_processor_command(ActorMessageSendingCommand(
+        sender=Address("#manager1"), receiver=Address("$"),
+        message=ManagerSpawnActorCompletedMessage(
+            actor_address=Address("$.my_actor.my_child"),
+            manager_address=Address("#manager1"),
+            ref_id="RefId999"
+        )))
     system.handle_processor_command(AcknowledgeMessengerRegisterAddressCompletedCommand(
         actor_address=Address("$.my_actor.my_child"), manager_address=Address("#manager1"), ref_id="RefId999",
     ))
@@ -81,9 +84,13 @@ def test_should_not_put_reply_in_reply_queue_when_completing_spawning_child_for_
     system.handle_processor_command(ActorSpawnChildActorCommand(
         actor_address=Address("$.my_actor"), child_key="my_child", child_type=ActorDummy,
     ))
-    system.handle_processor_command(AcknowledgeManagerSpawnActorCompletedCommand(
-        actor_address=Address("$.my_actor.my_child"), manager_address=Address("#manager1"), ref_id="RefId999"
-    ))
+    system.handle_processor_command(ActorMessageSendingCommand(
+        sender=Address("#manager1"), receiver=Address("$"),
+        message=ManagerSpawnActorCompletedMessage(
+            actor_address=Address("$.my_actor.my_child"),
+            manager_address=Address("#manager1"),
+            ref_id="RefId999"
+        )))
     system.handle_processor_command(AcknowledgeMessengerRegisterAddressCompletedCommand(
         actor_address=Address("$.my_actor.my_child"), manager_address=Address("#manager1"), ref_id="RefId999",
     ))

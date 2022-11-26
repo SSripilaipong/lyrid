@@ -4,7 +4,7 @@ from tests.manager._assertion import (
     assert_stop_task_scheduler_when_receive_processor_stop_command,
     assert_schedule_actor_task_when_handling_actor_message_sending_command,
 )
-from tests.manager.spawn_actor._assertion import \
+from tests.manager.spawn_actor.assertion import \
     assert_let_processor_process_spawn_actor_command_when_handle_manager_spawn_actor_message, \
     assert_register_actor_in_scheduler_when_handling_spawn_actor_command, assert_reply_spawn_actor_completed_message
 from tests.manager.typing import ManagerFactory

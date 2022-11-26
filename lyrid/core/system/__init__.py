@@ -1,5 +1,5 @@
 from ._command import (
-    SystemSpawnActorCommand, AcknowledgeManagerSpawnActorCompletedCommand,
+    SystemSpawnActorCommand,
     AcknowledgeMessengerRegisterAddressCompletedCommand, SystemAskCommand, ActorReplyAskCommand,
     ActorSpawnChildActorCommand,
 )

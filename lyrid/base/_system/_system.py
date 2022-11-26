@@ -2,12 +2,13 @@ import queue
 from typing import List, Dict
 
 from lyrid.base import ManagerBase
-from lyrid.core.manager import ITaskScheduler, ManagerSpawnActorMessage, ManagerSpawnActorCompletedMessage
+from lyrid.core.manager import ITaskScheduler, ManagerSpawnActorMessage, ActorMessageSendingCommand, \
+    ManagerSpawnActorCompletedMessage
 from lyrid.core.messaging import Address, Message, Ask, Reply
 from lyrid.core.messenger import IMessenger, MessengerRegisterAddressMessage, MessengerRegisterAddressCompletedMessage
 from lyrid.core.processor import IProcessor, Command
-from lyrid.core.system import SystemSpawnActorCommand, AcknowledgeManagerSpawnActorCompletedCommand, \
-    AcknowledgeMessengerRegisterAddressCompletedCommand, SystemSpawnActorCompletedReply, ActorReplyAskCommand, \
+from lyrid.core.system import SystemSpawnActorCommand, AcknowledgeMessengerRegisterAddressCompletedCommand, \
+    SystemSpawnActorCompletedReply, ActorReplyAskCommand, \
     ActorAskReply, SpawnChildMessage, ActorSpawnChildActorCommand, SpawnChildCompletedMessage
 from ._task import ActorSpawnChildTask, Task
 from ...core.actor import IActorFactory
@@ -32,18 +33,21 @@ class ActorSystemBase(ManagerBase):
         self._tasks: Dict[str, Task] = {}
 
     def handle_message(self, sender: Address, receiver: Address, message: Message):
-        if receiver == self._root_address:
-            self._handle_message_as_root_actor(sender, message)
-        else:
+        if not self._handle_message_as_root_actor(sender, receiver, message):
             super(ActorSystemBase, self).handle_message(sender, receiver, message)
 
     def handle_processor_command(self, command: Command):
-        if isinstance(command, SystemSpawnActorCommand):
+        if isinstance(command, ActorMessageSendingCommand):
+            if isinstance(command.message, ManagerSpawnActorCompletedMessage):
+                self._messenger_register_address(command)
+            else:
+                super(ActorSystemBase, self).handle_processor_command(command)
+        elif isinstance(command, SystemSpawnActorCommand):
             self._manager_spawn_actor_for_user(command)
         elif isinstance(command, ActorSpawnChildActorCommand):
             self._actor_spawn_child_actor(command)
-        elif isinstance(command, AcknowledgeManagerSpawnActorCompletedCommand):
-            self._messenger_register_address(command)
+        # elif isinstance(command, AcknowledgeManagerSpawnActorCompletedCommand):
+        #     self._messenger_register_address(command)
         elif isinstance(command, AcknowledgeMessengerRegisterAddressCompletedCommand):
             self._complete_spawning_actor(command)
         elif isinstance(command, SystemAskCommand):
@@ -53,9 +57,10 @@ class ActorSystemBase(ManagerBase):
         else:
             super(ActorSystemBase, self).handle_processor_command(command)
 
-    def _messenger_register_address(self, command: AcknowledgeManagerSpawnActorCompletedCommand):
-        msg = MessengerRegisterAddressMessage(address=command.actor_address, manager_address=command.manager_address,
-                                              ref_id=command.ref_id)
+    def _messenger_register_address(self, command: ActorMessageSendingCommand[ManagerSpawnActorCompletedMessage]):
+        msg = MessengerRegisterAddressMessage(address=command.message.actor_address,
+                                              manager_address=command.sender,
+                                              ref_id=command.message.ref_id)
         self._messenger.send(self._address, self._messenger_address, msg)
 
     def _manager_spawn_actor_for_user(self, command: SystemSpawnActorCommand):
@@ -103,11 +108,14 @@ class ActorSystemBase(ManagerBase):
     def _actor_reply_ask(self, command: ActorReplyAskCommand):
         self._reply_queue.put(ActorAskReply(address=command.address, message=command.message, ref_id=command.ref_id))
 
-    def _handle_message_as_root_actor(self, sender: Address, message: Message):
-        if isinstance(message, ManagerSpawnActorCompletedMessage):
-            self._processor.process(AcknowledgeManagerSpawnActorCompletedCommand(
-                actor_address=message.actor_address, manager_address=message.manager_address, ref_id=message.ref_id,
-            ))
+    def _handle_message_as_root_actor(self, sender: Address, receiver: Address, message: Message):
+        is_handled = True
+        if receiver != self._root_address:
+            is_handled = False
+        # if isinstance(message, ManagerSpawnActorCompletedMessage):
+        #     self._processor.process(AcknowledgeManagerSpawnActorCompletedCommand(
+        #         actor_address=message.actor_address, manager_address=message.manager_address, ref_id=message.ref_id,
+        #     ))
         elif isinstance(message, MessengerRegisterAddressCompletedMessage):
             self._processor.process(AcknowledgeMessengerRegisterAddressCompletedCommand(
                 actor_address=message.address, manager_address=message.manager_address, ref_id=message.ref_id,
@@ -120,6 +128,9 @@ class ActorSystemBase(ManagerBase):
             self._processor.process(ActorSpawnChildActorCommand(
                 actor_address=sender, child_key=message.key, child_type=message.type_,
             ))
+        else:
+            is_handled = False
+        return is_handled
 
     def join(self):
         for processor in self._processors:

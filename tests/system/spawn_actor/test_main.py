@@ -1,14 +1,13 @@
-from lyrid.core.manager import ManagerSpawnActorCompletedMessage
+from lyrid.core.manager import ManagerSpawnActorCompletedMessage, ActorMessageSendingCommand
 from lyrid.core.messaging import Address
 from lyrid.core.messenger import MessengerRegisterAddressMessage, MessengerRegisterAddressCompletedMessage
-from lyrid.core.system import AcknowledgeManagerSpawnActorCompletedCommand, \
-    AcknowledgeMessengerRegisterAddressCompletedCommand
+from lyrid.core.system import AcknowledgeMessengerRegisterAddressCompletedCommand
 from tests.factory.system import create_actor_system
 from tests.mock.messenger import MessengerMock
 from tests.mock.processor import ProcessorMock
 
 
-def test_should_let_processor_process_acknowledge_spawn_actor_completed_command_when_handling_message_manager_spawn_actor_completed_message():
+def test_should_let_processor_process_handle_manager_spawn_actor_completed_message():
     processor = ProcessorMock()
     system = create_actor_system(processor=processor)
 
@@ -19,17 +18,26 @@ def test_should_let_processor_process_acknowledge_spawn_actor_completed_command_
                                                   ref_id="RefId123")
     )
 
-    assert processor.process__command == AcknowledgeManagerSpawnActorCompletedCommand(
-        actor_address=Address("$.new"), manager_address=Address("#manager1"), ref_id="RefId123",
+    assert processor.process__command == ActorMessageSendingCommand(
+        sender=Address("#manager1"), receiver=Address("$"),
+        message=ManagerSpawnActorCompletedMessage(
+            actor_address=Address("$.new"),
+            manager_address=Address("#manager1"),
+            ref_id="RefId123",
+        ),
     )
 
 
-def test_should_send_messenger_register_address_message_to_messenger_when_handling_acknowledge_manager_spawn_actor_completed_command():
+def test_should_send_messenger_register_address_message_to_messenger_when_handling_manager_spawn_actor_completed_message():
     messenger = MessengerMock()
     system = create_actor_system(address=Address("$"), messenger=messenger, messenger_address=Address("#messenger"))
 
-    system.handle_processor_command(AcknowledgeManagerSpawnActorCompletedCommand(
-        actor_address=Address("$.new"), manager_address=Address("#manager1"), ref_id="RefId999"
+    system.handle_processor_command(ActorMessageSendingCommand(
+        sender=Address("#manager1"), receiver=Address("$"),
+        message=ManagerSpawnActorCompletedMessage(
+            actor_address=Address("$.new"),
+            manager_address=Address("#manager1"),
+            ref_id="RefId999"),
     ))
 
     assert messenger.send__sender == Address("$") and \

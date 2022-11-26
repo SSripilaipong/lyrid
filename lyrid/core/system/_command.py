@@ -12,13 +12,6 @@ class SystemSpawnActorCommand(Command):
 
 
 @dataclass
-class AcknowledgeManagerSpawnActorCompletedCommand(Command):
-    actor_address: Address
-    manager_address: Address
-    ref_id: str
-
-
-@dataclass
 class AcknowledgeMessengerRegisterAddressCompletedCommand(Command):
     actor_address: Address
     manager_address: Address

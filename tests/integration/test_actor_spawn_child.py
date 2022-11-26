@@ -1,5 +1,5 @@
 from dataclasses import dataclass
-from typing import TYPE_CHECKING
+from typing import Optional
 
 from lyrid import ActorBase, ActorSystem
 from lyrid.core.actor import ActorStoppedSignal
@@ -20,12 +20,12 @@ class SpawnSecond(Message):
 
 
 class First(ActorBase):
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
+    def __init__(self, address: Address, messenger: IMessenger):
+        super().__init__(address, messenger)
 
-        self.reply_to = None
-        self.ref_id = None
-        self.second_address = None
+        self.reply_to: Optional[Address] = None
+        self.ref_id: Optional[str] = None
+        self.second_address: Optional[Address] = None
 
     def receive(self, sender: Address, message: Message):
         if isinstance(message, Ask) and isinstance(message.message, SpawnSecond):
@@ -39,6 +39,7 @@ class First(ActorBase):
             self.second_address = message.address
             self._try_greet_second()
         elif isinstance(message, MessageDummy) and sender == self.second_address:
+            assert self.reply_to is not None and self.ref_id is not None
             self.tell(self.reply_to, Reply(MessageDummy("second said: " + message.text), ref_id=self.ref_id))
             raise ActorStoppedSignal()
 
@@ -46,10 +47,6 @@ class First(ActorBase):
         if self.reply_to is None or self.second_address is None:
             return
         self.tell(self.second_address, MessageDummy("how are you"))
-
-    if TYPE_CHECKING:
-        # noinspection PyUnusedLocal
-        def __init__(self, address: Address, messenger: IMessenger): ...
 
 
 class Second(ActorBase):
