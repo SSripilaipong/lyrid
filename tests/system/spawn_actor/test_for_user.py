@@ -2,13 +2,14 @@ import queue
 
 from lyrid.core.manager import ManagerSpawnActorMessage
 from lyrid.core.messaging import Address
-from lyrid.core.system import SystemSpawnActorCommand, AcknowledgeMessengerRegisterAddressCompletedCommand, \
-    SystemSpawnActorCompletedReply
+from lyrid.core.messenger import MessengerRegisterAddressCompletedMessage
+from lyrid.core.system import SystemSpawnActorCommand, SystemSpawnActorCompletedReply
 from tests.factory.system import create_actor_system
 from tests.mock.id_generator import IdGeneratorMock
 from tests.mock.messenger import MessengerMock
 from tests.mock.processor import ProcessorMock
 from tests.system.actor_dummy import ActorDummy
+from tests.system.util import root_process_message
 
 
 def test_should_let_processor_process_spawn_actor_command_when_spawn_is_called():
@@ -40,9 +41,11 @@ def test_should_put_system_spawn_actor_completed_reply_to_reply_queue_when_handl
     reply_queue = queue.Queue()
     system = create_actor_system(reply_queue=reply_queue)
 
-    system.handle_processor_command(AcknowledgeMessengerRegisterAddressCompletedCommand(
-        actor_address=Address("$.new"), manager_address=Address("#manager1"), ref_id="RefId999",
-    ))
+    root_process_message(
+        system, sender=Address("#messenger"), message=MessengerRegisterAddressCompletedMessage(
+            address=Address("$.new"), manager_address=Address("#manager1"), ref_id="RefId999",
+        ),
+    )
 
     assert reply_queue.get() == SystemSpawnActorCompletedReply(address=Address("$.new"))
 

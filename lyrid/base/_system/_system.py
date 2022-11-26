@@ -7,8 +7,7 @@ from lyrid.core.manager import ITaskScheduler, ManagerSpawnActorMessage, ActorMe
 from lyrid.core.messaging import Address, Message, Ask, Reply
 from lyrid.core.messenger import IMessenger, MessengerRegisterAddressMessage, MessengerRegisterAddressCompletedMessage
 from lyrid.core.processor import IProcessor, Command
-from lyrid.core.system import SystemSpawnActorCommand, AcknowledgeMessengerRegisterAddressCompletedCommand, \
-    SystemSpawnActorCompletedReply, ActorReplyAskCommand, \
+from lyrid.core.system import SystemSpawnActorCommand, SystemSpawnActorCompletedReply, ActorReplyAskCommand, \
     ActorAskReply, SpawnChildCompletedMessage, SpawnChildMessage
 from ._task import ActorSpawnChildTask, Task
 from ...core.actor import IActorFactory
@@ -40,14 +39,14 @@ class ActorSystemBase(ManagerBase):
         if isinstance(command, ActorMessageSendingCommand):
             if isinstance(command.message, ManagerSpawnActorCompletedMessage):
                 self._messenger_register_address(command)
-            if isinstance(command.message, SpawnChildMessage):
+            elif isinstance(command.message, SpawnChildMessage):
                 self._actor_spawn_child_actor(command)
+            elif isinstance(command.message, MessengerRegisterAddressCompletedMessage):
+                self._complete_spawning_actor(command)
             else:
                 super(ActorSystemBase, self).handle_processor_command(command)
         elif isinstance(command, SystemSpawnActorCommand):
             self._manager_spawn_actor_for_user(command)
-        elif isinstance(command, AcknowledgeMessengerRegisterAddressCompletedCommand):
-            self._complete_spawning_actor(command)
         elif isinstance(command, SystemAskCommand):
             self._system_ask(command)
         elif isinstance(command, ActorReplyAskCommand):
@@ -86,14 +85,14 @@ class ActorSystemBase(ManagerBase):
         reply: SystemSpawnActorCompletedReply = self._reply_queue.get()
         return reply.address
 
-    def _complete_spawning_actor(self, command: AcknowledgeMessengerRegisterAddressCompletedCommand):
-        task = self._tasks.get(command.ref_id, None)
+    def _complete_spawning_actor(self, command: ActorMessageSendingCommand[MessengerRegisterAddressCompletedMessage]):
+        task = self._tasks.get(command.message.ref_id, None)
         if isinstance(task, ActorSpawnChildTask):
             self._messenger.send(self._address, task.requester,
-                                 SpawnChildCompletedMessage(key=task.child_key, address=command.actor_address))
-            del self._tasks[command.ref_id]
+                                 SpawnChildCompletedMessage(key=task.child_key, address=command.message.address))
+            del self._tasks[command.message.ref_id]
         else:
-            self._reply_queue.put(SystemSpawnActorCompletedReply(address=command.actor_address))
+            self._reply_queue.put(SystemSpawnActorCompletedReply(address=command.message.address))
 
     def ask(self, address: Address, message: Message) -> Message:
         ref_id = self._id_generator.generate()
@@ -111,10 +110,6 @@ class ActorSystemBase(ManagerBase):
         is_handled = True
         if receiver != self._root_address:
             is_handled = False
-        elif isinstance(message, MessengerRegisterAddressCompletedMessage):
-            self._processor.process(AcknowledgeMessengerRegisterAddressCompletedCommand(
-                actor_address=message.address, manager_address=message.manager_address, ref_id=message.ref_id,
-            ))
         elif isinstance(message, Reply):
             self._processor.process(ActorReplyAskCommand(
                 address=sender, message=message.message, ref_id=message.ref_id,
