@@ -41,16 +41,14 @@ class RootActor(ActorBase):
         ref_id = self._id_generator.generate()
         self._tasks[ref_id] = ActorSpawnChildTask(requester=requester, child_key=child_key)
 
-        msg = ManagerSpawnActorMessage(
+        self.tell(self._manager_addresses[0], ManagerSpawnActorMessage(
             address=requester.child(child_key), type_=message.type_, ref_id=ref_id,
-        )
-        self._messenger.send(self._address, self._manager_addresses[0], msg)
+        ))
 
     def _complete_spawning_actor(self, _: Address, message: MessengerRegisterAddressCompletedMessage):
         task = self._tasks.get(message.ref_id, None)
         if isinstance(task, ActorSpawnChildTask):
-            self._messenger.send(self._address, task.requester,
-                                 SpawnChildCompletedMessage(key=task.child_key, address=message.address))
+            self.tell(task.requester, SpawnChildCompletedMessage(key=task.child_key, address=message.address))
             del self._tasks[message.ref_id]
         else:
             self._reply_queue.put(SystemSpawnActorCompletedReply(address=message.address))
