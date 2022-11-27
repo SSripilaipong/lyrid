@@ -4,6 +4,7 @@ from lyrid.core.actor import ActorStoppedSignal, ChildActorStopped, SupervisorFo
 from lyrid.core.messaging import Address
 from tests.actor.actor_mock import WillStop, ChildActor, StopDummy
 from tests.factory.actor import create_actor
+from tests.message_dummy import MessageDummy
 from tests.mock.messenger import MessengerMock
 
 
@@ -63,3 +64,17 @@ def test_should_raise_actor_stopped_signal_to_outside_after_actor_tried_to_stop_
 
     with pytest.raises(ActorStoppedSignal):
         actor.receive(Address("#manager7"), ChildActorStopped(child_address=Address("$.me.child1")))
+
+
+def test_should_not_let_actor_receive_any_message_when_stopping():
+    actor = create_actor(WillStop, address=Address("$.me"))
+
+    actor.spawn("child1", ChildActor)
+    actor.spawn("child2", ChildActor)
+    actor.receive(Address("$.someone"), StopDummy())
+    actor.on_receive__clear_captures()
+
+    actor.receive(Address("$.me.child2"), ChildActorStopped(child_address=Address("$.me.child2")))
+    actor.receive(Address("$.someone.else"), MessageDummy("You there?"))
+
+    assert actor.on_receive__senders == [] and actor.on_receive__messages == []

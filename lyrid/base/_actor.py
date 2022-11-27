@@ -35,8 +35,20 @@ class ActorBase(IActor, ABC):
     def receive(self, sender: Address, message: Message):
         if isinstance(message, ChildActorStopped):
             self._active_children -= {message.child_address}
-            if self._status is ActorStatus.STOPPING and not self._active_children:
-                raise ActorStoppedSignal()
+
+        if self._status is ActorStatus.ACTIVE:
+            self._receive_when_active(sender, message)
+        elif self._status is ActorStatus.STOPPING:
+            self._receive_when_stopping(sender, message)
+
+    def stop(self):
+        raise ActorStoppedSignal()
+
+    @abstractmethod
+    def on_receive(self, sender: Address, message: Message):
+        pass
+
+    def _receive_when_active(self, sender: Address, message: Message):
         try:
             self.on_receive(sender, message)
         except ActorStoppedSignal as s:
@@ -47,11 +59,9 @@ class ActorBase(IActor, ABC):
                 raise s
             else:
                 for child in self._active_children:
-                    self._messenger.send_to_manager(self._address, of=child, message=SupervisorForceStop(address=child))
+                    self._messenger.send_to_manager(self._address, of=child,
+                                                    message=SupervisorForceStop(address=child))
 
-    def stop(self):
-        raise ActorStoppedSignal()
-
-    @abstractmethod
-    def on_receive(self, sender: Address, message: Message):
-        pass
+    def _receive_when_stopping(self, _: Address, __: Message):
+        if not self._active_children:
+            raise ActorStoppedSignal()
