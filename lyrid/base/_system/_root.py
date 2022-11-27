@@ -22,7 +22,7 @@ class RootActor(ActorBase):
 
         self._tasks: Dict[str, Task] = {}
 
-    def receive(self, sender: Address, message: Message):
+    def on_receive(self, sender: Address, message: Message):
         if isinstance(message, ManagerSpawnActorCompletedMessage):
             self._messenger_register_address(sender, message)
         elif isinstance(message, SpawnChildMessage):

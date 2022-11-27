@@ -1,7 +1,7 @@
 from abc import ABC, abstractmethod
 from typing import TypeVar
 
-from lyrid.core.actor import IActorFactory
+from lyrid.core.actor import IActorFactory, IActor, ActorStoppedSignal, ChildActorStopped
 from lyrid.core.messaging import Address, Message
 from lyrid.core.messenger import IMessenger
 from lyrid.core.system import SpawnChildMessage
@@ -9,7 +9,7 @@ from lyrid.core.system import SpawnChildMessage
 T = TypeVar("T", bound='ActorBase')
 
 
-class ActorBase(ABC):
+class ActorBase(IActor, ABC):
 
     def __init__(self, address: Address, messenger: IMessenger):
         self._address = address
@@ -22,6 +22,16 @@ class ActorBase(ABC):
     def spawn(self, key: str, type_: 'IActorFactory'):
         self._messenger.send(self._address, self._system_address, SpawnChildMessage(key=key, type_=type_))
 
-    @abstractmethod
     def receive(self, sender: Address, message: Message):
+        try:
+            self.on_receive(sender, message)
+        except ActorStoppedSignal as s:
+            self.tell(self._address.supervisor(), ChildActorStopped(child_address=self._address))
+            raise s
+
+    def stop(self):
+        raise ActorStoppedSignal()
+
+    @abstractmethod
+    def on_receive(self, sender: Address, message: Message):
         pass

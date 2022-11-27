@@ -13,7 +13,7 @@ class MyActor(ActorBase):
         self.receive__sender: Optional[Address] = None
         self.receive__message: Optional[Message] = None
 
-    def receive(self, sender: Address, message: Message):
+    def on_receive(self, sender: Address, message: Message):
         self.receive__sender = sender
         self.receive__message = message
 
@@ -25,7 +25,7 @@ class WillStop(ActorBase):
         self.receive__senders: List[Address] = []
         self.receive__messages: List[Message] = []
 
-    def receive(self, sender: Address, message: Message):
+    def on_receive(self, sender: Address, message: Message):
         self.receive__senders.append(sender)
         self.receive__messages.append(message)
         raise ActorStoppedSignal()

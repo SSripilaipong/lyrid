@@ -27,7 +27,7 @@ class First(ActorBase):
         self.ref_id: Optional[str] = None
         self.second_address: Optional[Address] = None
 
-    def receive(self, sender: Address, message: Message):
+    def on_receive(self, sender: Address, message: Message):
         if isinstance(message, Ask) and isinstance(message.message, SpawnSecond):
             self.spawn("second", Second)
             self.tell(sender, Reply(MessageDummy("ok"), ref_id=message.ref_id))
@@ -50,7 +50,7 @@ class First(ActorBase):
 
 
 class Second(ActorBase):
-    def receive(self, sender: Address, message: Message):
+    def on_receive(self, sender: Address, message: Message):
         if isinstance(message, MessageDummy) and message.text == "how are you":
             self.tell(sender, MessageDummy("i'm good, thanks"))
             raise ActorStoppedSignal()

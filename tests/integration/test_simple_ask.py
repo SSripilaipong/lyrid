@@ -11,7 +11,7 @@ class Greeting(Message):
 
 
 class Greeter(ActorBase):
-    def receive(self, sender: Address, message: Message):
+    def on_receive(self, sender: Address, message: Message):
         if isinstance(message, Ask) and isinstance(message.message, Greeting):
             self.tell(sender, Reply(Greeting(content="Hi!"), ref_id=message.ref_id))
             raise ActorStoppedSignal()
