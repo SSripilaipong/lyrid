@@ -2,7 +2,7 @@ from typing import Dict
 
 from lyrid.core.messaging import Address, Message
 from lyrid.core.messenger import IMessenger, IManager, RegisterAddressCommand, SendingCommand, \
-    MessengerRegisterAddressMessage, MessengerRegisterAddressCompletedMessage
+    MessengerRegisterAddressMessage, MessengerRegisterAddressCompletedMessage, SendingToManagerCommand
 from lyrid.core.processor import IProcessor, Command, ProcessorStartCommand, ProcessorStopCommand
 
 
@@ -28,7 +28,7 @@ class MessengerBase(IMessenger):
             self._processor.process(SendingCommand(sender=sender, receiver=receiver, message=message))
 
     def send_to_manager(self, sender: Address, of: Address, message: Message):
-        pass
+        self._processor.process(SendingToManagerCommand(sender=sender, of=of, message=message))
 
     def handle_processor_command(self, command: Command):
         if isinstance(command, SendingCommand):

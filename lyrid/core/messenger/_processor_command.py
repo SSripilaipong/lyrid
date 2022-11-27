@@ -12,6 +12,13 @@ class SendingCommand(Command):
 
 
 @dataclass
+class SendingToManagerCommand(Command):
+    sender: Address
+    of: Address
+    message: Message
+
+
+@dataclass
 class RegisterAddressCommand(Command):
     address: Address
     manager_address: Address
