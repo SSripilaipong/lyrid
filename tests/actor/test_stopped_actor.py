@@ -47,3 +47,19 @@ def test_should_send_supervisor_force_stop_message_to_not_stopped_children_only(
            set(messenger.send_to_manager__ofs) == {Address("$.me.child1"), Address("$.me.child3")} and \
            set(messenger.send_to_manager__messages) == {SupervisorForceStop(address=Address("$.me.child1")),
                                                         SupervisorForceStop(address=Address("$.me.child3"))}
+
+
+def test_should_raise_actor_stopped_signal_to_outside_after_actor_tried_to_stop_and_all_children_are_stopped():
+    actor = create_actor(WillStop, address=Address("$.me"))
+
+    # noinspection DuplicatedCode
+    actor.spawn("child1", ChildActor)
+    actor.spawn("child2", ChildActor)
+    actor.spawn("child3", ChildActor)
+    actor.receive(Address("$.me.child2"), ChildActorStopped(child_address=Address("$.me.child2")))
+    actor.receive(Address("$.someone"), StopDummy())
+    actor.receive(Address("$.me.child3"), ChildActorStopped(child_address=Address("$.me.child3")))
+    actor.receive(Address("#manager6"), ChildActorStopped(child_address=Address("$.me.child3")))
+
+    with pytest.raises(ActorStoppedSignal):
+        actor.receive(Address("#manager7"), ChildActorStopped(child_address=Address("$.me.child1")))

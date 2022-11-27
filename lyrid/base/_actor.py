@@ -35,9 +35,12 @@ class ActorBase(IActor, ABC):
     def receive(self, sender: Address, message: Message):
         if isinstance(message, ChildActorStopped):
             self._active_children -= {message.child_address}
+            if self._status is ActorStatus.STOPPING and not self._active_children:
+                raise ActorStoppedSignal()
         try:
             self.on_receive(sender, message)
         except ActorStoppedSignal as s:
+            self._status = ActorStatus.STOPPING
             self.tell(self._address.supervisor(), ChildActorStopped(child_address=self._address))
 
             if not self._active_children:
