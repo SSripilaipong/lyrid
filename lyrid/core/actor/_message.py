@@ -8,6 +8,6 @@ class ChildActorStopped(Message):
     child_address: Address
 
 
-@dataclass
+@dataclass(frozen=True)
 class SupervisorForceStop(Message):
-    pass
+    address: Address

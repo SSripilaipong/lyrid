@@ -1,3 +1,5 @@
+from dataclasses import dataclass
+
 from lyrid import ActorBase
 from lyrid.core.messaging import Address, Message
 
@@ -14,6 +16,12 @@ class ChildActor(ActorBase):
         pass
 
 
+@dataclass
+class StopDummy(Message):
+    pass
+
+
 class WillStop(ActorBase):
     def on_receive(self, sender: Address, message: Message):
-        self.stop()
+        if message == StopDummy():
+            self.stop()

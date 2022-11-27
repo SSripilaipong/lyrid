@@ -33,6 +33,8 @@ class ActorBase(IActor, ABC):
         self._active_children.add(self._address.child(key))
 
     def receive(self, sender: Address, message: Message):
+        if isinstance(message, ChildActorStopped):
+            self._active_children -= {message.child_address}
         try:
             self.on_receive(sender, message)
         except ActorStoppedSignal as s:
@@ -42,7 +44,7 @@ class ActorBase(IActor, ABC):
                 raise s
             else:
                 for child in self._active_children:
-                    self._messenger.send_to_manager(self._address, of=child, message=SupervisorForceStop())
+                    self._messenger.send_to_manager(self._address, of=child, message=SupervisorForceStop(address=child))
 
     def stop(self):
         raise ActorStoppedSignal()
