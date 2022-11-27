@@ -2,7 +2,6 @@ from dataclasses import dataclass
 from typing import Optional
 
 from lyrid import ActorBase, ActorSystem
-from lyrid.core.actor import ActorStoppedSignal
 from lyrid.core.messaging import Address, Message, Reply, Ask
 from lyrid.core.messenger import IMessenger
 from lyrid.core.system import SpawnChildCompletedMessage
@@ -41,7 +40,7 @@ class First(ActorBase):
         elif isinstance(message, MessageDummy) and sender == self.second_address:
             assert self.reply_to is not None and self.ref_id is not None
             self.tell(self.reply_to, Reply(MessageDummy("second said: " + message.text), ref_id=self.ref_id))
-            raise ActorStoppedSignal()
+            self.stop()
 
     def _try_greet_second(self):
         if self.reply_to is None or self.second_address is None:
@@ -53,7 +52,7 @@ class Second(ActorBase):
     def on_receive(self, sender: Address, message: Message):
         if isinstance(message, MessageDummy) and message.text == "how are you":
             self.tell(sender, MessageDummy("i'm good, thanks"))
-            raise ActorStoppedSignal()
+            self.stop()
 
 
 def test_should_spawn_and_ask_second_actor():
