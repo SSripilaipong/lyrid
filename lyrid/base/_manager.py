@@ -1,4 +1,4 @@
-from lyrid.core.actor import SupervisorForceStop
+from lyrid.core.actor import SupervisorForceStop, ChildActorStopped
 from lyrid.core.manager import (
     ITaskScheduler, ActorMessageDeliveryTask, MessageHandlingCommand, SpawnActorCommand, ManagerSpawnActorMessage,
     ManagerSpawnActorCompletedMessage,
@@ -54,3 +54,7 @@ class ManagerBase(IManager):
     def _handle_manager_message(self, command: MessageHandlingCommand):
         if isinstance(command.message, SupervisorForceStop):
             self._scheduler.force_stop_actor(command.message.address)
+            self._messenger.send(
+                sender=self._address, receiver=command.sender,
+                message=ChildActorStopped(child_address=command.message.address),
+            )
