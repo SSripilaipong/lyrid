@@ -2,7 +2,7 @@ import queue
 
 import pytest
 
-from lyrid.core.manager import ManagerSpawnActorMessage, ActorMessageSendingCommand, ManagerSpawnActorCompletedMessage
+from lyrid.core.manager import ManagerSpawnActorMessage, MessageHandlingCommand, ManagerSpawnActorCompletedMessage
 from lyrid.core.messaging import Address
 from lyrid.core.messenger import MessengerRegisterAddressCompletedMessage
 from lyrid.core.system import SpawnChildMessage, SpawnChildCompletedMessage
@@ -24,7 +24,7 @@ def test_should_let_processor_process_handle_spawn_child_actor_message():
         message=SpawnChildMessage(key="my_child", type_=ActorDummy)
     )
 
-    assert processor.process__command == ActorMessageSendingCommand(
+    assert processor.process__command == MessageHandlingCommand(
         sender=Address("$.actor"), receiver=Address("$"),
         message=SpawnChildMessage(key="my_child", type_=ActorDummy),
     )

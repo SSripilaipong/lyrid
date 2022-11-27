@@ -17,6 +17,10 @@ class ITaskScheduler(Protocol):
         pass
 
     @abstractmethod
+    def force_stop_actor(self, address: Address):
+        pass
+
+    @abstractmethod
     def stop(self):
         pass
 

@@ -3,7 +3,7 @@ from typing import TYPE_CHECKING
 
 from lyrid.core.actor import IActor
 from lyrid.core.manager import (
-    ActorMessageDeliveryTask, ActorMessageSendingCommand
+    ActorMessageDeliveryTask, MessageHandlingCommand
 )
 from lyrid.core.messaging import Address, Message
 from lyrid.core.messenger import IMessenger
@@ -22,7 +22,7 @@ def assert_let_processor_process_actor_message_sending_command_when_handle_messa
 
     manager.handle_message(Address("$.me"), Address("$.you"), MessageDummy("Hello"))
 
-    assert processor.process__command == ActorMessageSendingCommand(
+    assert processor.process__command == MessageHandlingCommand(
         sender=Address("$.me"),
         receiver=Address("$.you"),
         message=MessageDummy("Hello"),
@@ -57,7 +57,7 @@ def assert_schedule_actor_task_when_handling_actor_message_sending_command(
     scheduler = SchedulerMock()
     manager = create_manager(scheduler=scheduler)
 
-    manager.handle_processor_command(ActorMessageSendingCommand(
+    manager.handle_processor_command(MessageHandlingCommand(
         sender=Address("$.me"),
         receiver=Address("$.you"),
         message=MessageDummy("Hello"),

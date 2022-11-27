@@ -2,7 +2,7 @@ import queue
 from typing import List
 
 from lyrid.base import ManagerBase
-from lyrid.core.manager import ITaskScheduler, ManagerSpawnActorMessage, ActorMessageSendingCommand
+from lyrid.core.manager import ITaskScheduler, ManagerSpawnActorMessage, MessageHandlingCommand
 from lyrid.core.messaging import Address, Message, Ask, Reply
 from lyrid.core.messenger import IMessenger
 from lyrid.core.processor import IProcessor, Command
@@ -38,7 +38,7 @@ class ActorSystemBase(ManagerBase):
             super(ActorSystemBase, self).handle_message(sender, receiver, message)
 
     def handle_processor_command(self, command: Command):
-        if isinstance(command, ActorMessageSendingCommand) and command.receiver == self._root_address:
+        if isinstance(command, MessageHandlingCommand) and command.receiver == self._root_address:
             self._root.receive(command.sender, command.message)
         elif isinstance(command, SystemSpawnActorCommand):
             self._manager_spawn_actor_for_user(command)

@@ -5,13 +5,13 @@ from typing import Dict, Optional
 
 from lyrid.core.actor import IActor, ActorStoppedSignal
 from lyrid.core.manager import (
-    Task, ActorMessageDeliveryTask, StopSchedulerTask, ActorTargetedTaskGroup, ActorTargetedTask,
+    Task, ActorMessageDeliveryTask, StopSchedulerTask, ActorTargetedTaskGroup, ActorTargetedTask, ITaskScheduler,
 )
 from lyrid.core.messaging import Address
 from lyrid.core.messenger import IMessenger
 
 
-class TaskSchedulerBase:
+class TaskSchedulerBase(ITaskScheduler):
     def __init__(self, messenger: IMessenger):
         self._messenger = messenger
 
@@ -42,6 +42,9 @@ class TaskSchedulerBase:
     def register_actor(self, address: Address, actor: IActor):
         with self._lock:
             self._actors[address] = actor
+
+    def force_stop_actor(self, address: Address):
+        pass
 
     def stop(self, block: bool = True):
         self._task_queue.put(StopSchedulerTask())

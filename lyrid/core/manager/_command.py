@@ -9,7 +9,7 @@ M = TypeVar("M", bound=Message)
 
 
 @dataclass
-class ActorMessageSendingCommand(Command, Generic[M]):
+class MessageHandlingCommand(Command, Generic[M]):
     sender: Address
     receiver: Address
     message: M

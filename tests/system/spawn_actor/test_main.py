@@ -1,4 +1,4 @@
-from lyrid.core.manager import ManagerSpawnActorCompletedMessage, ActorMessageSendingCommand
+from lyrid.core.manager import ManagerSpawnActorCompletedMessage, MessageHandlingCommand
 from lyrid.core.messaging import Address
 from lyrid.core.messenger import MessengerRegisterAddressMessage, MessengerRegisterAddressCompletedMessage
 from tests.factory.system import create_actor_system
@@ -18,7 +18,7 @@ def test_should_let_processor_process_handle_manager_spawn_actor_completed_messa
                                                   ref_id="RefId123")
     )
 
-    assert processor.process__command == ActorMessageSendingCommand(
+    assert processor.process__command == MessageHandlingCommand(
         sender=Address("#manager1"), receiver=Address("$"),
         message=ManagerSpawnActorCompletedMessage(
             actor_address=Address("$.new"),
@@ -56,7 +56,7 @@ def test_should_let_processor_process_acknowledge_messenger_register_address_com
                                                          ref_id="RefId123")
     )
 
-    assert processor.process__command == ActorMessageSendingCommand(
+    assert processor.process__command == MessageHandlingCommand(
         sender=Address("#messenger"), receiver=Address("$"),
         message=MessengerRegisterAddressCompletedMessage(
             address=Address("$.new"), manager_address=Address("#manager1"), ref_id="RefId123",

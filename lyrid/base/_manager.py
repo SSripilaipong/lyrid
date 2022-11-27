@@ -1,5 +1,6 @@
+from lyrid.core.actor import SupervisorForceStop
 from lyrid.core.manager import (
-    ITaskScheduler, ActorMessageDeliveryTask, ActorMessageSendingCommand, SpawnActorCommand, ManagerSpawnActorMessage,
+    ITaskScheduler, ActorMessageDeliveryTask, MessageHandlingCommand, SpawnActorCommand, ManagerSpawnActorMessage,
     ManagerSpawnActorCompletedMessage,
 )
 from lyrid.core.messaging import Address, Message
@@ -19,11 +20,11 @@ class ManagerBase(IManager):
             self._processor.process(
                 SpawnActorCommand(address=message.address, type_=message.type_, reply_to=sender, ref_id=message.ref_id))
         else:
-            self._processor.process(ActorMessageSendingCommand(sender=sender, receiver=receiver, message=message))
+            self._processor.process(MessageHandlingCommand(sender=sender, receiver=receiver, message=message))
 
     def handle_processor_command(self, command: Command):
-        if isinstance(command, ActorMessageSendingCommand):
-            self._schedule_message_delivery(command)
+        if isinstance(command, MessageHandlingCommand):
+            self._handle_message(command)
         elif isinstance(command, ProcessorStartCommand):
             self._scheduler.start()
         elif isinstance(command, ProcessorStopCommand):
@@ -40,9 +41,16 @@ class ManagerBase(IManager):
         )
         self._messenger.send(self._address, command.reply_to, reply_message)
 
-    def _schedule_message_delivery(self, command: ActorMessageSendingCommand):
-        self._scheduler.schedule(ActorMessageDeliveryTask(
-            target=command.receiver,
-            message=command.message,
-            sender=command.sender,
-        ))
+    def _handle_message(self, command: MessageHandlingCommand):
+        if command.receiver == self._address:
+            self._handle_manager_message(command)
+        else:
+            self._scheduler.schedule(ActorMessageDeliveryTask(
+                target=command.receiver,
+                message=command.message,
+                sender=command.sender,
+            ))
+
+    def _handle_manager_message(self, command: MessageHandlingCommand):
+        if isinstance(command.message, SupervisorForceStop):
+            self._scheduler.force_stop_actor(command.message.address)
