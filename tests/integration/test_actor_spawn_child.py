@@ -62,5 +62,5 @@ def test_should_spawn_and_ask_second_actor():
     system.ask(first, SpawnSecond())
     second_response = system.ask(first, GreetSecond())
 
-    system.join()
+    system.force_stop()
     assert second_response == MessageDummy("second said: i'm good, thanks")

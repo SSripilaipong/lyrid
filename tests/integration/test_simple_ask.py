@@ -21,5 +21,5 @@ def test_should_should_reply_ask():
     system = ActorSystem()
     greeter = system.spawn("greeter", Greeter)
     reply = system.ask(greeter, Greeting("Hello there"))
-    system.join()
+    system.force_stop()
     assert reply == Greeting("Hi!")

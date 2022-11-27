@@ -74,6 +74,6 @@ class ActorSystemBase(ManagerBase):
     def _actor_reply_ask(self, command: ActorReplyAskCommand):
         self._reply_queue.put(ActorAskReply(address=command.address, message=command.message, ref_id=command.ref_id))
 
-    def join(self):
+    def force_stop(self):
         for processor in self._processors:
             processor.stop()
