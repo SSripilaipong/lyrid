@@ -1,4 +1,5 @@
 from dataclasses import dataclass
+from typing import List
 
 from lyrid import ActorBase
 from lyrid.core.messaging import Address, Message
@@ -26,8 +27,8 @@ class WillStop(ActorBase):
     def __init__(self, address: Address, messenger: IMessenger):
         super(WillStop, self).__init__(address, messenger)
 
-        self.on_receive__senders = []
-        self.on_receive__messages = []
+        self.on_receive__senders: List[Address] = []
+        self.on_receive__messages: List[Message] = []
 
     def on_receive(self, sender: Address, message: Message):
         self.on_receive__senders.append(sender)

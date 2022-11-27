@@ -1,6 +1,6 @@
 from abc import ABC, abstractmethod
 from enum import Enum
-from typing import TypeVar
+from typing import TypeVar, Set
 
 from lyrid.core.actor import IActorFactory, IActor, ActorStoppedSignal, ChildActorStopped, SupervisorForceStop
 from lyrid.core.messaging import Address, Message
@@ -23,7 +23,7 @@ class ActorBase(IActor, ABC):
         self._system_address = Address("$")
 
         self._status = ActorStatus.ACTIVE
-        self._active_children = set()
+        self._active_children: Set[Address] = set()
 
     def tell(self, receiver: Address, message: Message):
         self._messenger.send(self._address, receiver, message)
