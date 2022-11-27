@@ -27,6 +27,9 @@ class MessengerBase(IMessenger):
         else:
             self._processor.process(SendingCommand(sender=sender, receiver=receiver, message=message))
 
+    def send_to_manager(self, sender: Address, of: Address, message: Message):
+        pass
+
     def handle_processor_command(self, command: Command):
         if isinstance(command, SendingCommand):
             self._on_sending(command.sender, command.receiver, command.message)

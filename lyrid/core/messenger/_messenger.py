@@ -13,6 +13,10 @@ class IMessenger(Protocol):
         pass
 
     @abstractmethod
+    def send_to_manager(self, sender: Address, of: Address, message: Message):
+        pass
+
+    @abstractmethod
     def handle_processor_command(self, command: Command):
         pass
 
