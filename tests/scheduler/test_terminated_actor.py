@@ -25,7 +25,7 @@ def test_should_not_pass_message_to_actor_after_actor_stopped_signal_is_raised()
            actor.receive__messages == [MessageDummy("Hello1")]
 
 
-def test_should_send_child_actor_terminated_message_to_the_supervisor_of_actor():
+def test_should_not_send_child_actor_terminated_message_to_the_supervisor_of_actor():
     messenger = MessengerMock()
     scheduler = create_scheduler(messenger=messenger)
     scheduler.start()
@@ -41,5 +41,5 @@ def test_should_send_child_actor_terminated_message_to_the_supervisor_of_actor()
 
     scheduler.stop()
 
-    assert messenger.send__message == ChildActorTerminatedMessage(child_address=Address("$.supervisor.child")) and \
-           messenger.send__receiver == Address("$.supervisor")
+    assert messenger.send__message != ChildActorTerminatedMessage(child_address=Address("$.supervisor.child")) and \
+           messenger.send__receiver != Address("$.supervisor")

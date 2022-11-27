@@ -3,7 +3,7 @@ from collections import deque
 from queue import Queue
 from typing import Dict, Optional
 
-from lyrid.core.actor import IActor, ActorStoppedSignal, ChildActorTerminatedMessage
+from lyrid.core.actor import IActor, ActorStoppedSignal
 from lyrid.core.manager import (
     Task, ActorMessageDeliveryTask, StopSchedulerTask, ActorTargetedTaskGroup, ActorTargetedTask,
 )
@@ -28,9 +28,10 @@ class TaskSchedulerBase:
                 if task.target not in self._actors:
                     return
 
-                tasks_in_queue = self._actor_tasks.get(task.target,
-                                                       ActorTargetedTaskGroup(target=task.target,
-                                                                              actor_task_queue=deque()))
+                tasks_in_queue = self._actor_tasks.get(
+                    task.target,
+                    ActorTargetedTaskGroup(target=task.target, actor_task_queue=deque()),
+                )
                 if len(tasks_in_queue.actor_task_queue) == 0:
                     self._task_queue.put(tasks_in_queue)
 
@@ -87,9 +88,3 @@ class TaskSchedulerBase:
     def _handle_stopped_actor(self, address: Address):
         with self._lock:
             del self._actors[address]
-
-        self._messenger.send(
-            sender=address,
-            receiver=address.supervisor(),
-            message=ChildActorTerminatedMessage(address),
-        )
