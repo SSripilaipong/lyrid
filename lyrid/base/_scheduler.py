@@ -44,7 +44,9 @@ class TaskSchedulerBase(ITaskScheduler):
             self._actors[address] = actor
 
     def force_stop_actor(self, address: Address):
-        pass
+        with self._lock:
+            if address in self._actors:
+                del self._actors[address]
 
     def stop(self, block: bool = True):
         self._task_queue.put(StopSchedulerTask())
