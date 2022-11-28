@@ -9,7 +9,7 @@ from tests.manager.spawn_actor.assertion import \
     assert_register_actor_in_scheduler_when_handling_spawn_actor_command, assert_reply_spawn_actor_completed_message
 from tests.manager.stopped_actor.assertion import \
     assert_force_stop_actor_on_scheduler_when_handling_supervisor_force_stop_message, \
-    assert_send_child_actor_stopped_message
+    assert_send_child_actor_stopped_message_when_scheduler_cannot_find_the_actor
 from tests.manager.typing import ManagerFactory
 
 
@@ -26,4 +26,4 @@ def assert_have_all_manager_behaviors(
     assert_register_actor_in_scheduler_when_handling_spawn_actor_command(create_manager)
     assert_reply_spawn_actor_completed_message(create_manager)
     assert_force_stop_actor_on_scheduler_when_handling_supervisor_force_stop_message(create_manager)
-    assert_send_child_actor_stopped_message(create_manager)
+    assert_send_child_actor_stopped_message_when_scheduler_cannot_find_the_actor(create_manager)
