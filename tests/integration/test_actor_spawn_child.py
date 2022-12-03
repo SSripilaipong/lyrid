@@ -1,7 +1,7 @@
 from dataclasses import dataclass
 from typing import Optional
 
-from lyrid import ActorBase, ActorSystem
+from lyrid import Actor, ActorSystem
 from lyrid.core.messaging import Address, Message, Reply, Ask
 from lyrid.core.messenger import IMessenger
 from lyrid.core.system import SpawnChildCompletedMessage
@@ -18,7 +18,7 @@ class SpawnSecond(Message):
     pass
 
 
-class First(ActorBase):
+class First(Actor):
     def __init__(self, address: Address, messenger: IMessenger):
         super().__init__(address, messenger)
 
@@ -48,7 +48,7 @@ class First(ActorBase):
         self.tell(self.second_address, MessageDummy("how are you"))
 
 
-class Second(ActorBase):
+class Second(Actor):
     def on_receive(self, sender: Address, message: Message):
         if isinstance(message, MessageDummy) and message.text == "how are you":
             self.tell(sender, MessageDummy("i'm good, thanks"))

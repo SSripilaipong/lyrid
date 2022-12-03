@@ -15,7 +15,7 @@ class ActorStatus(str, Enum):
     STOPPING: str = "STOPPING"
 
 
-class ActorBase(Process, ABC):
+class Actor(Process, ABC):
 
     def __init__(self, address: Address, messenger: IMessenger):
         self._address = address

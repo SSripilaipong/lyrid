@@ -1,7 +1,7 @@
 import queue
 from typing import Dict, List
 
-from lyrid.base._actor import ActorBase
+from lyrid.base._actor import Actor
 from lyrid.core.common import IIdGenerator
 from lyrid.core.manager import ManagerSpawnActorCompletedMessage, ManagerSpawnActorMessage
 from lyrid.core.messaging import Address, Message
@@ -10,7 +10,7 @@ from lyrid.core.system import SpawnChildMessage, SpawnChildCompletedMessage, Sys
 from ._task import Task, ActorSpawnChildTask
 
 
-class RootActor(ActorBase):
+class RootActor(Actor):
     def __init__(self, address: Address, messenger: IMessenger, messenger_address: Address, id_generator: IIdGenerator,
                  manager_addresses: List[Address], reply_queue: queue.Queue):
         super().__init__(address, messenger)

@@ -1,12 +1,12 @@
 from typing import Optional, List
 
-from lyrid import ActorBase
+from lyrid import Actor
 from lyrid.core.messaging import Address, Message
 from lyrid.core.messenger import IMessenger
 from lyrid.core.process import ProcessStoppedSignal
 
 
-class MyActor(ActorBase):
+class MyActor(Actor):
     def __init__(self, address: Address, messenger: IMessenger):
         super().__init__(address=address, messenger=messenger)
 
@@ -18,7 +18,7 @@ class MyActor(ActorBase):
         self.receive__message = message
 
 
-class WillStop(ActorBase):
+class WillStop(Actor):
     def __init__(self, address: Address, messenger: IMessenger):
         super().__init__(address=address, messenger=messenger)
 

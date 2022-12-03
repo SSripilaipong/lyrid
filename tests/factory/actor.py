@@ -1,11 +1,11 @@
 from typing import TypeVar, Type
 
-from lyrid import ActorBase
+from lyrid import Actor
 from lyrid.core.messaging import Address
 from lyrid.core.messenger import IMessenger
 from tests.mock.messenger import MessengerMock
 
-T = TypeVar("T", bound=ActorBase)
+T = TypeVar("T", bound=Actor)
 
 
 def create_actor(type_: Type[T], *, address: Address = None, messenger: IMessenger = None) -> T:

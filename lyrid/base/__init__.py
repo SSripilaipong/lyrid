@@ -1,4 +1,4 @@
-from ._actor import ActorBase
+from ._actor import Actor
 from ._command_processing_loop import MultiProcessedCommandProcessingLoop
 from ._manager import ManagerBase
 from ._messenger import MessengerBase

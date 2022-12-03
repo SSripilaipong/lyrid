@@ -1,2 +1,2 @@
-from lyrid.base import ActorBase
+from lyrid.base import Actor
 from ._actor_system import ActorSystem
