@@ -7,6 +7,7 @@ from lyrid.core.messaging import Address, Message, Ask, Reply
 from lyrid.core.messenger import IMessenger
 
 
+# noinspection DuplicatedCode
 class Start(Message):
     pass
 
@@ -44,8 +45,7 @@ class Log(Message):
 
 class WillStopMyself(Actor):
     def on_receive(self, sender: Address, message: Message):
-        if isinstance(message, Ask) and isinstance(message.message, Stop):
-            self.tell(sender, Reply(Ok(), ref_id=message.ref_id))
+        if isinstance(message, Stop):
             self.stop()
         elif isinstance(message, Ask) and isinstance(message.message, Ping):
             self.tell(sender, Reply(Pong(), ref_id=message.ref_id))
@@ -65,11 +65,10 @@ class TellMeToStop(Actor):
 
 class Parent(Actor):
     def on_receive(self, sender: Address, message: Message):
-        if isinstance(message, Ask) and isinstance(message.message, Start):
+        if isinstance(message, Start):
             self.spawn("child1", WillStopMyself)
             self.spawn("child2", TellMeToStop)
             self.spawn("child3", TellMeToStop)
-            self.tell(sender, Reply(Ok(), ref_id=message.ref_id))
 
     def on_stop(self):
         self.tell(Address("$.logger"), IAmStopping(self._address))
@@ -77,11 +76,9 @@ class Parent(Actor):
 
 class Grandparent(Actor):
     def on_receive(self, sender: Address, message: Message):
-        if isinstance(message, Ask) and isinstance(message.message, Start):
+        if isinstance(message, Start):
             self.spawn("parent", Parent)
-            self.tell(sender, Reply(Ok(), ref_id=message.ref_id))
-        elif isinstance(message, Ask) and isinstance(message.message, Stop):
-            self.tell(sender, Reply(Ok(), ref_id=message.ref_id))
+        elif isinstance(message, Stop):
             self.stop()
 
     def on_stop(self):
@@ -114,16 +111,16 @@ def test_should_receive_all_stop_log():
     system = ActorSystem()
     logger = system.spawn("logger", Logger)
     grandparent = system.spawn("grandparent", Grandparent)
-    system.ask(grandparent, Start())
+    system.tell(grandparent, Start())
     time.sleep(0.005)
-    system.ask(Address("$.grandparent.parent"), Start())
-    time.sleep(0.015)
+    system.tell(Address("$.grandparent.parent"), Start())
+    time.sleep(0.005)
     system.ask(Address("$.grandparent.parent.child1"), Ping())
     system.ask(Address("$.grandparent.parent.child2"), Ping())
     system.ask(Address("$.grandparent.parent.child3"), Ping())
 
-    system.ask(Address("$.grandparent.parent.child1"), Stop())
-    system.ask(Address("$.grandparent"), Stop())
+    system.tell(Address("$.grandparent.parent.child1"), Stop())
+    system.tell(Address("$.grandparent"), Stop())
 
     log = system.ask(logger, GiveMeLog(n=5))
     system.force_stop()

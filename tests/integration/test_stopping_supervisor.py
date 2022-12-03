@@ -55,11 +55,9 @@ class Child(Actor):
 
 class Parent(Actor):
     def on_receive(self, sender: Address, message: Message):
-        if isinstance(message, Ask) and isinstance(message.message, Start):
+        if isinstance(message, Start):
             self.spawn("child", Child)
-            self.tell(sender, Reply(Ok(), ref_id=message.ref_id))
-        elif isinstance(message, Ask) and isinstance(message.message, Stop):
-            self.tell(sender, Reply(Ok(), ref_id=message.ref_id))
+        elif isinstance(message, Stop):
             self.stop()
 
     def on_stop(self):
@@ -68,9 +66,8 @@ class Parent(Actor):
 
 class Grandparent(Actor):
     def on_receive(self, sender: Address, message: Message):
-        if isinstance(message, Ask) and isinstance(message.message, Start):
+        if isinstance(message, Start):
             self.spawn("parent", Parent)
-            self.tell(sender, Reply(Ok(), ref_id=message.ref_id))
         elif isinstance(message, ChildStopped):
             self.tell(Address("$.logger"), message)
 
@@ -102,13 +99,13 @@ def test_should_receive_all_stop_log():
     system = ActorSystem()
     logger = system.spawn("logger", Logger)
     grandparent = system.spawn("grandparent", Grandparent)
-    system.ask(grandparent, Start())
+    system.tell(grandparent, Start())
     time.sleep(0.005)
-    system.ask(Address("$.grandparent.parent"), Start())
+    system.tell(Address("$.grandparent.parent"), Start())
     time.sleep(0.005)
     system.ask(Address("$.grandparent.parent.child"), Ping())
 
-    system.ask(Address("$.grandparent.parent"), Stop())
+    system.tell(Address("$.grandparent.parent"), Stop())
 
     log = system.ask(logger, GiveMeLog(n=3))
     system.force_stop()

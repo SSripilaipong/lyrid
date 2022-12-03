@@ -27,9 +27,8 @@ class First(Actor):
         self.second_address: Optional[Address] = None
 
     def on_receive(self, sender: Address, message: Message):
-        if isinstance(message, Ask) and isinstance(message.message, SpawnSecond):
+        if isinstance(message, SpawnSecond):
             self.spawn("second", Second)
-            self.tell(sender, Reply(MessageDummy("ok"), ref_id=message.ref_id))
         elif isinstance(message, Ask) and isinstance(message.message, GreetSecond):
             self.reply_to = sender
             self.ref_id = message.ref_id
@@ -59,7 +58,7 @@ def test_should_spawn_and_ask_second_actor():
     system = ActorSystem()
     first = system.spawn("first", First)
 
-    system.ask(first, SpawnSecond())
+    system.tell(first, SpawnSecond())
     second_response = system.ask(first, GreetSecond())
 
     system.force_stop()
