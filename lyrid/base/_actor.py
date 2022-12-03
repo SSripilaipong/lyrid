@@ -36,8 +36,7 @@ class Actor(Process, ABC):
         if isinstance(message, ChildStopped):
             self._active_children -= {message.child_address}
         elif isinstance(message, SupervisorForceStop):
-            self.on_stop()
-            return  # TODO: handle stopping properly
+            self._handle_stopping()
 
         if self._status is ActorStatus.ACTIVE:
             self._receive_when_active(sender, message)
@@ -58,16 +57,18 @@ class Actor(Process, ABC):
         try:
             self.on_receive(sender, message)
         except ProcessStoppedSignal as s:
-            self.on_stop()
-            self._status = ActorStatus.STOPPING
-            self.tell(self._address.supervisor(), ChildStopped(child_address=self._address))
+            self._handle_stopping()
 
-            if not self._active_children:
-                raise s
-            else:
-                for child in self._active_children:
-                    self._messenger.send_to_node(self._address, of=child,
-                                                 message=SupervisorForceStop(address=child))
+    def _handle_stopping(self):
+        self.on_stop()
+        self._status = ActorStatus.STOPPING
+        self.tell(self._address.supervisor(), ChildStopped(child_address=self._address))
+        if not self._active_children:
+            raise ProcessStoppedSignal()
+        else:
+            for child in self._active_children:
+                self._messenger.send_to_node(self._address, of=child,
+                                             message=SupervisorForceStop(address=child))
 
     def _receive_when_stopping(self, _: Address, __: Message):
         if not self._active_children:
