@@ -78,3 +78,12 @@ def test_should_not_let_actor_receive_any_message_when_stopping():
     actor.receive(Address("$.someone.else"), MessageDummy("You there?"))
 
     assert actor.on_receive__senders == [] and actor.on_receive__messages == []
+
+
+def test_should_call_on_stop_after_actor_raising_process_stop_signal():
+    actor = create_actor(WillStop, address=Address("$.me"))
+
+    with pytest.raises(ProcessStoppedSignal):
+        actor.receive(Address("$.someone"), StopDummy())
+
+    assert actor.on_stop__is_called

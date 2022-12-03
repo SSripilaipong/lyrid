@@ -30,12 +30,17 @@ class WillStop(Actor):
         self.on_receive__senders: List[Address] = []
         self.on_receive__messages: List[Message] = []
 
+        self.on_stop__is_called = False
+
     def on_receive(self, sender: Address, message: Message):
         self.on_receive__senders.append(sender)
         self.on_receive__messages.append(message)
 
         if message == StopDummy():
             self.stop()
+
+    def on_stop(self):
+        self.on_stop__is_called = True
 
     def on_receive__clear_captures(self):
         self.on_receive__senders = []

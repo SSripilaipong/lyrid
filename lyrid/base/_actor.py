@@ -48,10 +48,14 @@ class Actor(Process, ABC):
     def on_receive(self, sender: Address, message: Message):
         pass
 
+    def on_stop(self):
+        pass
+
     def _receive_when_active(self, sender: Address, message: Message):
         try:
             self.on_receive(sender, message)
         except ProcessStoppedSignal as s:
+            self.on_stop()
             self._status = ActorStatus.STOPPING
             self.tell(self._address.supervisor(), ChildStopped(child_address=self._address))
 
