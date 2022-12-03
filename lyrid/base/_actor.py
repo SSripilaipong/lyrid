@@ -62,8 +62,8 @@ class Actor(Process, ABC):
     def _handle_stopping(self):
         self.on_stop()
         self._status = ActorStatus.STOPPING
-        self.tell(self._address.supervisor(), ChildStopped(child_address=self._address))
         if not self._active_children:
+            self.tell(self._address.supervisor(), ChildStopped(child_address=self._address))
             raise ProcessStoppedSignal()
         else:
             for child in self._active_children:

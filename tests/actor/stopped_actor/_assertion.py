@@ -39,9 +39,8 @@ def assert_should_send_supervisor_force_stop_message_to_spawned_children(actor_t
 
     print(messenger.send__messages)
     assert set(messenger.send__senders) == {Address("$.me")} and \
-           set(messenger.send__receivers) == {Address("$"), Address("$.me.child1"), Address("$.me.child2")} and \
-           set(messenger.send__messages) == {ChildStopped(Address("$.me")),
-                                             SupervisorForceStop(address=Address("$.me.child1")),
+           set(messenger.send__receivers) == {Address("$.me.child1"), Address("$.me.child2")} and \
+           set(messenger.send__messages) == {SupervisorForceStop(address=Address("$.me.child1")),
                                              SupervisorForceStop(address=Address("$.me.child2"))}
 
 
@@ -60,9 +59,8 @@ def assert_should_send_supervisor_force_stop_message_to_not_stopped_children_onl
     stop(actor, my_address)
 
     assert set(messenger.send__senders) == {Address("$.me")} and \
-           set(messenger.send__receivers) == {Address("$"), Address("$.me.child1"), Address("$.me.child3")} and \
-           set(messenger.send__messages) == {ChildStopped(Address("$.me")),
-                                             SupervisorForceStop(address=Address("$.me.child1")),
+           set(messenger.send__receivers) == {Address("$.me.child1"), Address("$.me.child3")} and \
+           set(messenger.send__messages) == {SupervisorForceStop(address=Address("$.me.child1")),
                                              SupervisorForceStop(address=Address("$.me.child3"))}
 
 
@@ -116,3 +114,19 @@ def assert_should_call_on_stop_after_actor_raising_process_stop_signal(actor_typ
         stop(actor, my_address)
 
     assert on_stop__is_called(actor)
+
+
+def assert_should_send_child_actor_stopped_message_to_supervisor_after_all_active_children_stopped(
+        actor_type: Type[Actor],
+        stop: Callable[[Actor, Address], None],
+):
+    my_address = Address("$.my_supervisor.me")
+    messenger = MessengerMock()
+    actor = create_actor(actor_type, address=my_address, messenger=messenger)
+
+    actor.spawn("child1", ChildActor)
+    actor.spawn("child2", ChildActor)
+    stop(actor, my_address)
+    actor.receive(Address("$.me.child2"), ChildStopped(child_address=Address("$.me.child2")))
+
+    assert not any(isinstance(m, ChildStopped) for m in messenger.send__messages)
