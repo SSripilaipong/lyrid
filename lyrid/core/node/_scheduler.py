@@ -6,7 +6,7 @@ from ..messaging import Address
 from ..process import Process
 
 
-class ITaskScheduler(Protocol):
+class TaskScheduler(Protocol):
 
     @abstractmethod
     def schedule(self, task: ProcessTargetedTask):
@@ -17,7 +17,7 @@ class ITaskScheduler(Protocol):
         pass
 
     @abstractmethod
-    def force_stop_actor(self, address: Address):
+    def force_stop_process(self, address: Address):
         pass
 
     @abstractmethod

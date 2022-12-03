@@ -1,7 +1,7 @@
 import multiprocessing
 from typing import List, Tuple
 
-from lyrid.base import ActorSystemBase, TaskSchedulerBase, MessengerBase, MultiProcessedCommandProcessingLoop, \
+from lyrid.base import ActorSystemBase, ThreadedTaskScheduler, MessengerBase, MultiProcessedCommandProcessingLoop, \
     ProcessManagingNode
 from lyrid.common import IdGenerator
 from lyrid.core.command_processing_loop import CommandProcessingLoop
@@ -36,7 +36,7 @@ def _create_actor_system(manager_addresses: List[Address], messenger: IMessenger
     command_processor = MultiProcessedCommandProcessingLoop(command_queue=command_queue)
     id_generator = IdGenerator()
     reply_queue = multiprocessing.Manager().Queue()
-    scheduler = TaskSchedulerBase(messenger=messenger)
+    scheduler = ThreadedTaskScheduler(messenger=messenger)
     system = ActorSystemBase(scheduler=scheduler, processor=command_processor, messenger=messenger,
                              manager_addresses=manager_addresses, address=Address("$"),
                              messenger_address=messenger_address, reply_queue=reply_queue,
@@ -61,7 +61,7 @@ def _create_messenger(address: Address) -> Tuple[IMessenger, CommandProcessingLo
 def _create_node(address: Address, messenger: IMessenger) -> Tuple[Node, CommandProcessingLoop]:
     command_queue = multiprocessing.Manager().Queue()
     command_processor = MultiProcessedCommandProcessingLoop(command_queue=command_queue)
-    scheduler = TaskSchedulerBase(messenger=messenger)
+    scheduler = ThreadedTaskScheduler(messenger=messenger)
     manager = ProcessManagingNode(scheduler=scheduler, processor=command_processor, messenger=messenger,
                                   address=address)
     command_processor.set_handle(manager.handle_processor_command)

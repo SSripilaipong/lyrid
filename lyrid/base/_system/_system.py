@@ -5,7 +5,7 @@ from lyrid.base import ProcessManagingNode
 from lyrid.core.command_processing_loop import CommandProcessingLoop, Command
 from lyrid.core.messaging import Address, Message, Ask, Reply
 from lyrid.core.messenger import IMessenger
-from lyrid.core.node import ITaskScheduler, NodeSpawnProcessMessage, MessageHandlingCommand
+from lyrid.core.node import TaskScheduler, NodeSpawnProcessMessage, MessageHandlingCommand
 from lyrid.core.system import SystemSpawnActorCommand, SystemSpawnActorCompletedReply, ActorReplyAskCommand, \
     ActorAskReply
 from ._root import RootActor
@@ -15,7 +15,7 @@ from ...core.system import SystemAskCommand
 
 
 class ActorSystemBase(ProcessManagingNode):
-    def __init__(self, scheduler: ITaskScheduler, processor: CommandProcessingLoop, messenger: IMessenger,
+    def __init__(self, scheduler: TaskScheduler, processor: CommandProcessingLoop, messenger: IMessenger,
                  manager_addresses: List[Address], root_address: Address, address: Address, messenger_address: Address,
                  reply_queue: queue.Queue, id_generator: IIdGenerator, processors: List[CommandProcessingLoop] = None):
         super().__init__(address=address, scheduler=scheduler, processor=processor, messenger=messenger)

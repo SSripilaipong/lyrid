@@ -6,14 +6,14 @@ from lyrid.core.command_processing_loop import CommandProcessingLoop
 from lyrid.core.common import IIdGenerator
 from lyrid.core.messaging import Address
 from lyrid.core.messenger import IMessenger
-from lyrid.core.node import ITaskScheduler
+from lyrid.core.node import TaskScheduler
 from tests.mock.id_generator import IdGeneratorMock
 from tests.mock.messenger import MessengerMock
 from tests.mock.processor import ProcessorMock
 from tests.mock.scheduler import SchedulerMock
 
 
-def create_actor_system(*, root_address: Address = None, address: Address = None, scheduler: ITaskScheduler = None,
+def create_actor_system(*, root_address: Address = None, address: Address = None, scheduler: TaskScheduler = None,
                         processor: CommandProcessingLoop = None,
                         messenger: IMessenger = None, reply_queue: queue.Queue = None,
                         manager_addresses: List[Address] = None, messenger_address: Address = None,

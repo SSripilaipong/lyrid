@@ -6,17 +6,17 @@ from typing import Dict, Optional
 from lyrid.core.messaging import Address
 from lyrid.core.messenger import IMessenger
 from lyrid.core.node import (
-    Task, ProcessMessageDeliveryTask, StopSchedulerTask, ProcessTargetedTaskGroup, ProcessTargetedTask, ITaskScheduler,
+    Task, ProcessMessageDeliveryTask, StopSchedulerTask, ProcessTargetedTaskGroup, ProcessTargetedTask, TaskScheduler,
 )
 from lyrid.core.process import Process, ProcessStoppedSignal
 
 
-class TaskSchedulerBase(ITaskScheduler):
+class ThreadedTaskScheduler(TaskScheduler):
     def __init__(self, messenger: IMessenger):
         self._messenger = messenger
 
         self._task_queue: Queue[Task] = Queue()
-        self._actor_tasks: Dict[Address, ProcessTargetedTaskGroup] = dict()
+        self._process_tasks: Dict[Address, ProcessTargetedTaskGroup] = dict()
         self._processes: Dict[Address, Process] = dict()
 
         self._lock = threading.Lock()
@@ -28,7 +28,7 @@ class TaskSchedulerBase(ITaskScheduler):
                 if task.target not in self._processes:
                     return
 
-                tasks_in_queue = self._actor_tasks.get(
+                tasks_in_queue = self._process_tasks.get(
                     task.target,
                     ProcessTargetedTaskGroup(target=task.target, process_task_queue=deque()),
                 )
@@ -43,7 +43,7 @@ class TaskSchedulerBase(ITaskScheduler):
         with self._lock:
             self._processes[address] = process
 
-    def force_stop_actor(self, address: Address):
+    def force_stop_process(self, address: Address):
         with self._lock:
             if address in self._processes:
                 del self._processes[address]
@@ -63,33 +63,33 @@ class TaskSchedulerBase(ITaskScheduler):
             task = self._task_queue.get()
 
             if isinstance(task, ProcessTargetedTaskGroup):
-                self._handle_actor_targeted_task(task)
+                self._handle_process_targeted_task(task)
             elif isinstance(task, StopSchedulerTask):
                 break
             else:
                 raise NotImplementedError()
 
-    def _handle_actor_targeted_task(self, task):
+    def _handle_process_targeted_task(self, task):
         if len(task.process_task_queue) == 0:
             return
         with self._lock:
-            actor = self._processes.get(task.target)
+            process = self._processes.get(task.target)
 
-        if actor is None:
+        if process is None:
             return
 
-        actor_task = task.process_task_queue.popleft()
-        if isinstance(actor_task, ProcessMessageDeliveryTask):
+        process_task = task.process_task_queue.popleft()
+        if isinstance(process_task, ProcessMessageDeliveryTask):
             try:
-                actor.receive(actor_task.sender, actor_task.message)
+                process.receive(process_task.sender, process_task.message)
             except ProcessStoppedSignal:
-                self._handle_stopped_actor(task.target)
+                self._handle_stopped_process(task.target)
         else:
             raise NotImplementedError()
 
         if len(task.process_task_queue) > 0:
             self._task_queue.put(task)
 
-    def _handle_stopped_actor(self, address: Address):
+    def _handle_stopped_process(self, address: Address):
         with self._lock:
             del self._processes[address]

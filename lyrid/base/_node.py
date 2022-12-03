@@ -3,14 +3,14 @@ from lyrid.core.command_processing_loop import Command, CommandProcessingLoop, P
 from lyrid.core.messaging import Address, Message
 from lyrid.core.messenger import IMessenger, Node
 from lyrid.core.node import (
-    ITaskScheduler, ProcessMessageDeliveryTask, MessageHandlingCommand, SpawnProcessCommand, NodeSpawnProcessMessage,
+    TaskScheduler, ProcessMessageDeliveryTask, MessageHandlingCommand, SpawnProcessCommand, NodeSpawnProcessMessage,
     NodeSpawnProcessCompletedMessage, ProcessNotFoundError,
 )
 from lyrid.core.process import SupervisorForceStop, ChildStopped
 
 
 class ProcessManagingNode(Node):
-    def __init__(self, address: Address, scheduler: ITaskScheduler, processor: CommandProcessingLoop,
+    def __init__(self, address: Address, scheduler: TaskScheduler, processor: CommandProcessingLoop,
                  messenger: IMessenger):
         self._address = address
         self._scheduler = scheduler
@@ -57,7 +57,7 @@ class ProcessManagingNode(Node):
     def _handle_manager_message(self, command: MessageHandlingCommand):
         if isinstance(command.message, SupervisorForceStop):
             try:
-                self._scheduler.force_stop_actor(command.message.address)
+                self._scheduler.force_stop_process(command.message.address)
             except ProcessNotFoundError:
                 self._messenger.send(
                     sender=self._address, receiver=command.sender,

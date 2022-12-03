@@ -13,7 +13,7 @@ def test_should_not_pass_message_to_actor_after_actor_is_forced_stopping():
     actor = create_actor(MyActor)
     scheduler.register_process(Address("$.you"), actor)
 
-    scheduler.force_stop_actor(Address("$.you"))
+    scheduler.force_stop_process(Address("$.you"))
     scheduler.schedule(ProcessMessageDeliveryTask(Address("$.you"), MessageDummy("Hello2"), Address("$.sender2")))
 
     scheduler.stop()

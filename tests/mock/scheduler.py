@@ -1,11 +1,11 @@
 from typing import Optional
 
 from lyrid.core.messaging import Address
-from lyrid.core.node import ProcessTargetedTask, ITaskScheduler
+from lyrid.core.node import ProcessTargetedTask, TaskScheduler
 from lyrid.core.process import Process
 
 
-class SchedulerMock(ITaskScheduler):
+class SchedulerMock(TaskScheduler):
 
     def __init__(self, *, force_stop_actor__raise: Exception = None):
         self._force_stop_actor__raise = force_stop_actor__raise
@@ -24,7 +24,7 @@ class SchedulerMock(ITaskScheduler):
         self.register_process__address = address
         self.register_process__process = process
 
-    def force_stop_actor(self, address: Address):
+    def force_stop_process(self, address: Address):
         self.force_stop_actor__address = address
 
         if self._force_stop_actor__raise is not None:

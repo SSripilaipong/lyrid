@@ -1,8 +1,8 @@
-from lyrid.base import TaskSchedulerBase
+from lyrid.base import ThreadedTaskScheduler
 from lyrid.core.messenger import IMessenger
 from tests.mock.messenger import MessengerMock
 
 
-def create_scheduler(messenger: IMessenger = None) -> TaskSchedulerBase:
+def create_scheduler(messenger: IMessenger = None) -> ThreadedTaskScheduler:
     messenger = messenger or MessengerMock()
-    return TaskSchedulerBase(messenger=messenger)
+    return ThreadedTaskScheduler(messenger=messenger)
