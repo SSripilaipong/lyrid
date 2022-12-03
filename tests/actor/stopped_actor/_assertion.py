@@ -124,6 +124,27 @@ def assert_should_send_child_actor_stopped_message_to_supervisor_after_all_activ
     messenger = MessengerMock()
     actor = create_actor(actor_type, address=my_address, messenger=messenger)
 
+    actor.spawn("child2", ChildActor)
+    stop(actor, my_address)
+    messenger.send__clear_captures()
+
+    with pytest.raises(ProcessStoppedSignal):
+        actor.receive(Address("$.my_supervisor.me.child2"),
+                      ChildStopped(child_address=Address("$.my_supervisor.me.child2")))
+
+    assert messenger.send__sender == Address("$.my_supervisor.me") and \
+           messenger.send__receiver == Address("$.my_supervisor") and \
+           messenger.send__message == ChildStopped(child_address=Address("$.my_supervisor.me"))
+
+
+def assert_should_not_send_child_actor_stopped_message_to_supervisor_before_all_active_children_stopped(
+        actor_type: Type[Actor],
+        stop: Callable[[Actor, Address], None],
+):
+    my_address = Address("$.my_supervisor.me")
+    messenger = MessengerMock()
+    actor = create_actor(actor_type, address=my_address, messenger=messenger)
+
     actor.spawn("child1", ChildActor)
     actor.spawn("child2", ChildActor)
     stop(actor, my_address)

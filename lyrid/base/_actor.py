@@ -71,4 +71,5 @@ class Actor(Process, ABC):
 
     def _receive_when_stopping(self, _: Address, __: Message):
         if not self._active_children:
+            self.tell(self._address.supervisor(), ChildStopped(child_address=self._address))
             raise ProcessStoppedSignal()
