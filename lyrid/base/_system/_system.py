@@ -62,6 +62,9 @@ class ActorSystemBase(ProcessManagingNode):
         reply: SystemSpawnActorCompletedReply = self._reply_queue.get()
         return reply.address
 
+    def tell(self, address: Address, message: Message):
+        self._messenger.send(self._root_address, address, message)
+
     def ask(self, address: Address, message: Message) -> Message:
         ref_id = self._id_generator.generate()
         self._processor.process(SystemAskCommand(address=address, message=message, ref_id=ref_id))
