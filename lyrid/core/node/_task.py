@@ -27,3 +27,9 @@ class ProcessMessageDeliveryTask(ProcessTargetedTask):
 class ProcessTargetedTaskGroup(ProcessTargetedTask):
     target: Address
     process_task_queue: Deque[ProcessTargetedTask]
+
+
+@dataclass
+class ForceStopProcessTask(ProcessTargetedTask):
+    target: Address
+    sender: Address

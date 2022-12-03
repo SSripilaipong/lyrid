@@ -11,3 +11,8 @@ class ChildStopped(Message):
 @dataclass(frozen=True)
 class SupervisorForceStop(Message):
     address: Address
+
+
+@dataclass
+class WillForceStop(Message):
+    pass

@@ -7,8 +7,9 @@ from lyrid.core.messaging import Address
 from lyrid.core.messenger import IMessenger
 from lyrid.core.node import (
     Task, ProcessMessageDeliveryTask, StopSchedulerTask, ProcessTargetedTaskGroup, ProcessTargetedTask, TaskScheduler,
+    ForceStopProcessTask,
 )
-from lyrid.core.process import Process, ProcessStoppedSignal
+from lyrid.core.process import Process, ProcessStoppedSignal, WillForceStop
 
 
 class ThreadedTaskScheduler(TaskScheduler):
@@ -28,14 +29,7 @@ class ThreadedTaskScheduler(TaskScheduler):
                 if task.target not in self._processes:
                     return
 
-                tasks_in_queue = self._process_tasks.get(
-                    task.target,
-                    ProcessTargetedTaskGroup(target=task.target, process_task_queue=deque()),
-                )
-                if len(tasks_in_queue.process_task_queue) == 0:
-                    self._task_queue.put(tasks_in_queue)
-
-                tasks_in_queue.process_task_queue.append(task)
+            self._add_process_targeted_task_to_queue(task)
         else:
             raise NotImplementedError()
 
@@ -44,9 +38,12 @@ class ThreadedTaskScheduler(TaskScheduler):
             self._processes[address] = process
 
     def force_stop_process(self, address: Address):
+        task = ForceStopProcessTask(target=address, sender=address)
         with self._lock:
-            if address in self._processes:
-                del self._processes[address]
+            if task.target not in self._processes:
+                return
+
+        self._add_process_targeted_task_to_queue(task)
 
     def stop(self, block: bool = True):
         self._task_queue.put(StopSchedulerTask())
@@ -69,6 +66,16 @@ class ThreadedTaskScheduler(TaskScheduler):
             else:
                 raise NotImplementedError()
 
+    def _add_process_targeted_task_to_queue(self, task):
+        with self._lock:
+            tasks_in_queue = self._process_tasks.get(
+                task.target,
+                ProcessTargetedTaskGroup(target=task.target, process_task_queue=deque()),
+            )
+            if len(tasks_in_queue.process_task_queue) == 0:
+                self._task_queue.put(tasks_in_queue)
+            tasks_in_queue.process_task_queue.append(task)
+
     def _handle_process_targeted_task(self, task):
         if len(task.process_task_queue) == 0:
             return
@@ -84,6 +91,10 @@ class ThreadedTaskScheduler(TaskScheduler):
                 process.receive(process_task.sender, process_task.message)
             except ProcessStoppedSignal:
                 self._handle_stopped_process(task.target)
+        elif isinstance(process_task, ForceStopProcessTask):
+            process.receive(process_task.sender, WillForceStop())
+            with self._lock:
+                del self._processes[process_task.target]
         else:
             raise NotImplementedError()
 

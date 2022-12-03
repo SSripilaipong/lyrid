@@ -5,10 +5,10 @@ from lyrid.core.messaging import Address
 from lyrid.core.messenger import IMessenger
 from tests.mock.messenger import MessengerMock
 
-T = TypeVar("T", bound=Actor)
+A = TypeVar("A", bound=Actor)
 
 
-def create_actor(type_: Type[T], *, address: Address = None, messenger: IMessenger = None) -> T:
+def create_actor(type_: Type[A], *, address: Address = None, messenger: IMessenger = None) -> A:
     address = address or Address("$")
     messenger = messenger or MessengerMock()
     return type_(address, messenger)
