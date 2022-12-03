@@ -1,5 +1,5 @@
-from lyrid.core.manager import ActorMessageDeliveryTask
 from lyrid.core.messaging import Address
+from lyrid.core.node import ProcessMessageDeliveryTask
 from tests.factory.actor import create_actor
 from tests.factory.scheduler import create_scheduler
 from tests.message_dummy import MessageDummy
@@ -14,7 +14,7 @@ def test_should_not_pass_message_to_actor_after_actor_is_forced_stopping():
     scheduler.register_process(Address("$.you"), actor)
 
     scheduler.force_stop_actor(Address("$.you"))
-    scheduler.schedule(ActorMessageDeliveryTask(Address("$.you"), MessageDummy("Hello2"), Address("$.sender2")))
+    scheduler.schedule(ProcessMessageDeliveryTask(Address("$.you"), MessageDummy("Hello2"), Address("$.sender2")))
 
     scheduler.stop()
 

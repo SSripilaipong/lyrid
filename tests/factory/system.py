@@ -4,9 +4,9 @@ from typing import List
 from lyrid.base import ActorSystemBase
 from lyrid.core.command_processing_loop import CommandProcessingLoop
 from lyrid.core.common import IIdGenerator
-from lyrid.core.manager import ITaskScheduler
 from lyrid.core.messaging import Address
 from lyrid.core.messenger import IMessenger
+from lyrid.core.node import ITaskScheduler
 from tests.mock.id_generator import IdGeneratorMock
 from tests.mock.messenger import MessengerMock
 from tests.mock.processor import ProcessorMock

@@ -1,8 +1,8 @@
 import queue
 
-from lyrid.core.manager import ManagerSpawnActorMessage
 from lyrid.core.messaging import Address
 from lyrid.core.messenger import MessengerRegisterAddressCompletedMessage
+from lyrid.core.node import NodeSpawnProcessMessage
 from lyrid.core.system import SystemSpawnActorCommand, SystemSpawnActorCompletedReply
 from tests.factory.system import create_actor_system
 from tests.mock.id_generator import IdGeneratorMock
@@ -34,7 +34,7 @@ def test_should_send_spawn_actor_message_to_manager_via_messenger_when_handling_
     assert messenger.send__sender == Address("$") and \
            messenger.send__receiver == Address("#manager1") and \
            messenger.send__message == \
-           ManagerSpawnActorMessage(address=Address("$.hello"), type_=ProcessDummy, ref_id="GenId123")
+           NodeSpawnProcessMessage(address=Address("$.hello"), type_=ProcessDummy, ref_id="GenId123")
 
 
 def test_should_put_system_spawn_actor_completed_reply_to_reply_queue_when_handling_acknowledge_messenger_register_address_completed_command():

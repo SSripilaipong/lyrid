@@ -1,7 +1,7 @@
 from typing import Optional
 
-from lyrid.core.manager import ActorTargetedTask, ITaskScheduler
 from lyrid.core.messaging import Address
+from lyrid.core.node import ProcessTargetedTask, ITaskScheduler
 from lyrid.core.process import Process
 
 
@@ -14,10 +14,10 @@ class SchedulerMock(ITaskScheduler):
         self.register_process__address: Optional[Address] = None
         self.stop__is_called = False
         self.start__is_called = False
-        self.schedule__task: Optional[ActorTargetedTask] = None
+        self.schedule__task: Optional[ProcessTargetedTask] = None
         self.force_stop_actor__address: Optional[Address] = None
 
-    def schedule(self, task: ActorTargetedTask):
+    def schedule(self, task: ProcessTargetedTask):
         self.schedule__task = task
 
     def register_process(self, address: Address, process: Process):

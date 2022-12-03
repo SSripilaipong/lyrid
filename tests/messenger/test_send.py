@@ -2,7 +2,7 @@ from lyrid.core.messaging import Address
 from lyrid.core.messenger import SendingCommand, RegisterAddressCommand
 from tests.factory.messenger import create_messenger
 from tests.message_dummy import MessageDummy
-from tests.mock.manager import ManagerMock
+from tests.mock.node import NodeMock
 from tests.mock.processor import ProcessorMock
 
 
@@ -20,15 +20,15 @@ def test_should_pass_sending_command_to_processor_when_send_method_is_called():
 
 
 def test_should_let_manager_of_the_registered_address_handle_the_message_when_handling_sending_command():
-    manager = ManagerMock()
-    messenger = create_messenger(managers={
-        Address("#manager0"): ManagerMock(),
+    manager = NodeMock()
+    messenger = create_messenger(nodes={
+        Address("#manager0"): NodeMock(),
         Address("#manager1"): manager,
-        Address("#manager2"): ManagerMock(),
+        Address("#manager2"): NodeMock(),
     })
     messenger.handle_processor_command(RegisterAddressCommand(
         address=Address("$.you"),
-        manager_address=Address("#manager1"),
+        node_address=Address("#manager1"),
         requester_address=Address("$"),
         ref_id="...",
     ))
@@ -45,11 +45,11 @@ def test_should_let_manager_of_the_registered_address_handle_the_message_when_ha
 
 
 def test_should_send_message_with_manager_address_to_manager_directly():
-    manager = ManagerMock()
-    messenger = create_messenger(managers={
-        Address("#manager0"): ManagerMock(),
+    manager = NodeMock()
+    messenger = create_messenger(nodes={
+        Address("#manager0"): NodeMock(),
         Address("#manager1"): manager,
-        Address("#manager2"): ManagerMock(),
+        Address("#manager2"): NodeMock(),
     })
 
     messenger.handle_processor_command(SendingCommand(

@@ -1,13 +1,13 @@
-from lyrid.core.manager import MessageHandlingCommand, ActorNotFoundError
 from lyrid.core.messaging import Address
+from lyrid.core.node import MessageHandlingCommand, ProcessNotFoundError
 from lyrid.core.process import SupervisorForceStop, ChildStopped
-from tests.manager.typing import ManagerFactory
 from tests.mock.messenger import MessengerMock
 from tests.mock.scheduler import SchedulerMock
+from tests.node.typing import NodeFactory
 
 
 def assert_force_stop_actor_on_scheduler_when_handling_supervisor_force_stop_message(
-        create_manager: ManagerFactory,
+        create_manager: NodeFactory,
 ):
     scheduler = SchedulerMock()
     manager = create_manager(address=Address("#manager1"), scheduler=scheduler)
@@ -21,10 +21,10 @@ def assert_force_stop_actor_on_scheduler_when_handling_supervisor_force_stop_mes
 
 
 def assert_send_child_actor_stopped_message_when_scheduler_cannot_find_the_actor(
-        create_manager: ManagerFactory,
+        create_manager: NodeFactory,
 ):
     messenger = MessengerMock()
-    scheduler = SchedulerMock(force_stop_actor__raise=ActorNotFoundError())
+    scheduler = SchedulerMock(force_stop_actor__raise=ProcessNotFoundError())
     manager = create_manager(address=Address("#manager1"), messenger=messenger, scheduler=scheduler)
 
     manager.handle_processor_command(MessageHandlingCommand(

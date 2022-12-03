@@ -20,7 +20,7 @@ def test_should_send_child_actor_stopped_message_to_supervisor():
            messenger.send__message == ChildStopped(child_address=Address("$.my_supervisor.me"))
 
 
-def test_should_send_supervisor_force_stop_message_to_managers_of_spawned_children():
+def test_should_send_supervisor_force_stop_message_to_nodes_of_spawned_children():
     messenger = MessengerMock()
     actor = create_actor(WillStop, address=Address("$.me"), messenger=messenger)
 
@@ -28,10 +28,10 @@ def test_should_send_supervisor_force_stop_message_to_managers_of_spawned_childr
     actor.spawn("child2", ChildActor)
     actor.receive(Address("$.someone"), StopDummy())
 
-    assert set(messenger.send_to_manager__senders) == {Address("$.me")} and \
-           set(messenger.send_to_manager__ofs) == {Address("$.me.child1"), Address("$.me.child2")} and \
-           set(messenger.send_to_manager__messages) == {SupervisorForceStop(address=Address("$.me.child1")),
-                                                        SupervisorForceStop(address=Address("$.me.child2"))}
+    assert set(messenger.send_to_node__senders) == {Address("$.me")} and \
+           set(messenger.send_to_node__ofs) == {Address("$.me.child1"), Address("$.me.child2")} and \
+           set(messenger.send_to_node__messages) == {SupervisorForceStop(address=Address("$.me.child1")),
+                                                     SupervisorForceStop(address=Address("$.me.child2"))}
 
 
 def test_should_send_supervisor_force_stop_message_to_not_stopped_children_only():
@@ -44,10 +44,10 @@ def test_should_send_supervisor_force_stop_message_to_not_stopped_children_only(
     actor.receive(Address("$.me.child2"), ChildStopped(child_address=Address("$.me.child2")))
     actor.receive(Address("$.someone"), StopDummy())
 
-    assert set(messenger.send_to_manager__senders) == {Address("$.me")} and \
-           set(messenger.send_to_manager__ofs) == {Address("$.me.child1"), Address("$.me.child3")} and \
-           set(messenger.send_to_manager__messages) == {SupervisorForceStop(address=Address("$.me.child1")),
-                                                        SupervisorForceStop(address=Address("$.me.child3"))}
+    assert set(messenger.send_to_node__senders) == {Address("$.me")} and \
+           set(messenger.send_to_node__ofs) == {Address("$.me.child1"), Address("$.me.child3")} and \
+           set(messenger.send_to_node__messages) == {SupervisorForceStop(address=Address("$.me.child1")),
+                                                     SupervisorForceStop(address=Address("$.me.child3"))}
 
 
 def test_should_raise_actor_stopped_signal_to_outside_after_actor_tried_to_stop_and_all_children_are_stopped():

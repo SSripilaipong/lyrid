@@ -2,7 +2,7 @@ from abc import abstractmethod
 from typing import Protocol
 
 from lyrid.core.messaging import Address, Message
-from . import IManager
+from ._node import Node
 from ..command_processing_loop import Command
 
 
@@ -13,7 +13,7 @@ class IMessenger(Protocol):
         pass
 
     @abstractmethod
-    def send_to_manager(self, sender: Address, of: Address, message: Message):
+    def send_to_node(self, sender: Address, of: Address, message: Message):
         pass
 
     @abstractmethod
@@ -21,9 +21,9 @@ class IMessenger(Protocol):
         pass
 
     @abstractmethod
-    def add_manager(self, address: Address, manager: IManager):
+    def add_node(self, address: Address, node: Node):
         pass
 
     @abstractmethod
-    def initial_register_address(self, actor_address: Address, manager_address: Address):
+    def initial_register_address(self, actor_address: Address, node_address: Address):
         pass

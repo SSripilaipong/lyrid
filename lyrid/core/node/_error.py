@@ -1,0 +1,2 @@
+class ProcessNotFoundError(Exception):
+    pass

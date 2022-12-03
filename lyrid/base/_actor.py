@@ -7,7 +7,7 @@ from lyrid.core.messenger import IMessenger
 from lyrid.core.process import ProcessFactory, Process, ProcessStoppedSignal, ChildStopped, SupervisorForceStop
 from lyrid.core.system import SpawnChildMessage
 
-T = TypeVar("T", bound='ActorBase')
+T = TypeVar("T", bound='Actor')
 
 
 class ActorStatus(str, Enum):
@@ -59,8 +59,8 @@ class Actor(Process, ABC):
                 raise s
             else:
                 for child in self._active_children:
-                    self._messenger.send_to_manager(self._address, of=child,
-                                                    message=SupervisorForceStop(address=child))
+                    self._messenger.send_to_node(self._address, of=child,
+                                                 message=SupervisorForceStop(address=child))
 
     def _receive_when_stopping(self, _: Address, __: Message):
         if not self._active_children:

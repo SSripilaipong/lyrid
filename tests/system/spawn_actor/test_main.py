@@ -1,6 +1,6 @@
-from lyrid.core.manager import ManagerSpawnActorCompletedMessage, MessageHandlingCommand
 from lyrid.core.messaging import Address
 from lyrid.core.messenger import MessengerRegisterAddressMessage, MessengerRegisterAddressCompletedMessage
+from lyrid.core.node import NodeSpawnProcessCompletedMessage, MessageHandlingCommand
 from tests.factory.system import create_actor_system
 from tests.mock.messenger import MessengerMock
 from tests.mock.processor import ProcessorMock
@@ -14,13 +14,13 @@ def test_should_let_processor_process_handle_manager_spawn_actor_completed_messa
     system.handle_message(
         sender=Address("#manager1"),
         receiver=Address("$"),
-        message=ManagerSpawnActorCompletedMessage(actor_address=Address("$.new"), manager_address=Address("#manager1"),
-                                                  ref_id="RefId123")
+        message=NodeSpawnProcessCompletedMessage(actor_address=Address("$.new"), manager_address=Address("#manager1"),
+                                                 ref_id="RefId123")
     )
 
     assert processor.process__command == MessageHandlingCommand(
         sender=Address("#manager1"), receiver=Address("$"),
-        message=ManagerSpawnActorCompletedMessage(
+        message=NodeSpawnProcessCompletedMessage(
             actor_address=Address("$.new"),
             manager_address=Address("#manager1"),
             ref_id="RefId123",
@@ -33,7 +33,7 @@ def test_should_send_messenger_register_address_message_to_messenger_when_handli
     system = create_actor_system(address=Address("$"), messenger=messenger, messenger_address=Address("#messenger"))
 
     root_process_message(
-        system, sender=Address("#manager1"), message=ManagerSpawnActorCompletedMessage(
+        system, sender=Address("#manager1"), message=NodeSpawnProcessCompletedMessage(
             actor_address=Address("$.new"), manager_address=Address("#manager1"), ref_id="RefId999",
         ),
     )

@@ -3,9 +3,9 @@ from typing import Dict, List
 
 from lyrid.base._actor import Actor
 from lyrid.core.common import IIdGenerator
-from lyrid.core.manager import ManagerSpawnActorCompletedMessage, ManagerSpawnActorMessage
 from lyrid.core.messaging import Address, Message
 from lyrid.core.messenger import MessengerRegisterAddressCompletedMessage, MessengerRegisterAddressMessage, IMessenger
+from lyrid.core.node import NodeSpawnProcessCompletedMessage, NodeSpawnProcessMessage
 from lyrid.core.system import SpawnChildMessage, SpawnChildCompletedMessage, SystemSpawnActorCompletedReply
 from ._task import Task, ActorSpawnChildTask
 
@@ -23,14 +23,14 @@ class RootActor(Actor):
         self._tasks: Dict[str, Task] = {}
 
     def on_receive(self, sender: Address, message: Message):
-        if isinstance(message, ManagerSpawnActorCompletedMessage):
+        if isinstance(message, NodeSpawnProcessCompletedMessage):
             self._messenger_register_address(sender, message)
         elif isinstance(message, SpawnChildMessage):
             self._actor_spawn_child_actor(sender, message)
         elif isinstance(message, MessengerRegisterAddressCompletedMessage):
             self._complete_spawning_actor(sender, message)
 
-    def _messenger_register_address(self, sender: Address, message: ManagerSpawnActorCompletedMessage):
+    def _messenger_register_address(self, sender: Address, message: NodeSpawnProcessCompletedMessage):
         msg = MessengerRegisterAddressMessage(address=message.actor_address,
                                               manager_address=sender,
                                               ref_id=message.ref_id)
@@ -41,7 +41,7 @@ class RootActor(Actor):
         ref_id = self._id_generator.generate()
         self._tasks[ref_id] = ActorSpawnChildTask(requester=requester, child_key=child_key)
 
-        self.tell(self._manager_addresses[0], ManagerSpawnActorMessage(
+        self.tell(self._manager_addresses[0], NodeSpawnProcessMessage(
             address=requester.child(child_key), type_=message.type_, ref_id=ref_id,
         ))
 

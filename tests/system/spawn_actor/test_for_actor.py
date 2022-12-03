@@ -2,9 +2,9 @@ import queue
 
 import pytest
 
-from lyrid.core.manager import ManagerSpawnActorMessage, MessageHandlingCommand, ManagerSpawnActorCompletedMessage
 from lyrid.core.messaging import Address
 from lyrid.core.messenger import MessengerRegisterAddressCompletedMessage
+from lyrid.core.node import NodeSpawnProcessMessage, MessageHandlingCommand, NodeSpawnProcessCompletedMessage
 from lyrid.core.system import SpawnChildMessage, SpawnChildCompletedMessage
 from tests.factory.system import create_actor_system
 from tests.mock.id_generator import IdGeneratorMock
@@ -43,7 +43,7 @@ def test_should_send_manager_spawn_actor_message_to_manager_with_generated_ref_i
     assert messenger.send__sender == Address("$") and \
            messenger.send__receiver == Address("#manager1") and \
            messenger.send__message == \
-           ManagerSpawnActorMessage(address=Address("$.process.my_child"), type_=ProcessDummy, ref_id="GenId123")
+           NodeSpawnProcessMessage(address=Address("$.process.my_child"), type_=ProcessDummy, ref_id="GenId123")
 
 
 def test_should_send_spawn_child_completed_message_to_actor_when_handling_acknowledge_messenger_register_address_completed_command():
@@ -57,7 +57,7 @@ def test_should_send_spawn_child_completed_message_to_actor_when_handling_acknow
         system, sender=Address("$.my_actor"), message=SpawnChildMessage(key="my_child", type_=ProcessDummy),
     )
     root_process_message(
-        system, sender=Address("manager1"), message=ManagerSpawnActorCompletedMessage(
+        system, sender=Address("manager1"), message=NodeSpawnProcessCompletedMessage(
             actor_address=Address("$.my_actor.my_child"), manager_address=Address("#manager1"), ref_id="RefId999",
         ),
     )
@@ -84,7 +84,7 @@ def test_should_not_put_reply_in_reply_queue_when_completing_spawning_child_for_
         system, sender=Address("$.my_actor"), message=SpawnChildMessage(key="my_child", type_=ProcessDummy),
     )
     root_process_message(
-        system, sender=Address("#manager1"), message=ManagerSpawnActorCompletedMessage(
+        system, sender=Address("#manager1"), message=NodeSpawnProcessCompletedMessage(
             actor_address=Address("$.my_actor.my_child"), manager_address=Address("#manager1"), ref_id="RefId999"
         ),
     )

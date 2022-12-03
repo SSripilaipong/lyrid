@@ -6,7 +6,7 @@ from lyrid.core.messaging import Address, Message
 
 
 @runtime_checkable
-class IManager(Protocol):
+class Node(Protocol):
 
     @abstractmethod
     def handle_message(self, sender: Address, receiver: Address, message: Message):

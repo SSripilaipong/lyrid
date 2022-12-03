@@ -2,7 +2,7 @@ from lyrid.core.command_processing_loop import Command
 from lyrid.core.messaging import Address, Message
 
 
-class ManagerMock:
+class NodeMock:
     def __init__(self):
         self.handle_message__sender = None
         self.handle_message__receiver = None

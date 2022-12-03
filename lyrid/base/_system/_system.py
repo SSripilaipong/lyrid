@@ -1,11 +1,11 @@
 import queue
 from typing import List
 
-from lyrid.base import ManagerBase
+from lyrid.base import ProcessManagingNode
 from lyrid.core.command_processing_loop import CommandProcessingLoop, Command
-from lyrid.core.manager import ITaskScheduler, ManagerSpawnActorMessage, MessageHandlingCommand
 from lyrid.core.messaging import Address, Message, Ask, Reply
 from lyrid.core.messenger import IMessenger
+from lyrid.core.node import ITaskScheduler, NodeSpawnProcessMessage, MessageHandlingCommand
 from lyrid.core.system import SystemSpawnActorCommand, SystemSpawnActorCompletedReply, ActorReplyAskCommand, \
     ActorAskReply
 from ._root import RootActor
@@ -14,7 +14,7 @@ from ...core.process import ProcessFactory
 from ...core.system import SystemAskCommand
 
 
-class ActorSystemBase(ManagerBase):
+class ActorSystemBase(ProcessManagingNode):
     def __init__(self, scheduler: ITaskScheduler, processor: CommandProcessingLoop, messenger: IMessenger,
                  manager_addresses: List[Address], root_address: Address, address: Address, messenger_address: Address,
                  reply_queue: queue.Queue, id_generator: IIdGenerator, processors: List[CommandProcessingLoop] = None):
@@ -50,7 +50,7 @@ class ActorSystemBase(ManagerBase):
             super(ActorSystemBase, self).handle_processor_command(command)
 
     def _manager_spawn_actor_for_user(self, command: SystemSpawnActorCommand):
-        msg = ManagerSpawnActorMessage(
+        msg = NodeSpawnProcessMessage(
             address=self._address.child(command.key),
             type_=command.type_,
             ref_id=self._id_generator.generate(),

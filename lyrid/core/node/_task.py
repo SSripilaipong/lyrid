@@ -12,18 +12,18 @@ class StopSchedulerTask(Task):
     pass
 
 
-class ActorTargetedTask(Task):
+class ProcessTargetedTask(Task):
     pass
 
 
 @dataclass
-class ActorMessageDeliveryTask(ActorTargetedTask):
+class ProcessMessageDeliveryTask(ProcessTargetedTask):
     target: Address
     message: Message
     sender: Address
 
 
 @dataclass
-class ActorTargetedTaskGroup(ActorTargetedTask):
+class ProcessTargetedTaskGroup(ProcessTargetedTask):
     target: Address
-    actor_task_queue: Deque[ActorTargetedTask]
+    process_task_queue: Deque[ProcessTargetedTask]

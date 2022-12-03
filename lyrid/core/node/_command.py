@@ -16,7 +16,7 @@ class MessageHandlingCommand(Command, Generic[M]):
 
 
 @dataclass
-class SpawnActorCommand(Command):
+class SpawnProcessCommand(Command):
     reply_to: Address
     address: Address
     type_: ProcessFactory

@@ -2,11 +2,11 @@ import multiprocessing
 from typing import List, Tuple
 
 from lyrid.base import ActorSystemBase, TaskSchedulerBase, MessengerBase, MultiProcessedCommandProcessingLoop, \
-    ManagerBase
+    ProcessManagingNode
 from lyrid.common import IdGenerator
 from lyrid.core.command_processing_loop import CommandProcessingLoop
 from lyrid.core.messaging import Address
-from lyrid.core.messenger import IMessenger, IManager
+from lyrid.core.messenger import IMessenger, Node
 
 
 # noinspection PyPep8Naming
@@ -15,7 +15,7 @@ def ActorSystem() -> ActorSystemBase:
 
     messenger, messenger_processor = _create_messenger(messenger_address)
 
-    _, manager_processor = _create_manager(Address("#manager1"), messenger)
+    _, manager_processor = _create_node(Address("#manager1"), messenger)
 
     manager_addresses = [Address("#manager1")]
 
@@ -44,7 +44,7 @@ def _create_actor_system(manager_addresses: List[Address], messenger: IMessenger
                              processors=processors + [command_processor])
     command_processor.set_handle(system.handle_processor_command)
 
-    messenger.add_manager(Address("$"), system)
+    messenger.add_node(Address("$"), system)
     messenger.initial_register_address(Address("$"), Address("$"))
     return system, command_processor
 
@@ -58,14 +58,14 @@ def _create_messenger(address: Address) -> Tuple[IMessenger, CommandProcessingLo
     return messenger, command_processor
 
 
-def _create_manager(address: Address, messenger: IMessenger) -> Tuple[IManager, CommandProcessingLoop]:
+def _create_node(address: Address, messenger: IMessenger) -> Tuple[Node, CommandProcessingLoop]:
     command_queue = multiprocessing.Manager().Queue()
     command_processor = MultiProcessedCommandProcessingLoop(command_queue=command_queue)
     scheduler = TaskSchedulerBase(messenger=messenger)
-    manager = ManagerBase(scheduler=scheduler, processor=command_processor, messenger=messenger,
-                          address=address)
+    manager = ProcessManagingNode(scheduler=scheduler, processor=command_processor, messenger=messenger,
+                                  address=address)
     command_processor.set_handle(manager.handle_processor_command)
 
-    messenger.add_manager(address, manager)
+    messenger.add_node(address, manager)
 
     return manager, command_processor
