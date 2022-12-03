@@ -7,9 +7,8 @@ from lyrid.core.messaging import Address
 from lyrid.core.messenger import IMessenger
 from lyrid.core.node import (
     Task, ProcessMessageDeliveryTask, StopSchedulerTask, ProcessTargetedTaskGroup, ProcessTargetedTask, TaskScheduler,
-    ForceStopProcessTask,
 )
-from lyrid.core.process import Process, ProcessStoppedSignal, WillForceStop
+from lyrid.core.process import Process, ProcessStoppedSignal
 
 
 class ThreadedTaskScheduler(TaskScheduler):
@@ -36,14 +35,6 @@ class ThreadedTaskScheduler(TaskScheduler):
     def register_process(self, address: Address, process: Process):
         with self._lock:
             self._processes[address] = process
-
-    def force_stop_process(self, address: Address):
-        task = ForceStopProcessTask(target=address, sender=address)
-        with self._lock:
-            if task.target not in self._processes:
-                return
-
-        self._add_process_targeted_task_to_queue(task)
 
     def stop(self, block: bool = True):
         self._task_queue.put(StopSchedulerTask())
@@ -91,10 +82,6 @@ class ThreadedTaskScheduler(TaskScheduler):
                 process.receive(process_task.sender, process_task.message)
             except ProcessStoppedSignal:
                 self._handle_stopped_process(task.target)
-        elif isinstance(process_task, ForceStopProcessTask):
-            process.receive(process_task.sender, WillForceStop())
-            with self._lock:
-                del self._processes[process_task.target]
         else:
             raise NotImplementedError()
 

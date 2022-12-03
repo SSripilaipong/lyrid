@@ -4,9 +4,7 @@ from lyrid.core.messaging import Address, Message
 from lyrid.core.messenger import IMessenger, Node
 from lyrid.core.node import (
     TaskScheduler, ProcessMessageDeliveryTask, MessageHandlingCommand, SpawnProcessCommand, NodeSpawnProcessMessage,
-    NodeSpawnProcessCompletedMessage, ProcessNotFoundError,
-)
-from lyrid.core.process import SupervisorForceStop, ChildStopped
+    NodeSpawnProcessCompletedMessage, )
 
 
 class ProcessManagingNode(Node):
@@ -55,11 +53,4 @@ class ProcessManagingNode(Node):
             ))
 
     def _handle_manager_message(self, command: MessageHandlingCommand):
-        if isinstance(command.message, SupervisorForceStop):
-            try:
-                self._scheduler.force_stop_process(command.message.address)
-            except ProcessNotFoundError:
-                self._messenger.send(
-                    sender=self._address, receiver=command.sender,
-                    message=ChildStopped(child_address=command.message.address),
-                )
+        pass

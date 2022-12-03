@@ -17,10 +17,6 @@ class TaskScheduler(Protocol):
         pass
 
     @abstractmethod
-    def force_stop_process(self, address: Address):
-        pass
-
-    @abstractmethod
     def stop(self):
         pass
 

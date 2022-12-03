@@ -7,9 +7,6 @@ from tests.node._assertion import (
 from tests.node.spawn_actor.assertion import \
     assert_let_processor_process_spawn_actor_command_when_handle_manager_spawn_actor_message, \
     assert_register_actor_in_scheduler_when_handling_spawn_actor_command, assert_reply_spawn_actor_completed_message
-from tests.node.stopped_actor.assertion import \
-    assert_force_stop_actor_on_scheduler_when_handling_supervisor_force_stop_message, \
-    assert_send_child_actor_stopped_message_when_scheduler_cannot_find_the_actor
 from tests.node.typing import NodeFactory
 
 
@@ -25,5 +22,3 @@ def assert_have_all_manager_behaviors(
     assert_let_processor_process_spawn_actor_command_when_handle_manager_spawn_actor_message(create_manager)
     assert_register_actor_in_scheduler_when_handling_spawn_actor_command(create_manager)
     assert_reply_spawn_actor_completed_message(create_manager)
-    assert_force_stop_actor_on_scheduler_when_handling_supervisor_force_stop_message(create_manager)
-    assert_send_child_actor_stopped_message_when_scheduler_cannot_find_the_actor(create_manager)

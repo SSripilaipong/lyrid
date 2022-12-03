@@ -15,7 +15,6 @@ class SchedulerMock(TaskScheduler):
         self.stop__is_called = False
         self.start__is_called = False
         self.schedule__task: Optional[ProcessTargetedTask] = None
-        self.force_stop_actor__address: Optional[Address] = None
 
     def schedule(self, task: ProcessTargetedTask):
         self.schedule__task = task
@@ -23,12 +22,6 @@ class SchedulerMock(TaskScheduler):
     def register_process(self, address: Address, process: Process):
         self.register_process__address = address
         self.register_process__process = process
-
-    def force_stop_process(self, address: Address):
-        self.force_stop_actor__address = address
-
-        if self._force_stop_actor__raise is not None:
-            raise self._force_stop_actor__raise
 
     def stop(self):
         self.stop__is_called = True
