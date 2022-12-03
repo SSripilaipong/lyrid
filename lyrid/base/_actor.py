@@ -35,6 +35,9 @@ class Actor(Process, ABC):
     def receive(self, sender: Address, message: Message):
         if isinstance(message, ChildStopped):
             self._active_children -= {message.child_address}
+        elif isinstance(message, SupervisorForceStop):
+            self.on_stop()
+            return  # TODO: handle stopping properly
 
         if self._status is ActorStatus.ACTIVE:
             self._receive_when_active(sender, message)

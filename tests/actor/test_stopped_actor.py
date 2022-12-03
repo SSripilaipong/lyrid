@@ -87,3 +87,11 @@ def test_should_call_on_stop_after_actor_raising_process_stop_signal():
         actor.receive(Address("$.someone"), StopDummy())
 
     assert actor.on_stop__is_called
+
+
+def test_should_call_on_stop_after_receiving_will_force_stop_message():
+    actor = create_actor(WillStop, address=Address("$.supervisor.me"))
+
+    actor.receive(Address("$.supervisor"), SupervisorForceStop(address=Address("$.supervisor.me")))
+
+    assert actor.on_stop__is_called
