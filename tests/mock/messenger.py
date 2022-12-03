@@ -10,6 +10,10 @@ class MessengerMock(IMessenger):
         self.send__receiver = None
         self.send__message = None
 
+        self.send__senders = []
+        self.send__receivers = []
+        self.send__messages = []
+
         self.send_to_node__senders = []
         self.send_to_node__ofs = []
         self.send_to_node__messages = []
@@ -18,6 +22,10 @@ class MessengerMock(IMessenger):
         self.send__sender = sender
         self.send__receiver = receiver
         self.send__message = message
+
+        self.send__senders.append(sender)
+        self.send__receivers.append(receiver)
+        self.send__messages.append(message)
 
     def send_to_node(self, sender: Address, of: Address, message: Message):
         self.send_to_node__senders.append(sender)
@@ -32,3 +40,12 @@ class MessengerMock(IMessenger):
 
     def initial_register_address(self, actor_address: Address, node_address: Address):
         pass
+
+    def send__clear_captures(self):
+        self.send__sender = None
+        self.send__receiver = None
+        self.send__message = None
+
+        self.send__senders = []
+        self.send__receivers = []
+        self.send__messages = []

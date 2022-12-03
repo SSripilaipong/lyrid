@@ -4,7 +4,7 @@ from lyrid import Actor
 from lyrid.core.messaging import Address, Message
 from tests.actor.actor_mock import WillStop, StopDummy
 from tests.actor.stopped_actor._assertion import assert_should_send_child_actor_stopped_message_to_supervisor, \
-    assert_should_send_supervisor_force_stop_message_to_nodes_of_spawned_children, \
+    assert_should_send_supervisor_force_stop_message_to_spawned_children, \
     assert_should_send_supervisor_force_stop_message_to_not_stopped_children_only, \
     assert_should_raise_actor_stopped_signal_to_outside_after_actor_tried_to_stop_and_all_children_are_stopped, \
     assert_should_not_let_actor_receive_any_message_when_stopping, \
@@ -18,11 +18,11 @@ def test_should_send_child_actor_stopped_message_to_supervisor():
     assert_should_send_child_actor_stopped_message_to_supervisor(WillStop, stop)
 
 
-def test_should_send_supervisor_force_stop_message_to_nodes_of_spawned_children():
+def test_should_send_supervisor_force_stop_message_to_spawned_children():
     def stop(actor: Actor, _: Address):
         actor.receive(Address("$.someone"), StopDummy())
 
-    assert_should_send_supervisor_force_stop_message_to_nodes_of_spawned_children(WillStop, stop)
+    assert_should_send_supervisor_force_stop_message_to_spawned_children(WillStop, stop)
 
 
 def test_should_send_supervisor_force_stop_message_to_not_stopped_children_only():
