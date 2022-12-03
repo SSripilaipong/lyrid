@@ -1,13 +1,14 @@
 from typing import Dict
 
+from lyrid.core.command_processing_loop import CommandProcessingLoop, Command, ProcessorStartCommand, \
+    ProcessorStopCommand
 from lyrid.core.messaging import Address, Message
 from lyrid.core.messenger import IMessenger, IManager, RegisterAddressCommand, SendingCommand, \
     MessengerRegisterAddressMessage, MessengerRegisterAddressCompletedMessage, SendingToManagerCommand
-from lyrid.core.processor import IProcessor, Command, ProcessorStartCommand, ProcessorStopCommand
 
 
 class MessengerBase(IMessenger):
-    def __init__(self, address: Address, processor: IProcessor, managers: Dict[Address, IManager] = None):
+    def __init__(self, address: Address, processor: CommandProcessingLoop, managers: Dict[Address, IManager] = None):
         self._address = address
         self._processor = processor
         self._managers = managers or dict()

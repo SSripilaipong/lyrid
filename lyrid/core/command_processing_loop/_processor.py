@@ -4,7 +4,7 @@ from typing import Protocol
 from ._command import Command
 
 
-class IProcessor(Protocol):
+class CommandProcessingLoop(Protocol):
 
     @abstractmethod
     def process(self, command: Command):

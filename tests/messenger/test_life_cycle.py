@@ -1,4 +1,4 @@
-from lyrid.core.processor import ProcessorStartCommand, ProcessorStopCommand
+from lyrid.core.command_processing_loop import ProcessorStartCommand, ProcessorStopCommand
 from tests.factory.messenger import create_messenger
 
 

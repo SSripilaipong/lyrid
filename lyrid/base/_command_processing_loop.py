@@ -2,12 +2,13 @@ import multiprocessing as mp
 import queue
 from typing import Callable, Optional
 
-from lyrid.core.processor import Command, IProcessor, ProcessorStopCommand, ProcessorStartCommand
+from lyrid.core.command_processing_loop import Command, CommandProcessingLoop, ProcessorStopCommand, \
+    ProcessorStartCommand
 
 HandleFunc = Callable[[Command], None]
 
 
-class ProcessorBase(IProcessor):
+class MultiProcessedCommandProcessingLoop(CommandProcessingLoop):
     def __init__(self, command_queue: queue.Queue, handle: HandleFunc = None):
         self._handle = handle
         self._command_queue = command_queue

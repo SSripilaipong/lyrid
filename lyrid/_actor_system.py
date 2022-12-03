@@ -1,11 +1,12 @@
 import multiprocessing
 from typing import List, Tuple
 
-from lyrid.base import ActorSystemBase, TaskSchedulerBase, MessengerBase, ProcessorBase, ManagerBase
+from lyrid.base import ActorSystemBase, TaskSchedulerBase, MessengerBase, MultiProcessedCommandProcessingLoop, \
+    ManagerBase
 from lyrid.common import IdGenerator
+from lyrid.core.command_processing_loop import CommandProcessingLoop
 from lyrid.core.messaging import Address
 from lyrid.core.messenger import IMessenger, IManager
-from lyrid.core.processor import IProcessor
 
 
 # noinspection PyPep8Naming
@@ -29,41 +30,42 @@ def ActorSystem() -> ActorSystemBase:
 
 
 def _create_actor_system(manager_addresses: List[Address], messenger: IMessenger, messenger_address: Address,
-                         processors: List[IProcessor]) \
-        -> Tuple[ActorSystemBase, IProcessor]:
+                         processors: List[CommandProcessingLoop]) \
+        -> Tuple[ActorSystemBase, CommandProcessingLoop]:
     command_queue = multiprocessing.Manager().Queue()
-    processor = ProcessorBase(command_queue=command_queue)
+    command_processor = MultiProcessedCommandProcessingLoop(command_queue=command_queue)
     id_generator = IdGenerator()
     reply_queue = multiprocessing.Manager().Queue()
     scheduler = TaskSchedulerBase(messenger=messenger)
-    system = ActorSystemBase(scheduler=scheduler, processor=processor, messenger=messenger,
+    system = ActorSystemBase(scheduler=scheduler, processor=command_processor, messenger=messenger,
                              manager_addresses=manager_addresses, address=Address("$"),
                              messenger_address=messenger_address, reply_queue=reply_queue,
-                             id_generator=id_generator, root_address=Address("$"), processors=processors + [processor])
-    processor.set_handle(system.handle_processor_command)
+                             id_generator=id_generator, root_address=Address("$"),
+                             processors=processors + [command_processor])
+    command_processor.set_handle(system.handle_processor_command)
 
     messenger.add_manager(Address("$"), system)
     messenger.initial_register_address(Address("$"), Address("$"))
-    return system, processor
+    return system, command_processor
 
 
-def _create_messenger(address: Address) -> Tuple[IMessenger, IProcessor]:
+def _create_messenger(address: Address) -> Tuple[IMessenger, CommandProcessingLoop]:
     command_queue = multiprocessing.Manager().Queue()
-    processor = ProcessorBase(command_queue=command_queue)
-    messenger = MessengerBase(address=address, processor=processor)
-    processor.set_handle(messenger.handle_processor_command)
+    command_processor = MultiProcessedCommandProcessingLoop(command_queue=command_queue)
+    messenger = MessengerBase(address=address, processor=command_processor)
+    command_processor.set_handle(messenger.handle_processor_command)
 
-    return messenger, processor
+    return messenger, command_processor
 
 
-def _create_manager(address: Address, messenger: IMessenger) -> Tuple[IManager, IProcessor]:
+def _create_manager(address: Address, messenger: IMessenger) -> Tuple[IManager, CommandProcessingLoop]:
     command_queue = multiprocessing.Manager().Queue()
-    processor = ProcessorBase(command_queue=command_queue)
+    command_processor = MultiProcessedCommandProcessingLoop(command_queue=command_queue)
     scheduler = TaskSchedulerBase(messenger=messenger)
-    manager = ManagerBase(scheduler=scheduler, processor=processor, messenger=messenger,
+    manager = ManagerBase(scheduler=scheduler, processor=command_processor, messenger=messenger,
                           address=address)
-    processor.set_handle(manager.handle_processor_command)
+    command_processor.set_handle(manager.handle_processor_command)
 
     messenger.add_manager(address, manager)
 
-    return manager, processor
+    return manager, command_processor

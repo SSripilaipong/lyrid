@@ -2,11 +2,11 @@ import queue
 from typing import List
 
 from lyrid.base import ActorSystemBase
+from lyrid.core.command_processing_loop import CommandProcessingLoop
 from lyrid.core.common import IIdGenerator
 from lyrid.core.manager import ITaskScheduler
 from lyrid.core.messaging import Address
 from lyrid.core.messenger import IMessenger
-from lyrid.core.processor import IProcessor
 from tests.mock.id_generator import IdGeneratorMock
 from tests.mock.messenger import MessengerMock
 from tests.mock.processor import ProcessorMock
@@ -14,7 +14,7 @@ from tests.mock.scheduler import SchedulerMock
 
 
 def create_actor_system(*, root_address: Address = None, address: Address = None, scheduler: ITaskScheduler = None,
-                        processor: IProcessor = None,
+                        processor: CommandProcessingLoop = None,
                         messenger: IMessenger = None, reply_queue: queue.Queue = None,
                         manager_addresses: List[Address] = None, messenger_address: Address = None,
                         id_generator: IIdGenerator = None) -> ActorSystemBase:

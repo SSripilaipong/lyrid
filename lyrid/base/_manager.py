@@ -1,3 +1,5 @@
+from lyrid.core.command_processing_loop import Command, CommandProcessingLoop, ProcessorStartCommand, \
+    ProcessorStopCommand
 from lyrid.core.manager import (
     ITaskScheduler, ActorMessageDeliveryTask, MessageHandlingCommand, SpawnActorCommand, ManagerSpawnActorMessage,
     ManagerSpawnActorCompletedMessage, ActorNotFoundError,
@@ -5,11 +7,11 @@ from lyrid.core.manager import (
 from lyrid.core.messaging import Address, Message
 from lyrid.core.messenger import IMessenger, IManager
 from lyrid.core.process import SupervisorForceStop, ChildStopped
-from lyrid.core.processor import Command, IProcessor, ProcessorStartCommand, ProcessorStopCommand
 
 
 class ManagerBase(IManager):
-    def __init__(self, address: Address, scheduler: ITaskScheduler, processor: IProcessor, messenger: IMessenger):
+    def __init__(self, address: Address, scheduler: ITaskScheduler, processor: CommandProcessingLoop,
+                 messenger: IMessenger):
         self._address = address
         self._scheduler = scheduler
         self._processor = processor

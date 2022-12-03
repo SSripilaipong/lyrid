@@ -1,4 +1,4 @@
-from lyrid.core.processor import Command
+from lyrid.core.command_processing_loop import Command
 
 
 class ProcessorMock:

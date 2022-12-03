@@ -1,13 +1,13 @@
 from dataclasses import dataclass
 from typing import TYPE_CHECKING
 
+from lyrid.core.command_processing_loop import ProcessorStartCommand, ProcessorStopCommand
 from lyrid.core.manager import (
     ActorMessageDeliveryTask, MessageHandlingCommand
 )
 from lyrid.core.messaging import Address, Message
 from lyrid.core.messenger import IMessenger
 from lyrid.core.process import Process
-from lyrid.core.processor import ProcessorStartCommand, ProcessorStopCommand
 from tests.manager.typing import ManagerFactory
 from tests.message_dummy import MessageDummy
 from tests.mock.processor import ProcessorMock

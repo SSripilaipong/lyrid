@@ -3,7 +3,7 @@ from typing import Protocol
 
 from lyrid.core.messaging import Address, Message
 from . import IManager
-from ..processor import Command
+from ..command_processing_loop import Command
 
 
 class IMessenger(Protocol):
