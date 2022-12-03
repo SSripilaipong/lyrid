@@ -55,7 +55,7 @@ class Second(Actor):
 
 
 def test_should_spawn_and_ask_second_actor():
-    system = ActorSystem()
+    system = ActorSystem(n_nodes=1)
     first = system.spawn("first", First)
 
     system.tell(first, SpawnSecond())

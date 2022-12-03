@@ -1,4 +1,4 @@
-import multiprocessing
+import multiprocessing as mp
 from typing import List, Tuple
 
 from lyrid.base import ActorSystemBase, ThreadedTaskScheduler, MessengerBase, MultiProcessedCommandProcessingLoop, \
@@ -10,35 +10,40 @@ from lyrid.core.messenger import IMessenger, Node
 
 
 # noinspection PyPep8Naming
-def ActorSystem() -> ActorSystemBase:
+def ActorSystem(n_nodes: int = None) -> ActorSystemBase:
     messenger_address = Address("#messenger")
 
     messenger, messenger_processor = _create_messenger(messenger_address)
 
-    _, manager_processor = _create_node(Address("#manager1"), messenger)
+    node_processors = []
+    node_addresses = []
+    for i in range(max(1, n_nodes or (mp.cpu_count() - 2))):
+        address = Address(f"#node{i}")
+        _, node_processor = _create_node(address, messenger)
+        node_processors.append(node_processor)
+        node_addresses.append(address)
 
-    manager_addresses = [Address("#manager1")]
+    system, system_processor = _create_actor_system(node_addresses, messenger, messenger_address,
+                                                    processors=node_processors + [messenger_processor])
 
-    system, system_processor = _create_actor_system(manager_addresses, messenger, messenger_address,
-                                                    processors=[manager_processor, messenger_processor])
-
-    manager_processor.start()
+    for node in node_processors:
+        node.start()
     messenger_processor.start()
     system_processor.start()
 
     return system
 
 
-def _create_actor_system(manager_addresses: List[Address], messenger: IMessenger, messenger_address: Address,
+def _create_actor_system(node_addresses: List[Address], messenger: IMessenger, messenger_address: Address,
                          processors: List[CommandProcessingLoop]) \
         -> Tuple[ActorSystemBase, CommandProcessingLoop]:
-    command_queue = multiprocessing.Manager().Queue()
+    command_queue = mp.Manager().Queue()
     command_processor = MultiProcessedCommandProcessingLoop(command_queue=command_queue)
     id_generator = IdGenerator()
-    reply_queue = multiprocessing.Manager().Queue()
+    reply_queue = mp.Manager().Queue()
     scheduler = ThreadedTaskScheduler(messenger=messenger)
     system = ActorSystemBase(scheduler=scheduler, processor=command_processor, messenger=messenger,
-                             manager_addresses=manager_addresses, address=Address("$"),
+                             node_addresses=node_addresses, address=Address("$"),
                              messenger_address=messenger_address, reply_queue=reply_queue,
                              id_generator=id_generator, root_address=Address("$"),
                              processors=processors + [command_processor])
@@ -50,7 +55,7 @@ def _create_actor_system(manager_addresses: List[Address], messenger: IMessenger
 
 
 def _create_messenger(address: Address) -> Tuple[IMessenger, CommandProcessingLoop]:
-    command_queue = multiprocessing.Manager().Queue()
+    command_queue = mp.Manager().Queue()
     command_processor = MultiProcessedCommandProcessingLoop(command_queue=command_queue)
     messenger = MessengerBase(address=address, processor=command_processor)
     command_processor.set_handle(messenger.handle_processor_command)
@@ -59,13 +64,13 @@ def _create_messenger(address: Address) -> Tuple[IMessenger, CommandProcessingLo
 
 
 def _create_node(address: Address, messenger: IMessenger) -> Tuple[Node, CommandProcessingLoop]:
-    command_queue = multiprocessing.Manager().Queue()
+    command_queue = mp.Manager().Queue()
     command_processor = MultiProcessedCommandProcessingLoop(command_queue=command_queue)
     scheduler = ThreadedTaskScheduler(messenger=messenger)
-    manager = ProcessManagingNode(scheduler=scheduler, processor=command_processor, messenger=messenger,
-                                  address=address)
-    command_processor.set_handle(manager.handle_processor_command)
+    node = ProcessManagingNode(scheduler=scheduler, processor=command_processor, messenger=messenger,
+                               address=address)
+    command_processor.set_handle(node.handle_processor_command)
 
-    messenger.add_node(address, manager)
+    messenger.add_node(address, node)
 
-    return manager, command_processor
+    return node, command_processor

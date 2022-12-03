@@ -108,7 +108,8 @@ class Logger(Actor):
 
 
 def test_should_receive_all_stop_log():
-    system = ActorSystem()
+    # noinspection DuplicatedCode
+    system = ActorSystem(n_nodes=1)
     logger = system.spawn("logger", Logger)
     grandparent = system.spawn("grandparent", Grandparent)
     system.tell(grandparent, Start())
