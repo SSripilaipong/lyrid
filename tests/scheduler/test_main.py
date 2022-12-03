@@ -11,7 +11,7 @@ def test_should_let_actor_do_scheduled_task():
     scheduler.start()
 
     actor = create_actor(MyActor)
-    scheduler.register_actor(Address("$.you"), actor)
+    scheduler.register_process(Address("$.you"), actor)
 
     scheduler.schedule(ActorMessageDeliveryTask(Address("$.you"), MessageDummy("Hello"), Address("$.me")))
 

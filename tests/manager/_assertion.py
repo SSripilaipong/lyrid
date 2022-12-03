@@ -1,12 +1,12 @@
 from dataclasses import dataclass
 from typing import TYPE_CHECKING
 
-from lyrid.core.actor import IActor
 from lyrid.core.manager import (
     ActorMessageDeliveryTask, MessageHandlingCommand
 )
 from lyrid.core.messaging import Address, Message
 from lyrid.core.messenger import IMessenger
+from lyrid.core.process import Process
 from lyrid.core.processor import ProcessorStartCommand, ProcessorStopCommand
 from tests.manager.typing import ManagerFactory
 from tests.message_dummy import MessageDummy
@@ -71,7 +71,7 @@ def assert_schedule_actor_task_when_handling_actor_message_sending_command(
 
 
 @dataclass
-class MyActor(IActor):
+class MyProcess(Process):
     address: Address
     messenger: IMessenger
 

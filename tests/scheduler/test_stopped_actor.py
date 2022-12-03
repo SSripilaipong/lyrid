@@ -11,10 +11,10 @@ def test_should_not_pass_message_to_actor_after_actor_stopped_signal_is_raised()
     scheduler.start()
 
     actor = create_actor(WillStop)
-    scheduler.register_actor(Address("$.you"), actor)
+    scheduler.register_process(Address("$.you"), actor)
 
     scheduler.schedule(ActorMessageDeliveryTask(Address("$.you"), MessageDummy("Hello1"), Address("$.sender1")))
-    # the actor already raised ActorStoppedSignal
+    # the process already raised ActorStoppedSignal
     scheduler.schedule(ActorMessageDeliveryTask(Address("$.you"), MessageDummy("Hello2"), Address("$.sender2")))
 
     scheduler.stop()

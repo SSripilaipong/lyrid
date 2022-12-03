@@ -3,12 +3,12 @@ from collections import deque
 from queue import Queue
 from typing import Dict, Optional
 
-from lyrid.core.actor import IActor, ActorStoppedSignal
 from lyrid.core.manager import (
     Task, ActorMessageDeliveryTask, StopSchedulerTask, ActorTargetedTaskGroup, ActorTargetedTask, ITaskScheduler,
 )
 from lyrid.core.messaging import Address
 from lyrid.core.messenger import IMessenger
+from lyrid.core.process import Process, ProcessStoppedSignal
 
 
 class TaskSchedulerBase(ITaskScheduler):
@@ -17,7 +17,7 @@ class TaskSchedulerBase(ITaskScheduler):
 
         self._task_queue: Queue[Task] = Queue()
         self._actor_tasks: Dict[Address, ActorTargetedTaskGroup] = dict()
-        self._actors: Dict[Address, IActor] = dict()
+        self._processes: Dict[Address, Process] = dict()
 
         self._lock = threading.Lock()
         self._thread: Optional[threading.Thread] = None
@@ -25,7 +25,7 @@ class TaskSchedulerBase(ITaskScheduler):
     def schedule(self, task: ActorTargetedTask):
         if isinstance(task, ActorMessageDeliveryTask):
             with self._lock:
-                if task.target not in self._actors:
+                if task.target not in self._processes:
                     return
 
                 tasks_in_queue = self._actor_tasks.get(
@@ -39,14 +39,14 @@ class TaskSchedulerBase(ITaskScheduler):
         else:
             raise NotImplementedError()
 
-    def register_actor(self, address: Address, actor: IActor):
+    def register_process(self, address: Address, process: Process):
         with self._lock:
-            self._actors[address] = actor
+            self._processes[address] = process
 
     def force_stop_actor(self, address: Address):
         with self._lock:
-            if address in self._actors:
-                del self._actors[address]
+            if address in self._processes:
+                del self._processes[address]
 
     def stop(self, block: bool = True):
         self._task_queue.put(StopSchedulerTask())
@@ -73,7 +73,7 @@ class TaskSchedulerBase(ITaskScheduler):
         if len(task.actor_task_queue) == 0:
             return
         with self._lock:
-            actor = self._actors.get(task.target)
+            actor = self._processes.get(task.target)
 
         if actor is None:
             return
@@ -82,7 +82,7 @@ class TaskSchedulerBase(ITaskScheduler):
         if isinstance(actor_task, ActorMessageDeliveryTask):
             try:
                 actor.receive(actor_task.sender, actor_task.message)
-            except ActorStoppedSignal:
+            except ProcessStoppedSignal:
                 self._handle_stopped_actor(task.target)
         else:
             raise NotImplementedError()
@@ -92,4 +92,4 @@ class TaskSchedulerBase(ITaskScheduler):
 
     def _handle_stopped_actor(self, address: Address):
         with self._lock:
-            del self._actors[address]
+            del self._processes[address]

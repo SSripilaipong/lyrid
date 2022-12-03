@@ -1,9 +1,9 @@
 from typing import Optional, List
 
 from lyrid import ActorBase
-from lyrid.core.actor import ActorStoppedSignal
 from lyrid.core.messaging import Address, Message
 from lyrid.core.messenger import IMessenger
+from lyrid.core.process import ProcessStoppedSignal
 
 
 class MyActor(ActorBase):
@@ -28,4 +28,4 @@ class WillStop(ActorBase):
     def on_receive(self, sender: Address, message: Message):
         self.receive__senders.append(sender)
         self.receive__messages.append(message)
-        raise ActorStoppedSignal()
+        raise ProcessStoppedSignal()

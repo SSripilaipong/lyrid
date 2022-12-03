@@ -10,7 +10,7 @@ from tests.factory.system import create_actor_system
 from tests.mock.id_generator import IdGeneratorMock
 from tests.mock.messenger import MessengerMock
 from tests.mock.processor import ProcessorMock
-from tests.system.actor_dummy import ActorDummy
+from tests.system.actor_dummy import ProcessDummy
 from tests.system.util import root_process_message
 
 
@@ -19,14 +19,14 @@ def test_should_let_processor_process_handle_spawn_child_actor_message():
     system = create_actor_system(processor=processor)
 
     system.handle_message(
-        sender=Address("$.actor"),
+        sender=Address("$.process"),
         receiver=Address("$"),
-        message=SpawnChildMessage(key="my_child", type_=ActorDummy)
+        message=SpawnChildMessage(key="my_child", type_=ProcessDummy)
     )
 
     assert processor.process__command == MessageHandlingCommand(
-        sender=Address("$.actor"), receiver=Address("$"),
-        message=SpawnChildMessage(key="my_child", type_=ActorDummy),
+        sender=Address("$.process"), receiver=Address("$"),
+        message=SpawnChildMessage(key="my_child", type_=ProcessDummy),
     )
 
 
@@ -37,12 +37,13 @@ def test_should_send_manager_spawn_actor_message_to_manager_with_generated_ref_i
                                  manager_addresses=[Address("#manager1")],
                                  id_generator=id_gen)
 
-    root_process_message(system, sender=Address("$.actor"), message=SpawnChildMessage(key="my_child", type_=ActorDummy))
+    root_process_message(system, sender=Address("$.process"),
+                         message=SpawnChildMessage(key="my_child", type_=ProcessDummy))
 
     assert messenger.send__sender == Address("$") and \
            messenger.send__receiver == Address("#manager1") and \
            messenger.send__message == \
-           ManagerSpawnActorMessage(address=Address("$.actor.my_child"), type_=ActorDummy, ref_id="GenId123")
+           ManagerSpawnActorMessage(address=Address("$.process.my_child"), type_=ProcessDummy, ref_id="GenId123")
 
 
 def test_should_send_spawn_child_completed_message_to_actor_when_handling_acknowledge_messenger_register_address_completed_command():
@@ -53,7 +54,7 @@ def test_should_send_spawn_child_completed_message_to_actor_when_handling_acknow
                                  id_generator=id_gen)
 
     root_process_message(
-        system, sender=Address("$.my_actor"), message=SpawnChildMessage(key="my_child", type_=ActorDummy),
+        system, sender=Address("$.my_actor"), message=SpawnChildMessage(key="my_child", type_=ProcessDummy),
     )
     root_process_message(
         system, sender=Address("manager1"), message=ManagerSpawnActorCompletedMessage(
@@ -80,7 +81,7 @@ def test_should_not_put_reply_in_reply_queue_when_completing_spawning_child_for_
                                  id_generator=id_gen, reply_queue=reply_queue)
 
     root_process_message(
-        system, sender=Address("$.my_actor"), message=SpawnChildMessage(key="my_child", type_=ActorDummy),
+        system, sender=Address("$.my_actor"), message=SpawnChildMessage(key="my_child", type_=ProcessDummy),
     )
     root_process_message(
         system, sender=Address("#manager1"), message=ManagerSpawnActorCompletedMessage(

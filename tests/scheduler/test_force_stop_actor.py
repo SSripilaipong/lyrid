@@ -11,7 +11,7 @@ def test_should_not_pass_message_to_actor_after_actor_is_forced_stopping():
     scheduler.start()
 
     actor = create_actor(MyActor)
-    scheduler.register_actor(Address("$.you"), actor)
+    scheduler.register_process(Address("$.you"), actor)
 
     scheduler.force_stop_actor(Address("$.you"))
     scheduler.schedule(ActorMessageDeliveryTask(Address("$.you"), MessageDummy("Hello2"), Address("$.sender2")))

@@ -1,0 +1,2 @@
+class ProcessStoppedSignal(Exception):
+    pass

@@ -1,6 +1,6 @@
-from lyrid.core.actor import SupervisorForceStop, ChildActorStopped
 from lyrid.core.manager import MessageHandlingCommand, ActorNotFoundError
 from lyrid.core.messaging import Address
+from lyrid.core.process import SupervisorForceStop, ChildStopped
 from tests.manager.typing import ManagerFactory
 from tests.mock.messenger import MessengerMock
 from tests.mock.scheduler import SchedulerMock
@@ -34,4 +34,4 @@ def assert_send_child_actor_stopped_message_when_scheduler_cannot_find_the_actor
 
     assert messenger.send__sender == Address("#manager1") and \
            messenger.send__receiver == Address("$.me") and \
-           messenger.send__message == ChildActorStopped(child_address=Address("$.me.my_child"))
+           messenger.send__message == ChildStopped(child_address=Address("$.me.my_child"))

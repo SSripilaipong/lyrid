@@ -1,13 +1,13 @@
 from dataclasses import dataclass
 
-from lyrid.core.actor import IActorFactory
 from lyrid.core.messaging import Message, Address
+from lyrid.core.process import ProcessFactory
 
 
 @dataclass
 class ManagerSpawnActorMessage(Message):
     address: Address
-    type_: IActorFactory
+    type_: ProcessFactory
     ref_id: str
 
 

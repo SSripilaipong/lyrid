@@ -1,9 +1,9 @@
-from lyrid.core.actor import IActor
 from lyrid.core.messaging import Address, Message
 from lyrid.core.messenger import IMessenger
+from lyrid.core.process import Process
 
 
-class ActorDummy(IActor):
+class ProcessDummy(Process):
     def __init__(self, address: Address, messenger: IMessenger, supervisor_address: Address):
         pass
 

@@ -9,8 +9,8 @@ from lyrid.core.processor import IProcessor, Command
 from lyrid.core.system import SystemSpawnActorCommand, SystemSpawnActorCompletedReply, ActorReplyAskCommand, \
     ActorAskReply
 from ._root import RootActor
-from ...core.actor import IActorFactory
 from ...core.common import IIdGenerator
+from ...core.process import ProcessFactory
 from ...core.system import SystemAskCommand
 
 
@@ -57,7 +57,7 @@ class ActorSystemBase(ManagerBase):
         )
         self._messenger.send(self._address, self._manager_addresses[0], msg)
 
-    def spawn(self, key: str, actor_type: IActorFactory) -> Address:
+    def spawn(self, key: str, actor_type: ProcessFactory) -> Address:
         self._processor.process(SystemSpawnActorCommand(key=key, type_=actor_type))
         reply: SystemSpawnActorCompletedReply = self._reply_queue.get()
         return reply.address

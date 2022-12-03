@@ -4,7 +4,7 @@ from lyrid.core.messaging import Message, Address
 
 
 @dataclass
-class ChildActorStopped(Message):
+class ChildStopped(Message):
     child_address: Address
 
 
