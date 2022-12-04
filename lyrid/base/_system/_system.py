@@ -1,5 +1,5 @@
 import queue
-from typing import List
+from typing import List, Optional
 
 from lyrid.base import ProcessManagingNode
 from lyrid.core.command_processing_loop import CommandProcessingLoop, Command
@@ -62,8 +62,8 @@ class ActorSystemBase(ProcessManagingNode):
         idx = self._randomizer.randrange(len(self._node_addresses))
         self._messenger.send(self._address, self._node_addresses[idx], msg)
 
-    def spawn(self, key: str, actor_type: ProcessFactory) -> Address:
-        self._processor.process(SystemSpawnActorCommand(key=key, type_=actor_type))
+    def spawn(self, key: str, actor_type: ProcessFactory, *, initial_message: Optional[Message] = None) -> Address:
+        self._processor.process(SystemSpawnActorCommand(key=key, type_=actor_type, initial_message=initial_message))
         reply: SystemSpawnActorCompletedReply = self._reply_queue.get()
         return reply.address
 

@@ -25,6 +25,18 @@ def test_should_let_processor_process_spawn_actor_command_when_spawn_is_called()
     assert processor.process__command == SystemSpawnActorCommand(key="hello", type_=ProcessDummy)
 
 
+def test_should_let_processor_process_spawn_actor_command_with_initial_message_if_not_none():
+    processor = ProcessorMock()
+    reply_queue = queue.Queue()
+    reply_queue.put(SystemSpawnActorCompletedReply(address=Address("$.hello")))
+    system = create_actor_system(processor=processor, reply_queue=reply_queue)
+
+    system.spawn("hello", ProcessDummy, initial_message=MessageDummy("Do It!"))
+
+    assert processor.process__command == SystemSpawnActorCommand(key="hello", type_=ProcessDummy,
+                                                                 initial_message=MessageDummy("Do It!"))
+
+
 def test_should_send_spawn_actor_message_to_manager_via_messenger_when_handling_spawn_actor_processor_command():
     messenger = MessengerMock()
     id_gen = IdGeneratorMock(generate__return="GenId123")
