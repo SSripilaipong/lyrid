@@ -57,6 +57,7 @@ class ActorSystemBase(ProcessManagingNode):
             address=self._address.child(command.key),
             type_=command.type_,
             ref_id=self._id_generator.generate(),
+            initial_message=command.initial_message,
         )
         idx = self._randomizer.randrange(len(self._node_addresses))
         self._messenger.send(self._address, self._node_addresses[idx], msg)

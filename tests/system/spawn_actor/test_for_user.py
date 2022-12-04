@@ -5,6 +5,7 @@ from lyrid.core.messenger import MessengerRegisterAddressCompletedMessage
 from lyrid.core.node import NodeSpawnProcessMessage
 from lyrid.core.system import SystemSpawnActorCommand, SystemSpawnActorCompletedReply
 from tests.factory.system import create_actor_system
+from tests.message_dummy import MessageDummy
 from tests.mock.id_generator import IdGeneratorMock
 from tests.mock.messenger import MessengerMock
 from tests.mock.processor import ProcessorMock
@@ -36,6 +37,23 @@ def test_should_send_spawn_actor_message_to_manager_via_messenger_when_handling_
            messenger.send__receiver == Address("#manager1") and \
            messenger.send__message == \
            NodeSpawnProcessMessage(address=Address("$.hello"), type_=ProcessDummy, ref_id="GenId123")
+
+
+def test_should_send_node_spawn_actor_message_with_initial_message_if_not_none():
+    messenger = MessengerMock()
+    id_gen = IdGeneratorMock(generate__return="GenId456")
+    system = create_actor_system(messenger=messenger,
+                                 node_addresses=[Address("#node0")],
+                                 id_generator=id_gen)
+
+    system.handle_processor_command(
+        SystemSpawnActorCommand(key="hello", type_=ProcessDummy, initial_message=MessageDummy("Hey!")))
+
+    assert messenger.send__sender == Address("$") and \
+           messenger.send__receiver == Address("#node0") and \
+           messenger.send__message == \
+           NodeSpawnProcessMessage(address=Address("$.hello"), type_=ProcessDummy,
+                                   initial_message=MessageDummy("Hey!"), ref_id="GenId456")
 
 
 def test_should_send_node_spawn_process_message_to_randomly_selected_node():
