@@ -1,6 +1,6 @@
 from dataclasses import dataclass
 
-from lyrid import ActorSystem, Actor
+from lyrid import ActorSystem, VanillaActor
 from lyrid.core.messaging import Address, Message, Ask, Reply
 from lyrid.core.process import ProcessStoppedSignal
 
@@ -10,7 +10,7 @@ class Greeting(Message):
     content: str
 
 
-class Greeter(Actor):
+class Greeter(VanillaActor):
     def on_receive(self, sender: Address, message: Message):
         if isinstance(message, Ask) and isinstance(message.message, Greeting):
             self.tell(sender, Reply(Greeting(content="Hi!"), ref_id=message.ref_id))

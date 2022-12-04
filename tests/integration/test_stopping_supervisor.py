@@ -2,7 +2,7 @@ import time
 from dataclasses import dataclass
 from typing import List, Optional
 
-from lyrid import Actor, ActorSystem
+from lyrid import VanillaActor, ActorSystem
 from lyrid.core.messaging import Address, Message, Ask, Reply
 from lyrid.core.messenger import IMessenger
 from lyrid.core.process import ChildStopped
@@ -40,7 +40,7 @@ class Log(Message):
     records: List[Message]
 
 
-class Child(Actor):
+class Child(VanillaActor):
     def on_receive(self, sender: Address, message: Message):
         if isinstance(message, Ask) and isinstance(message.message, Ping):
             self.tell(sender, Reply(Pong(), ref_id=message.ref_id))
@@ -49,7 +49,7 @@ class Child(Actor):
         self.tell(Address("$.logger"), IAmStopping(self._address))
 
 
-class Parent(Actor):
+class Parent(VanillaActor):
     def on_receive(self, sender: Address, message: Message):
         if isinstance(message, Start):
             self.spawn("child", Child)
@@ -60,7 +60,7 @@ class Parent(Actor):
         self.tell(Address("$.logger"), IAmStopping(self._address))
 
 
-class Grandparent(Actor):
+class Grandparent(VanillaActor):
     def on_receive(self, sender: Address, message: Message):
         if isinstance(message, Start):
             self.spawn("parent", Parent, initial_message=Start())
@@ -68,7 +68,7 @@ class Grandparent(Actor):
             self.tell(Address("$.logger"), message)
 
 
-class Logger(Actor):
+class Logger(VanillaActor):
     def __init__(self, address: Address, messenger: IMessenger):
         super().__init__(address, messenger)
 

@@ -3,7 +3,7 @@ from typing import Callable, Type, List
 # noinspection PyPackageRequirements
 import pytest
 
-from lyrid import Actor
+from lyrid import VanillaActor
 from lyrid.core.messaging import Address, Message
 from lyrid.core.process import ProcessStoppedSignal, ChildStopped, SupervisorForceStop
 from tests.actor.actor_mock import ChildActor
@@ -12,8 +12,8 @@ from tests.message_dummy import MessageDummy
 from tests.mock.messenger import MessengerMock
 
 
-def assert_should_send_child_actor_stopped_message_to_supervisor(actor_type: Type[Actor],
-                                                                 stop: Callable[[Actor, Address], None]):
+def assert_should_send_child_actor_stopped_message_to_supervisor(actor_type: Type[VanillaActor],
+                                                                 stop: Callable[[VanillaActor, Address], None]):
     my_address = Address("$.my_supervisor.me")
     messenger = MessengerMock()
     actor = create_actor(actor_type, address=my_address, messenger=messenger)
@@ -26,8 +26,8 @@ def assert_should_send_child_actor_stopped_message_to_supervisor(actor_type: Typ
            messenger.send__message == ChildStopped(child_address=Address("$.my_supervisor.me"))
 
 
-def assert_should_send_supervisor_force_stop_message_to_spawned_children(actor_type: Type[Actor],
-                                                                         stop: Callable[[Actor, Address], None]):
+def assert_should_send_supervisor_force_stop_message_to_spawned_children(actor_type: Type[VanillaActor],
+                                                                         stop: Callable[[VanillaActor, Address], None]):
     my_address = Address("$.me")
     messenger = MessengerMock()
     actor = create_actor(actor_type, address=my_address, messenger=messenger)
@@ -44,9 +44,9 @@ def assert_should_send_supervisor_force_stop_message_to_spawned_children(actor_t
                                              SupervisorForceStop(address=Address("$.me.child2"))}
 
 
-def assert_should_send_supervisor_force_stop_message_to_not_stopped_children_only(actor_type: Type[Actor],
+def assert_should_send_supervisor_force_stop_message_to_not_stopped_children_only(actor_type: Type[VanillaActor],
                                                                                   stop: Callable[
-                                                                                      [Actor, Address], None]):
+                                                                                      [VanillaActor, Address], None]):
     my_address = Address("$.me")
     messenger = MessengerMock()
     actor = create_actor(actor_type, address=my_address, messenger=messenger)
@@ -65,8 +65,8 @@ def assert_should_send_supervisor_force_stop_message_to_not_stopped_children_onl
 
 
 def assert_should_raise_actor_stopped_signal_to_outside_after_actor_tried_to_stop_and_all_children_are_stopped(
-        actor_type: Type[Actor],
-        stop: Callable[[Actor, Address], None]):
+        actor_type: Type[VanillaActor],
+        stop: Callable[[VanillaActor, Address], None]):
     my_address = Address("$.me")
     actor = create_actor(actor_type, address=my_address)
 
@@ -84,11 +84,11 @@ def assert_should_raise_actor_stopped_signal_to_outside_after_actor_tried_to_sto
 
 
 def assert_should_not_let_actor_receive_any_message_when_stopping(
-        actor_type: Type[Actor],
-        stop: Callable[[Actor, Address], None],
-        on_receive__clear_captures: Callable[[Actor], None],
-        on_receive__senders: Callable[[Actor], List[Address]],
-        on_receive__messages: Callable[[Actor], List[Message]],
+        actor_type: Type[VanillaActor],
+        stop: Callable[[VanillaActor, Address], None],
+        on_receive__clear_captures: Callable[[VanillaActor], None],
+        on_receive__senders: Callable[[VanillaActor], List[Address]],
+        on_receive__messages: Callable[[VanillaActor], List[Message]],
 ):
     my_address = Address("$.me")
     actor = create_actor(actor_type, address=my_address)
@@ -104,9 +104,10 @@ def assert_should_not_let_actor_receive_any_message_when_stopping(
     assert on_receive__senders(actor) == [] and on_receive__messages(actor) == []
 
 
-def assert_should_call_on_stop_after_actor_raising_process_stop_signal(actor_type: Type[Actor],
-                                                                       stop: Callable[[Actor, Address], None],
-                                                                       on_stop__is_called: Callable[[Actor], bool]):
+def assert_should_call_on_stop_after_actor_raising_process_stop_signal(actor_type: Type[VanillaActor],
+                                                                       stop: Callable[[VanillaActor, Address], None],
+                                                                       on_stop__is_called: Callable[
+                                                                           [VanillaActor], bool]):
     my_address = Address("$.me")
     actor = create_actor(actor_type, address=my_address)
 
@@ -117,8 +118,8 @@ def assert_should_call_on_stop_after_actor_raising_process_stop_signal(actor_typ
 
 
 def assert_should_send_child_actor_stopped_message_to_supervisor_after_all_active_children_stopped(
-        actor_type: Type[Actor],
-        stop: Callable[[Actor, Address], None],
+        actor_type: Type[VanillaActor],
+        stop: Callable[[VanillaActor, Address], None],
 ):
     my_address = Address("$.my_supervisor.me")
     messenger = MessengerMock()
@@ -138,8 +139,8 @@ def assert_should_send_child_actor_stopped_message_to_supervisor_after_all_activ
 
 
 def assert_should_not_send_child_actor_stopped_message_to_supervisor_before_all_active_children_stopped(
-        actor_type: Type[Actor],
-        stop: Callable[[Actor, Address], None],
+        actor_type: Type[VanillaActor],
+        stop: Callable[[VanillaActor, Address], None],
 ):
     my_address = Address("$.my_supervisor.me")
     messenger = MessengerMock()

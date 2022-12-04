@@ -2,7 +2,7 @@ import time
 from dataclasses import dataclass
 from typing import List, Optional
 
-from lyrid import Actor, ActorSystem
+from lyrid import VanillaActor, ActorSystem
 from lyrid.core.messaging import Address, Message, Ask, Reply
 from lyrid.core.messenger import IMessenger
 
@@ -39,7 +39,7 @@ class Log(Message):
     records: List[Message]
 
 
-class WillStopMyself(Actor):
+class WillStopMyself(VanillaActor):
     def on_receive(self, sender: Address, message: Message):
         if isinstance(message, Stop):
             self.stop()
@@ -50,7 +50,7 @@ class WillStopMyself(Actor):
         self.tell(Address("$.logger"), IAmStopping(self._address))
 
 
-class TellMeToStop(Actor):
+class TellMeToStop(VanillaActor):
     def on_receive(self, sender: Address, message: Message):
         if isinstance(message, Ask) and isinstance(message.message, Ping):
             self.tell(sender, Reply(Pong(), ref_id=message.ref_id))
@@ -59,7 +59,7 @@ class TellMeToStop(Actor):
         self.tell(Address("$.logger"), IAmStopping(self._address))
 
 
-class Parent(Actor):
+class Parent(VanillaActor):
     def on_receive(self, sender: Address, message: Message):
         if isinstance(message, Start):
             self.spawn("child1", WillStopMyself)
@@ -70,7 +70,7 @@ class Parent(Actor):
         self.tell(Address("$.logger"), IAmStopping(self._address))
 
 
-class Grandparent(Actor):
+class Grandparent(VanillaActor):
     def on_receive(self, sender: Address, message: Message):
         if isinstance(message, Start):
             self.spawn("parent", Parent, initial_message=Start())
@@ -81,7 +81,7 @@ class Grandparent(Actor):
         self.tell(Address("$.logger"), IAmStopping(self._address))
 
 
-class Logger(Actor):
+class Logger(VanillaActor):
     def __init__(self, address: Address, messenger: IMessenger):
         super().__init__(address, messenger)
 

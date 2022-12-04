@@ -1,18 +1,18 @@
 from dataclasses import dataclass
 from typing import List
 
-from lyrid import Actor
+from lyrid import VanillaActor
 from lyrid.core.messaging import Address, Message
 from lyrid.core.messenger import IMessenger
 
 
-class MyActor(Actor):
+class MyActor(VanillaActor):
 
     def on_receive(self, sender: Address, message: Message):
         pass
 
 
-class ChildActor(Actor):
+class ChildActor(VanillaActor):
 
     def on_receive(self, sender: Address, message: Message):
         pass
@@ -23,7 +23,7 @@ class StopDummy(Message):
     pass
 
 
-class WillStop(Actor):
+class WillStop(VanillaActor):
     def __init__(self, address: Address, messenger: IMessenger):
         super(WillStop, self).__init__(address, messenger)
 
