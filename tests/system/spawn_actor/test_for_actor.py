@@ -103,7 +103,7 @@ def test_should_send_spawn_child_completed_message_to_actor_when_handling_acknow
     )
     root_process_message(
         system, sender=Address("manager1"), message=NodeSpawnProcessCompletedMessage(
-            actor_address=Address("$.my_actor.my_child"), manager_address=Address("#manager1"), ref_id="RefId999",
+            process_address=Address("$.my_actor.my_child"), node_address=Address("#manager1"), ref_id="RefId999",
         ),
     )
     root_process_message(
@@ -130,7 +130,7 @@ def test_should_not_put_reply_in_reply_queue_when_completing_spawning_child_for_
     )
     root_process_message(
         system, sender=Address("#manager1"), message=NodeSpawnProcessCompletedMessage(
-            actor_address=Address("$.my_actor.my_child"), manager_address=Address("#manager1"), ref_id="RefId999"
+            process_address=Address("$.my_actor.my_child"), node_address=Address("#manager1"), ref_id="RefId999"
         ),
     )
     root_process_message(

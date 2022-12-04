@@ -15,6 +15,6 @@ class NodeSpawnProcessMessage(Message):
 
 @dataclass
 class NodeSpawnProcessCompletedMessage(Message):
-    actor_address: Address
-    manager_address: Address
+    process_address: Address
+    node_address: Address
     ref_id: str

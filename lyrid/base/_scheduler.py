@@ -3,7 +3,7 @@ from collections import deque
 from queue import Queue
 from typing import Dict, Optional
 
-from lyrid.core.messaging import Address
+from lyrid.core.messaging import Address, Message
 from lyrid.core.messenger import IMessenger
 from lyrid.core.node import (
     Task, ProcessMessageDeliveryTask, StopSchedulerTask, ProcessTargetedTaskGroup, ProcessTargetedTask, TaskScheduler,
@@ -32,7 +32,7 @@ class ThreadedTaskScheduler(TaskScheduler):
         else:
             raise NotImplementedError()
 
-    def register_process(self, address: Address, process: Process):
+    def register_process(self, address: Address, process: Process, *, initial_message: Optional[Message] = None):
         with self._lock:
             self._processes[address] = process
 

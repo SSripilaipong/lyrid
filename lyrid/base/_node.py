@@ -19,7 +19,7 @@ class ProcessManagingNode(Node):
         if isinstance(message, NodeSpawnProcessMessage):
             self._processor.process(
                 SpawnProcessCommand(address=message.address, type_=message.type_, reply_to=sender,
-                                    ref_id=message.ref_id))
+                                    initial_message=message.initial_message, ref_id=message.ref_id))
         else:
             self._processor.process(MessageHandlingCommand(sender=sender, receiver=receiver, message=message))
 
@@ -31,14 +31,15 @@ class ProcessManagingNode(Node):
         elif isinstance(command, ProcessorStopCommand):
             self._scheduler.stop()
         elif isinstance(command, SpawnProcessCommand):
-            self._spawn_actor(command)
+            self._spawn_process(command)
         else:
             raise NotImplementedError()
 
-    def _spawn_actor(self, command: SpawnProcessCommand):
-        self._scheduler.register_process(command.address, command.type_(command.address, self._messenger))
+    def _spawn_process(self, command: SpawnProcessCommand):
+        self._scheduler.register_process(command.address, command.type_(command.address, self._messenger),
+                                         initial_message=command.initial_message)
         reply_message = NodeSpawnProcessCompletedMessage(
-            actor_address=command.address, manager_address=self._address, ref_id=command.ref_id
+            process_address=command.address, node_address=self._address, ref_id=command.ref_id
         )
         self._messenger.send(self._address, command.reply_to, reply_message)
 

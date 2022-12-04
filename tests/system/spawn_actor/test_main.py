@@ -14,15 +14,15 @@ def test_should_let_processor_process_handle_manager_spawn_actor_completed_messa
     system.handle_message(
         sender=Address("#manager1"),
         receiver=Address("$"),
-        message=NodeSpawnProcessCompletedMessage(actor_address=Address("$.new"), manager_address=Address("#manager1"),
+        message=NodeSpawnProcessCompletedMessage(process_address=Address("$.new"), node_address=Address("#manager1"),
                                                  ref_id="RefId123")
     )
 
     assert processor.process__command == MessageHandlingCommand(
         sender=Address("#manager1"), receiver=Address("$"),
         message=NodeSpawnProcessCompletedMessage(
-            actor_address=Address("$.new"),
-            manager_address=Address("#manager1"),
+            process_address=Address("$.new"),
+            node_address=Address("#manager1"),
             ref_id="RefId123",
         ),
     )
@@ -34,7 +34,7 @@ def test_should_send_messenger_register_address_message_to_messenger_when_handli
 
     root_process_message(
         system, sender=Address("#manager1"), message=NodeSpawnProcessCompletedMessage(
-            actor_address=Address("$.new"), manager_address=Address("#manager1"), ref_id="RefId999",
+            process_address=Address("$.new"), node_address=Address("#manager1"), ref_id="RefId999",
         ),
     )
 

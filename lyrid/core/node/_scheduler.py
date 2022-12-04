@@ -1,8 +1,8 @@
 from abc import abstractmethod
-from typing import Protocol
+from typing import Protocol, Optional
 
 from ._task import ProcessTargetedTask
-from ..messaging import Address
+from ..messaging import Address, Message
 from ..process import Process
 
 
@@ -13,7 +13,7 @@ class TaskScheduler(Protocol):
         pass
 
     @abstractmethod
-    def register_process(self, address: Address, process: Process):
+    def register_process(self, address: Address, process: Process, *, initial_message: Optional[Message] = None):
         pass
 
     @abstractmethod

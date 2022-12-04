@@ -32,7 +32,7 @@ class RootActor(Actor):
             self._complete_spawning_actor(sender, message)
 
     def _messenger_register_address(self, sender: Address, message: NodeSpawnProcessCompletedMessage):
-        msg = MessengerRegisterAddressMessage(address=message.actor_address,
+        msg = MessengerRegisterAddressMessage(address=message.process_address,
                                               node_address=sender,
                                               ref_id=message.ref_id)
         self.tell(self._messenger_address, msg)
