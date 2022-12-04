@@ -67,7 +67,7 @@ class Parent(Actor):
 class Grandparent(Actor):
     def on_receive(self, sender: Address, message: Message):
         if isinstance(message, Start):
-            self.spawn("parent", Parent)
+            self.spawn("parent", Parent, initial_message=Start())
         elif isinstance(message, ChildStopped):
             self.tell(Address("$.logger"), message)
 
@@ -98,12 +98,10 @@ def test_should_receive_all_stop_log():
     # noinspection DuplicatedCode
     system = ActorSystem(n_nodes=1)
     logger = system.spawn("logger", Logger)
-    grandparent = system.spawn("grandparent", Grandparent)
-    system.tell(grandparent, Start())
+    grandparent = system.spawn("grandparent", Grandparent, initial_message=Start())
     time.sleep(0.008)
-    system.tell(Address("$.grandparent.parent"), Start())
-    time.sleep(0.008)
-    system.ask(Address("$.grandparent.parent.child"), Ping())
+    parent = grandparent.child("parent")
+    system.ask(parent.child("child"), Ping())
 
     system.tell(Address("$.grandparent.parent"), Stop())
 

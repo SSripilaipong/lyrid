@@ -56,9 +56,8 @@ class Second(Actor):
 
 def test_should_spawn_and_ask_second_actor():
     system = ActorSystem(n_nodes=1)
-    first = system.spawn("first", First)
+    first = system.spawn("first", First, initial_message=SpawnSecond())
 
-    system.tell(first, SpawnSecond())
     second_response = system.ask(first, GreetSecond())
 
     system.force_stop()
