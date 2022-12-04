@@ -58,7 +58,8 @@ class ActorSystemBase(ProcessManagingNode):
             type_=command.type_,
             ref_id=self._id_generator.generate(),
         )
-        self._messenger.send(self._address, self._manager_addresses[0], msg)
+        idx = self._randomizer.randrange(1)
+        self._messenger.send(self._address, self._manager_addresses[idx], msg)
 
     def spawn(self, key: str, actor_type: ProcessFactory) -> Address:
         self._processor.process(SystemSpawnActorCommand(key=key, type_=actor_type))

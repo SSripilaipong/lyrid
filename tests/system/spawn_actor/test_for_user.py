@@ -8,6 +8,7 @@ from tests.factory.system import create_actor_system
 from tests.mock.id_generator import IdGeneratorMock
 from tests.mock.messenger import MessengerMock
 from tests.mock.processor import ProcessorMock
+from tests.mock.randomizer import RandomizerMock
 from tests.system.actor_dummy import ProcessDummy
 from tests.system.util import root_process_message
 
@@ -35,6 +36,18 @@ def test_should_send_spawn_actor_message_to_manager_via_messenger_when_handling_
            messenger.send__receiver == Address("#manager1") and \
            messenger.send__message == \
            NodeSpawnProcessMessage(address=Address("$.hello"), type_=ProcessDummy, ref_id="GenId123")
+
+
+def test_should_send_node_spawn_process_message_to_randomly_selected_node():
+    messenger = MessengerMock()
+    id_gen = IdGeneratorMock(generate__return="GenId123")
+    randomizer = RandomizerMock(randrange__return=1)
+    system = create_actor_system(messenger=messenger, id_generator=id_gen, randomizer=randomizer,
+                                 node_addresses=[Address("#node0"), Address("#node1"), Address("#node2")])
+
+    system.handle_processor_command(SystemSpawnActorCommand(key="hello", type_=ProcessDummy))
+
+    assert messenger.send__receiver == Address("#node1")
 
 
 def test_should_put_system_spawn_actor_completed_reply_to_reply_queue_when_handling_acknowledge_messenger_register_address_completed_command():
