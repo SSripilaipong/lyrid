@@ -63,6 +63,17 @@ def test_should_send_message_with_manager_address_to_manager_directly():
            manager.handle_message__message == MessageDummy("Hello Manager")
 
 
+def test_should_not_raise_error_when_sending_to_unknown_node_address():
+    processor = ProcessorMock()
+    messenger = create_messenger(processor=processor)
+
+    messenger.handle_processor_command(SendingCommand(
+        sender=Address("$.me"),
+        receiver=Address("#node999"),
+        message=MessageDummy("Hi"),
+    ))
+
+
 def test_should_not_raise_error_when_sending_to_unknown_address():
     processor = ProcessorMock()
     messenger = create_messenger(processor=processor)
