@@ -48,7 +48,9 @@ class MessengerBase(IMessenger):
         if receiver.is_manager():
             manager = self._nodes[receiver]
         else:
-            manager = self._address_to_node[receiver]
+            manager = self._address_to_node.get(receiver, None)
+        if manager is None:
+            return
         manager.handle_message(sender, receiver, message)
 
     def _on_sending_to_manager(self, sender: Address, of: Address, message: Message):

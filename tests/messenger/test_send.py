@@ -61,3 +61,14 @@ def test_should_send_message_with_manager_address_to_manager_directly():
     assert manager.handle_message__sender == Address("$.me") and \
            manager.handle_message__receiver == Address("#manager1") and \
            manager.handle_message__message == MessageDummy("Hello Manager")
+
+
+def test_should_not_raise_error_when_sending_to_unknown_address():
+    processor = ProcessorMock()
+    messenger = create_messenger(processor=processor)
+
+    messenger.handle_processor_command(SendingCommand(
+        sender=Address("$.me"),
+        receiver=Address("$.you"),
+        message=MessageDummy("Hi"),
+    ))
