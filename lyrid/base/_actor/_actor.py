@@ -1,11 +1,13 @@
 from abc import ABC, abstractmethod
 from enum import Enum
-from typing import TypeVar, Set, Optional
+from typing import TypeVar, Set, Optional, Callable, Tuple
 
+from lyrid.core.actor import BackgroundTaskExecutor
 from lyrid.core.messaging import Address, Message
 from lyrid.core.messenger import IMessenger
 from lyrid.core.process import ProcessFactory, Process, ProcessStoppedSignal, ChildStopped, SupervisorForceStop
 from lyrid.core.system import SpawnChildMessage
+from ._background_task_executor import ThreadBackgroundTaskExecutor
 
 T = TypeVar("T", bound='Actor')
 
@@ -17,7 +19,9 @@ class ActorStatus(str, Enum):
 
 class Actor(Process, ABC):
 
-    def __init__(self, address: Address, messenger: IMessenger):
+    def __init__(self, address: Address, messenger: IMessenger,
+                 background_task_executor: BackgroundTaskExecutor = None):
+        self._background_task_executor = background_task_executor or ThreadBackgroundTaskExecutor()
         self._address = address
         self._messenger = messenger
         self._system_address = Address("$")
@@ -32,6 +36,9 @@ class Actor(Process, ABC):
         self._messenger.send(self._address, self._system_address,
                              SpawnChildMessage(key=key, type_=type_, initial_message=initial_message))
         self._active_children.add(self._address.child(key))
+
+    def run_in_background(self, task: Callable, *, args: Tuple = ()):
+        self._background_task_executor.execute(task, args=args)
 
     def receive(self, sender: Address, message: Message):
         if isinstance(message, ChildStopped):

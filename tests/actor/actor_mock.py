@@ -24,8 +24,8 @@ class StopDummy(Message):
 
 
 class WillStop(VanillaActor):
-    def __init__(self, address: Address, messenger: IMessenger):
-        super(WillStop, self).__init__(address, messenger)
+    def __init__(self, address: Address, messenger: IMessenger, *args, **kwargs):
+        super(WillStop, self).__init__(address, messenger, *args, **kwargs)
 
         self.on_receive__senders: List[Address] = []
         self.on_receive__messages: List[Message] = []

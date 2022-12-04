@@ -24,8 +24,8 @@ class _Meta(_ProtocolMeta, ABCMeta):
 
 
 class StatefulActor(Actor, ABC, metaclass=_Meta):
-    def __init__(self, address: Address, messenger: IMessenger):
-        super().__init__(address, messenger)
+    def __init__(self, address: Address, messenger: IMessenger, *args, **kwargs):
+        super().__init__(address, messenger, *args, **kwargs)
 
         for name, type_ in self.__annotations__.items():
             assert name not in ACTOR_KEYWORDS
