@@ -100,9 +100,9 @@ def test_should_receive_all_stop_log():
     logger = system.spawn("logger", Logger)
     grandparent = system.spawn("grandparent", Grandparent)
     system.tell(grandparent, Start())
-    time.sleep(0.005)
+    time.sleep(0.008)
     system.tell(Address("$.grandparent.parent"), Start())
-    time.sleep(0.005)
+    time.sleep(0.008)
     system.ask(Address("$.grandparent.parent.child"), Ping())
 
     system.tell(Address("$.grandparent.parent"), Stop())
