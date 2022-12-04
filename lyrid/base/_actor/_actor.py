@@ -21,13 +21,17 @@ class Actor(Process, ABC):
 
     def __init__(self, address: Address, messenger: IMessenger,
                  background_task_executor: BackgroundTaskExecutor = None):
-        self._background_task_executor = background_task_executor or ThreadBackgroundTaskExecutor()
         self._address = address
         self._messenger = messenger
         self._system_address = Address("$")
+        self._background_task_executor = background_task_executor or ThreadBackgroundTaskExecutor()
 
         self._status = ActorStatus.ACTIVE
         self._active_children: Set[Address] = set()
+
+    @property
+    def address(self) -> Address:
+        return self._address
 
     def tell(self, receiver: Address, message: Message):
         self._messenger.send(self._address, receiver, message)
