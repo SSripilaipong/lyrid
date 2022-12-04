@@ -22,7 +22,7 @@ class MessengerBase(IMessenger):
         if isinstance(message, MessengerRegisterAddressMessage):
             self._processor.process(RegisterAddressCommand(
                 address=message.address,
-                node_address=message.manager_address,
+                node_address=message.node_address,
                 requester_address=sender,
                 ref_id=message.ref_id,
             ))

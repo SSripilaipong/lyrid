@@ -47,11 +47,23 @@ def test_should_send_manager_spawn_actor_message_to_manager_with_generated_ref_i
            NodeSpawnProcessMessage(address=Address("$.process.my_child"), type_=ProcessDummy, ref_id="GenId123")
 
 
-def test_should_random_range_with_number_of_node_addresses():
+def test_should_send_node_spawn_process_message_to_randomly_selected_node():
     messenger = MessengerMock()
     id_gen = IdGeneratorMock(generate__return="GenId123")
     randomizer = RandomizerMock(randrange__return=1)
     system = create_actor_system(messenger=messenger, id_generator=id_gen, randomizer=randomizer,
+                                 node_addresses=[Address("#node0"), Address("#node1"), Address("#node2")])
+
+    root_process_message(system, sender=Address("$.process"),
+                         message=SpawnChildMessage(key="my_child", type_=ProcessDummy))
+
+    assert messenger.send__receiver == Address("#node1")
+
+
+def test_should_random_range_with_number_of_node_addresses():
+    id_gen = IdGeneratorMock(generate__return="GenId123")
+    randomizer = RandomizerMock(randrange__return=1)
+    system = create_actor_system(id_generator=id_gen, randomizer=randomizer,
                                  node_addresses=[Address("#node0"), Address("#node1"), Address("#node2")])
 
     root_process_message(system, sender=Address("$.process"),

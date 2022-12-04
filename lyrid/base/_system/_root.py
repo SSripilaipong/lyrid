@@ -12,14 +12,14 @@ from ._task import Task, ActorSpawnChildTask
 
 class RootActor(Actor):
     def __init__(self, address: Address, messenger: IMessenger, messenger_address: Address, id_generator: IdGenerator,
-                 randomizer: Randomizer, manager_addresses: List[Address], reply_queue: queue.Queue):
+                 randomizer: Randomizer, node_addresses: List[Address], reply_queue: queue.Queue):
         super().__init__(address, messenger)
 
         self._reply_queue = reply_queue
         self._messenger_address = messenger_address
         self._id_generator = id_generator
         self._randomizer = randomizer
-        self._manager_addresses = manager_addresses
+        self._node_addresses = node_addresses
 
         self._tasks: Dict[str, Task] = {}
 
@@ -33,7 +33,7 @@ class RootActor(Actor):
 
     def _messenger_register_address(self, sender: Address, message: NodeSpawnProcessCompletedMessage):
         msg = MessengerRegisterAddressMessage(address=message.actor_address,
-                                              manager_address=sender,
+                                              node_address=sender,
                                               ref_id=message.ref_id)
         self.tell(self._messenger_address, msg)
 
@@ -42,8 +42,8 @@ class RootActor(Actor):
         ref_id = self._id_generator.generate()
         self._tasks[ref_id] = ActorSpawnChildTask(requester=requester, child_key=child_key)
 
-        self._randomizer.randrange(len(self._manager_addresses))
-        self.tell(self._manager_addresses[0], NodeSpawnProcessMessage(
+        idx = self._randomizer.randrange(len(self._node_addresses))
+        self.tell(self._node_addresses[idx], NodeSpawnProcessMessage(
             address=requester.child(child_key), type_=message.type_, ref_id=ref_id,
         ))
 

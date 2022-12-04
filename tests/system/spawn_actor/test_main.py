@@ -41,7 +41,7 @@ def test_should_send_messenger_register_address_message_to_messenger_when_handli
     assert messenger.send__sender == Address("$") and \
            messenger.send__receiver == Address("#messenger") and \
            messenger.send__message == MessengerRegisterAddressMessage(address=Address("$.new"),
-                                                                      manager_address=Address("#manager1"),
+                                                                      node_address=Address("#manager1"),
                                                                       ref_id="RefId999")
 
 

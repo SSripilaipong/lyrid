@@ -14,7 +14,7 @@ def test_should_pass_register_address_to_processor_when_sending_message_to_messe
     messenger.send(
         sender=Address("$"),
         receiver=Address("#messenger"),
-        message=MessengerRegisterAddressMessage(address=Address("$.new"), manager_address=Address("#manager1"),
+        message=MessengerRegisterAddressMessage(address=Address("$.new"), node_address=Address("#manager1"),
                                                 ref_id="RefId123"),
     )
 
