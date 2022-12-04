@@ -103,7 +103,7 @@ def test_should_receive_all_stop_log():
     parent = grandparent.child("parent")
     system.ask(parent.child("child"), Ping())
 
-    system.tell(Address("$.grandparent.parent"), Stop())
+    system.tell(parent, Stop())
 
     log = system.ask(logger, GiveMeLog(n=3))
     system.force_stop()
