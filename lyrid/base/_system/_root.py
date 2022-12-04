@@ -45,6 +45,7 @@ class RootActor(Actor):
         idx = self._randomizer.randrange(len(self._node_addresses))
         self.tell(self._node_addresses[idx], NodeSpawnProcessMessage(
             address=requester.child(child_key), type_=message.type_, ref_id=ref_id,
+            initial_message=message.initial_message,
         ))
 
     def _complete_spawning_actor(self, _: Address, message: MessengerRegisterAddressCompletedMessage):
