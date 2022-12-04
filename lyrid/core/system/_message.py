@@ -1,4 +1,5 @@
 from dataclasses import dataclass
+from typing import Optional
 
 from lyrid.core.messaging import Message, Address
 from lyrid.core.process import ProcessFactory
@@ -8,6 +9,7 @@ from lyrid.core.process import ProcessFactory
 class SpawnChildMessage(Message):
     key: str
     type_: ProcessFactory
+    initial_message: Optional[Message] = None
 
 
 @dataclass

@@ -1,6 +1,6 @@
 from abc import ABC, abstractmethod
 from enum import Enum
-from typing import TypeVar, Set
+from typing import TypeVar, Set, Optional
 
 from lyrid.core.messaging import Address, Message
 from lyrid.core.messenger import IMessenger
@@ -28,8 +28,9 @@ class Actor(Process, ABC):
     def tell(self, receiver: Address, message: Message):
         self._messenger.send(self._address, receiver, message)
 
-    def spawn(self, key: str, type_: 'ProcessFactory'):
-        self._messenger.send(self._address, self._system_address, SpawnChildMessage(key=key, type_=type_))
+    def spawn(self, key: str, type_: ProcessFactory, *, initial_message: Optional[Message] = None):
+        self._messenger.send(self._address, self._system_address,
+                             SpawnChildMessage(key=key, type_=type_, initial_message=initial_message))
         self._active_children.add(self._address.child(key))
 
     def receive(self, sender: Address, message: Message):
