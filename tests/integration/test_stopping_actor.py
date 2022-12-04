@@ -12,10 +12,6 @@ class Start(Message):
     pass
 
 
-class Ok(Message):
-    pass
-
-
 class Stop(Message):
     pass
 
