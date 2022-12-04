@@ -7,7 +7,7 @@ from lyrid.core.messaging import Address, Message
 def test_should_raise_name_error_when_creating_actor_with_field_address():
     with pytest.raises(NameError) as e:
         class A(StatefulActor):
-            address: str
+            address: str  # type: ignore
 
             def on_receive(self, sender: Address, message: Message):
                 pass
