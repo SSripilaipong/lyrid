@@ -23,7 +23,7 @@ class ActorSystemBase(ProcessManagingNode):
 
         self._root_address = root_address
         self._messenger = messenger
-        self._manager_addresses = node_addresses
+        self._node_addresses = node_addresses
         self._reply_queue = reply_queue
         self._id_generator = id_generator
         self._randomizer = randomizer
@@ -44,7 +44,7 @@ class ActorSystemBase(ProcessManagingNode):
         if isinstance(command, MessageHandlingCommand) and command.receiver == self._root_address:
             self._root.receive(command.sender, command.message)
         elif isinstance(command, SystemSpawnActorCommand):
-            self._manager_spawn_actor_for_user(command)
+            self._node_spawn_process_for_user(command)
         elif isinstance(command, SystemAskCommand):
             self._system_ask(command)
         elif isinstance(command, ActorReplyAskCommand):
@@ -52,14 +52,14 @@ class ActorSystemBase(ProcessManagingNode):
         else:
             super(ActorSystemBase, self).handle_processor_command(command)
 
-    def _manager_spawn_actor_for_user(self, command: SystemSpawnActorCommand):
+    def _node_spawn_process_for_user(self, command: SystemSpawnActorCommand):
         msg = NodeSpawnProcessMessage(
             address=self._address.child(command.key),
             type_=command.type_,
             ref_id=self._id_generator.generate(),
         )
-        idx = self._randomizer.randrange(1)
-        self._messenger.send(self._address, self._manager_addresses[idx], msg)
+        idx = self._randomizer.randrange(len(self._node_addresses))
+        self._messenger.send(self._address, self._node_addresses[idx], msg)
 
     def spawn(self, key: str, actor_type: ProcessFactory) -> Address:
         self._processor.process(SystemSpawnActorCommand(key=key, type_=actor_type))
