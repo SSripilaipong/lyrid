@@ -3,7 +3,8 @@ from typing import List, Tuple
 
 from lyrid.base import ActorSystemBase, ThreadedTaskScheduler, MessengerBase, MultiProcessedCommandProcessingLoop, \
     ProcessManagingNode
-from lyrid.common import IdGenerator
+from lyrid.common import UUID4Generator
+from lyrid.common._randomizer import BuiltinRandomizer
 from lyrid.core.command_processing_loop import CommandProcessingLoop
 from lyrid.core.messaging import Address
 from lyrid.core.messenger import IMessenger, Node
@@ -39,13 +40,14 @@ def _create_actor_system(node_addresses: List[Address], messenger: IMessenger, m
         -> Tuple[ActorSystemBase, CommandProcessingLoop]:
     command_queue = mp.Manager().Queue()
     command_processor = MultiProcessedCommandProcessingLoop(command_queue=command_queue)
-    id_generator = IdGenerator()
+    id_generator = UUID4Generator()
+    randomizer = BuiltinRandomizer()
     reply_queue = mp.Manager().Queue()
     scheduler = ThreadedTaskScheduler(messenger=messenger)
     system = ActorSystemBase(scheduler=scheduler, processor=command_processor, messenger=messenger,
                              node_addresses=node_addresses, address=Address("$"),
                              messenger_address=messenger_address, reply_queue=reply_queue,
-                             id_generator=id_generator, root_address=Address("$"),
+                             id_generator=id_generator, root_address=Address("$"), randomizer=randomizer,
                              processors=processors + [command_processor])
     command_processor.set_handle(system.handle_processor_command)
 

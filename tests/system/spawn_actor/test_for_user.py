@@ -27,7 +27,7 @@ def test_should_send_spawn_actor_message_to_manager_via_messenger_when_handling_
     messenger = MessengerMock()
     id_gen = IdGeneratorMock(generate__return="GenId123")
     system = create_actor_system(address=Address("$"), messenger=messenger,
-                                 manager_addresses=[Address("#manager1")], id_generator=id_gen)
+                                 node_addresses=[Address("#manager1")], id_generator=id_gen)
 
     system.handle_processor_command(SystemSpawnActorCommand(key="hello", type_=ProcessDummy))
 

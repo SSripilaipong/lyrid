@@ -2,8 +2,8 @@ from abc import abstractmethod
 from typing import Protocol
 
 
-class IdGenerator(Protocol):
+class Randomizer(Protocol):
 
     @abstractmethod
-    def generate(self) -> str:
+    def randrange(self, n: int) -> int:
         pass

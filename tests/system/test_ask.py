@@ -31,7 +31,7 @@ def test_should_let_processor_process_system_ask_command_when_ask_is_called():
 
 def test_should_send_ask_message_via_messenger_when_handling_system_ask_command():
     messenger = MessengerMock()
-    system = create_actor_system(address=Address("$"), messenger=messenger, manager_addresses=[Address("#manager1")])
+    system = create_actor_system(address=Address("$"), messenger=messenger, node_addresses=[Address("#manager1")])
 
     system.handle_processor_command(SystemAskCommand(
         address=Address("$.my_actor"),

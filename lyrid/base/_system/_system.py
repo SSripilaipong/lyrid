@@ -9,7 +9,7 @@ from lyrid.core.node import TaskScheduler, NodeSpawnProcessMessage, MessageHandl
 from lyrid.core.system import SystemSpawnActorCommand, SystemSpawnActorCompletedReply, ActorReplyAskCommand, \
     ActorAskReply
 from ._root import RootActor
-from ...core.common import IIdGenerator
+from ...core.common import IdGenerator, Randomizer
 from ...core.process import ProcessFactory
 from ...core.system import SystemAskCommand
 
@@ -17,7 +17,8 @@ from ...core.system import SystemAskCommand
 class ActorSystemBase(ProcessManagingNode):
     def __init__(self, scheduler: TaskScheduler, processor: CommandProcessingLoop, messenger: IMessenger,
                  node_addresses: List[Address], root_address: Address, address: Address, messenger_address: Address,
-                 reply_queue: queue.Queue, id_generator: IIdGenerator, processors: List[CommandProcessingLoop] = None):
+                 reply_queue: queue.Queue, id_generator: IdGenerator, randomizer: Randomizer,
+                 processors: List[CommandProcessingLoop] = None):
         super().__init__(address=address, scheduler=scheduler, processor=processor, messenger=messenger)
 
         self._root_address = root_address
@@ -25,9 +26,11 @@ class ActorSystemBase(ProcessManagingNode):
         self._manager_addresses = node_addresses
         self._reply_queue = reply_queue
         self._id_generator = id_generator
+        self._randomizer = randomizer
         self._processors = processors or []
 
-        self._root = RootActor(root_address, messenger, messenger_address, id_generator, node_addresses, reply_queue)
+        self._root = RootActor(root_address, messenger, messenger_address, id_generator, randomizer, node_addresses,
+                               reply_queue)
 
     def handle_message(self, sender: Address, receiver: Address, message: Message):
         if isinstance(message, Reply):

@@ -1,1 +1,1 @@
-from ._id_generator import IdGenerator
+from ._id_generator import UUID4Generator
