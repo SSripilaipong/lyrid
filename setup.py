@@ -1,12 +1,11 @@
 import setuptools
 from setuptools import setup
 
-
 with open('requirements.txt') as f:
     requirements = f.read().splitlines()
 
 NAME = 'lyrid'
-VERSION = '0.0.0'
+VERSION = '0.0.2'
 URL = 'https://github.com/SSripilaipong/lyrid'
 LICENSE = 'MIT'
 AUTHOR = 'SSripilaipong'
