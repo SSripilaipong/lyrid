@@ -15,3 +15,15 @@ def test_should_let_process_handle_initial_message_if_not_none():
 
     assert process.receive__sender == Address("$.supervisor") and \
            process.receive__message == MessageDummy("Start!")
+
+
+def test_should_not_let_process_handle_initial_message_if_none():
+    scheduler = create_scheduler()
+    scheduler.start()
+
+    process = MyProcess()
+    scheduler.register_process(Address("$.supervisor.you"), process)
+
+    scheduler.stop()
+
+    assert process.receive__sender is None and process.receive__message is None
