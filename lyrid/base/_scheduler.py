@@ -36,6 +36,9 @@ class ThreadedTaskScheduler(TaskScheduler):
         with self._lock:
             self._processes[address] = process
 
+        if initial_message is not None:
+            self.schedule(ProcessMessageDeliveryTask(address, initial_message, address.supervisor()))
+
     def stop(self, block: bool = True):
         self._task_queue.put(StopSchedulerTask())
         if block:
