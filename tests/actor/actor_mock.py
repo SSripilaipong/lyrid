@@ -45,3 +45,32 @@ class WillStop(VanillaActor):
     def on_receive__clear_captures(self):
         self.on_receive__senders = []
         self.on_receive__messages = []
+
+
+@dataclass
+class FailDummy(Message):
+    exception: Exception
+
+
+class WillFail(VanillaActor):
+    def __init__(self, address: Address, messenger: IMessenger, *args, **kwargs):
+        super(WillFail, self).__init__(address, messenger, *args, **kwargs)
+
+        self.on_receive__senders: List[Address] = []
+        self.on_receive__messages: List[Message] = []
+
+        self.on_stop__is_called = False
+
+    def on_receive(self, sender: Address, message: Message):
+        self.on_receive__senders.append(sender)
+        self.on_receive__messages.append(message)
+
+        if isinstance(message, FailDummy):
+            raise message.exception
+
+    def on_stop(self):
+        self.on_stop__is_called = True
+
+    def on_receive__clear_captures(self):
+        self.on_receive__senders = []
+        self.on_receive__messages = []

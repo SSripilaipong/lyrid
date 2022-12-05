@@ -12,8 +12,11 @@ from tests.message_dummy import MessageDummy
 from tests.mock.messenger import MessengerMock
 
 
-def assert_should_send_child_actor_stopped_message_to_supervisor(actor_type: Type[VanillaActor],
-                                                                 stop: Callable[[VanillaActor, Address], None]):
+def assert_should_send_child_actor_stopped_message_to_supervisor(
+        actor_type: Type[VanillaActor],
+        stop: Callable[[VanillaActor, Address], None],
+        exception: Exception = None,
+):
     my_address = Address("$.my_supervisor.me")
     messenger = MessengerMock()
     actor = create_actor(actor_type, address=my_address, messenger=messenger)
@@ -23,7 +26,7 @@ def assert_should_send_child_actor_stopped_message_to_supervisor(actor_type: Typ
 
     assert messenger.send__sender == Address("$.my_supervisor.me") and \
            messenger.send__receiver == Address("$.my_supervisor") and \
-           messenger.send__message == ChildStopped(child_address=Address("$.my_supervisor.me"))
+           messenger.send__message == ChildStopped(child_address=Address("$.my_supervisor.me"), exception=exception)
 
 
 def assert_should_send_supervisor_force_stop_message_to_spawned_children(actor_type: Type[VanillaActor],
@@ -120,6 +123,7 @@ def assert_should_call_on_stop_after_actor_raising_process_stop_signal(actor_typ
 def assert_should_send_child_actor_stopped_message_to_supervisor_after_all_active_children_stopped(
         actor_type: Type[VanillaActor],
         stop: Callable[[VanillaActor, Address], None],
+        exception: Exception = None,
 ):
     my_address = Address("$.my_supervisor.me")
     messenger = MessengerMock()
@@ -135,7 +139,7 @@ def assert_should_send_child_actor_stopped_message_to_supervisor_after_all_activ
 
     assert messenger.send__sender == Address("$.my_supervisor.me") and \
            messenger.send__receiver == Address("$.my_supervisor") and \
-           messenger.send__message == ChildStopped(child_address=Address("$.my_supervisor.me"))
+           messenger.send__message == ChildStopped(child_address=Address("$.my_supervisor.me"), exception=exception)
 
 
 def assert_should_not_send_child_actor_stopped_message_to_supervisor_before_all_active_children_stopped(
