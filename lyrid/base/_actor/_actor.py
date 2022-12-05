@@ -1,4 +1,5 @@
 from abc import ABC, abstractmethod
+from contextlib import suppress
 from enum import Enum
 from typing import TypeVar, Set, Optional, Callable, Tuple, SupportsFloat
 
@@ -76,7 +77,8 @@ class Actor(Process, ABC):
             self._handle_stopping()
 
     def _handle_stopping(self):
-        self.on_stop()
+        with suppress(Exception):
+            self.on_stop()
         self._status = ActorStatus.STOPPING
         if not self._active_children:
             self.tell(self._address.supervisor(), ChildStopped(child_address=self._address))

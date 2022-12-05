@@ -9,7 +9,8 @@ from tests.actor.stopped_actor._assertion import assert_should_send_child_actor_
     assert_should_not_let_actor_receive_any_message_when_stopping, \
     assert_should_call_on_stop_after_actor_raising_process_stop_signal, \
     assert_should_send_child_actor_stopped_message_to_supervisor_after_all_active_children_stopped, \
-    assert_should_not_send_child_actor_stopped_message_to_supervisor_before_all_active_children_stopped
+    assert_should_not_send_child_actor_stopped_message_to_supervisor_before_all_active_children_stopped, \
+    assert_should_ignore_any_exception_when_running_on_stop
 
 
 def assert_handle_stopped_actor(actor_type: Type[VanillaActor],
@@ -30,3 +31,4 @@ def assert_handle_stopped_actor(actor_type: Type[VanillaActor],
     assert_should_send_child_actor_stopped_message_to_supervisor_after_all_active_children_stopped(actor_type, stop)
     assert_should_not_send_child_actor_stopped_message_to_supervisor_before_all_active_children_stopped(actor_type,
                                                                                                         stop)
+    assert_should_ignore_any_exception_when_running_on_stop(actor_type, stop)

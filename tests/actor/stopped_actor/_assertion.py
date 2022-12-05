@@ -152,3 +152,19 @@ def assert_should_not_send_child_actor_stopped_message_to_supervisor_before_all_
     actor.receive(Address("$.me.child2"), ChildStopped(child_address=Address("$.me.child2")))
 
     assert not any(isinstance(m, ChildStopped) for m in messenger.send__messages)
+
+
+def assert_should_ignore_any_exception_when_running_on_stop(
+        actor_type: Type[VanillaActor],
+        stop: Callable[[VanillaActor, Address], None],
+):
+    my_address = Address("$.my_supervisor.me")
+    actor = create_actor(actor_type, address=my_address)
+
+    def on_stop():
+        raise Exception()
+
+    actor.on_stop = on_stop  # type: ignore
+
+    with pytest.raises(ProcessStoppedSignal):
+        stop(actor, my_address)
