@@ -5,7 +5,7 @@ with open('requirements.txt') as f:
     requirements = f.read().splitlines()
 
 NAME = 'lyrid'
-VERSION = '0.0.2'
+VERSION = '0.0.3'
 URL = 'https://github.com/SSripilaipong/lyrid'
 LICENSE = 'MIT'
 AUTHOR = 'SSripilaipong'
