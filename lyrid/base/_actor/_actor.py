@@ -1,7 +1,6 @@
 from abc import ABC, abstractmethod
 from enum import Enum
-from numbers import Number
-from typing import TypeVar, Set, Optional, Callable, Tuple
+from typing import TypeVar, Set, Optional, Callable, Tuple, SupportsFloat
 
 from lyrid.core.actor import BackgroundTaskExecutor
 from lyrid.core.messaging import Address, Message
@@ -34,9 +33,12 @@ class Actor(Process, ABC):
     def address(self) -> Address:
         return self._address
 
-    def tell(self, receiver: Address, message: Message, *, delay: Number = None):
+    def tell(self, receiver: Address, message: Message, *, delay: SupportsFloat = None):
         if delay is None:
             self._messenger.send(self._address, receiver, message)
+        else:
+            self._background_task_executor.execute_with_delay(self._messenger.send, delay=delay,
+                                                              args=(self._address, receiver, message))
 
     def spawn(self, key: str, type_: ProcessFactory, *, initial_message: Optional[Message] = None):
         self._messenger.send(self._address, self._system_address,
