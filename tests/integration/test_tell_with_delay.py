@@ -31,8 +31,7 @@ class Greeter(StatefulActor):
 
     def on_receive(self, sender: Address, message: Message):
         if isinstance(message, Start):
-            self.run_in_background(self.delayed_hello, args=(1,))
-            time.sleep(0.005)
+            self.tell(self.address, Hello(1), delay=0.01)
             self.tell(self.address, Hello(2))
         elif isinstance(message, Hello):
             self.hello_list.append(message)
@@ -42,10 +41,6 @@ class Greeter(StatefulActor):
 
         if self.ref_id is not None and self.reply_to is not None and len(self.hello_list) == 2:
             self.tell(self.reply_to, Reply(HelloList(self.hello_list), ref_id=self.ref_id))
-
-    def delayed_hello(self, value: int):
-        time.sleep(0.01)
-        self.tell(self.address, Hello(value))
 
 
 # noinspection DuplicatedCode
