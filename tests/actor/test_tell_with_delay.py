@@ -27,3 +27,12 @@ def test_should_execute_message_sending_in_background_executor():
     assert messenger.send__sender == Address("$.from.me") and \
            messenger.send__receiver == Address("$.to.you") and \
            messenger.send__message == MessageDummy("Yeah!")
+
+
+def test_should_execute_with_delay():
+    executor = BackgroundTaskExecutorMock()
+    actor = create_actor(MyActor, address=Address("$.from.me"), background_task_executor=executor)
+
+    actor.tell(Address("$.to.you"), MessageDummy("Yeah!"), delay=123.456)
+
+    assert executor.execute_with_delay__delay == 123.456
