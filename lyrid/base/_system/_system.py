@@ -16,7 +16,7 @@ from ...core.system import SystemAskCommand
 
 class ActorSystemBase(ProcessManagingNode):
     def __init__(self, scheduler: TaskScheduler, processor: CommandProcessingLoop, messenger: IMessenger,
-                 placement: List[Placement], node_addresses: List[Address], root_address: Address, address: Address,
+                 placements: List[Placement], node_addresses: List[Address], root_address: Address, address: Address,
                  messenger_address: Address, reply_queue: queue.Queue, id_generator: IdGenerator,
                  randomizer: Randomizer, processors: List[CommandProcessingLoop] = None):
         super().__init__(address=address, scheduler=scheduler, processor=processor, messenger=messenger)
@@ -29,10 +29,12 @@ class ActorSystemBase(ProcessManagingNode):
         self._randomizer = randomizer
         self._processors = processors or []
 
-        self._root = RootActor(root_address, messenger, messenger_address, id_generator, randomizer, node_addresses,
-                               reply_queue)
-        for p in placement:
+        for p in placements:
             p.policy.set_node_addresses(self._node_addresses)
+        self._placements = placements
+
+        self._root = RootActor(root_address, messenger, messenger_address, id_generator, randomizer, node_addresses,
+                               reply_queue, placements)
 
     def handle_message(self, sender: Address, receiver: Address, message: Message):
         if isinstance(message, Reply):

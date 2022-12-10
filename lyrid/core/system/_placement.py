@@ -3,10 +3,14 @@ from dataclasses import dataclass
 from typing import Protocol, List
 
 from lyrid.core.messaging import Address
+from lyrid.core.process import ProcessFactory
 
 
 class PlacementPolicyMatcher(Protocol):
-    pass
+
+    @abstractmethod
+    def match(self, type_: ProcessFactory) -> bool:
+        pass
 
 
 class PlacementPolicy(Protocol):

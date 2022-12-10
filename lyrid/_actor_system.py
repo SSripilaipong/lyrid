@@ -3,8 +3,7 @@ from typing import List, Tuple
 
 from lyrid.base import ActorSystemBase, ThreadedTaskScheduler, MessengerBase, MultiProcessedCommandProcessingLoop, \
     ProcessManagingNode
-from lyrid.common import UUID4Generator
-from lyrid.common._randomizer import BuiltinRandomizer
+from lyrid.common import BuiltinRandomizer, UUID4Generator
 from lyrid.core.command_processing_loop import CommandProcessingLoop
 from lyrid.core.messaging import Address
 from lyrid.core.messenger import IMessenger, Node
@@ -46,7 +45,7 @@ def _create_actor_system(node_addresses: List[Address], messenger: IMessenger, m
     randomizer = BuiltinRandomizer()
     reply_queue = mp.Manager().Queue()
     scheduler = ThreadedTaskScheduler(messenger=messenger)
-    system = ActorSystemBase(scheduler=scheduler, processor=command_processor, messenger=messenger, placement=[],
+    system = ActorSystemBase(scheduler=scheduler, processor=command_processor, messenger=messenger, placements=[],
                              node_addresses=node_addresses, address=Address("$"),
                              messenger_address=messenger_address, reply_queue=reply_queue,
                              id_generator=id_generator, root_address=Address("$"), randomizer=randomizer,

@@ -6,13 +6,14 @@ from lyrid.core.common import IdGenerator, Randomizer
 from lyrid.core.messaging import Address, Message
 from lyrid.core.messenger import MessengerRegisterAddressCompletedMessage, MessengerRegisterAddressMessage, IMessenger
 from lyrid.core.node import NodeSpawnProcessCompletedMessage, NodeSpawnProcessMessage
-from lyrid.core.system import SpawnChildMessage, SpawnChildCompletedMessage, SystemSpawnActorCompletedReply
+from lyrid.core.system import SpawnChildMessage, SpawnChildCompletedMessage, SystemSpawnActorCompletedReply, Placement
 from ._task import Task, ActorSpawnChildTask
 
 
 class RootActor(Actor):
     def __init__(self, address: Address, messenger: IMessenger, messenger_address: Address, id_generator: IdGenerator,
-                 randomizer: Randomizer, node_addresses: List[Address], reply_queue: queue.Queue):
+                 randomizer: Randomizer, node_addresses: List[Address], reply_queue: queue.Queue,
+                 placements: List[Placement]):
         super().__init__(address, messenger)
 
         self._reply_queue = reply_queue
@@ -20,6 +21,7 @@ class RootActor(Actor):
         self._id_generator = id_generator
         self._randomizer = randomizer
         self._node_addresses = node_addresses
+        self._placements = placements
 
         self._tasks: Dict[str, Task] = {}
 
@@ -27,7 +29,7 @@ class RootActor(Actor):
         if isinstance(message, NodeSpawnProcessCompletedMessage):
             self._messenger_register_address(sender, message)
         elif isinstance(message, SpawnChildMessage):
-            self._actor_spawn_child_actor(sender, message)
+            self._process_spawn_child_actor(sender, message)
         elif isinstance(message, MessengerRegisterAddressCompletedMessage):
             self._complete_spawning_actor(sender, message)
 
@@ -37,10 +39,13 @@ class RootActor(Actor):
                                               ref_id=message.ref_id)
         self.tell(self._messenger_address, msg)
 
-    def _actor_spawn_child_actor(self, sender: Address, message: SpawnChildMessage):
+    def _process_spawn_child_actor(self, sender: Address, message: SpawnChildMessage):
         requester, child_key = sender, message.key
         ref_id = self._id_generator.generate()
         self._tasks[ref_id] = ActorSpawnChildTask(requester=requester, child_key=child_key)
+
+        if self._placements:
+            self._placements[0].match.match(message.type_)
 
         idx = self._randomizer.randrange(len(self._node_addresses))
         self.tell(self._node_addresses[idx], NodeSpawnProcessMessage(

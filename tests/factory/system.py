@@ -33,6 +33,6 @@ def create_actor_system(*, root_address: Address = None, address: Address = None
     id_generator = id_generator or IdGeneratorMock()
     randomizer = randomizer or RandomizerMock()
     return ActorSystemBase(root_address=root_address, address=address, scheduler=scheduler, processor=processor,
-                           messenger=messenger, placement=placement,
+                           messenger=messenger, placements=placement,
                            node_addresses=node_addresses, messenger_address=messenger_address,
                            reply_queue=reply_queue, id_generator=id_generator, randomizer=randomizer)
