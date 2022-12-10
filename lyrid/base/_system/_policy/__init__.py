@@ -1,1 +1,1 @@
-from ._matcher import MatchAll
+from ._matcher import MatchAll, MatchType
