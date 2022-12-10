@@ -46,9 +46,12 @@ class RootActor(Actor):
 
         if self._placements:
             self._placements[0].match.match(message.type_)
+            node = self._placements[0].policy.get_placement_node()
+        else:
+            idx = self._randomizer.randrange(len(self._node_addresses))
+            node = self._node_addresses[idx]
 
-        idx = self._randomizer.randrange(len(self._node_addresses))
-        self.tell(self._node_addresses[idx], NodeSpawnProcessMessage(
+        self.tell(node, NodeSpawnProcessMessage(
             address=requester.child(child_key), type_=message.type_, ref_id=ref_id,
             initial_message=message.initial_message,
         ))

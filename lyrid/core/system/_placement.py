@@ -19,6 +19,10 @@ class PlacementPolicy(Protocol):
     def set_node_addresses(self, addresses: List[Address]):
         pass
 
+    @abstractmethod
+    def get_placement_node(self) -> Address:
+        pass
+
 
 @dataclass
 class Placement:
