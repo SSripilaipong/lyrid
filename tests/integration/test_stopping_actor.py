@@ -5,6 +5,7 @@ from typing import List, Optional
 from lyrid import VanillaActor, ActorSystem
 from lyrid.core.messaging import Address, Message, Ask, Reply
 from lyrid.core.messenger import IMessenger
+from lyrid.system import Placement, MatchAll, RoundRobin
 
 
 # noinspection DuplicatedCode
@@ -105,7 +106,7 @@ class Logger(VanillaActor):
 
 def test_should_receive_all_stop_log():
     # noinspection DuplicatedCode
-    system = ActorSystem(n_nodes=1)
+    system = ActorSystem(n_nodes=1, placement=[Placement(MatchAll(), RoundRobin())])
     logger = system.spawn("logger", Logger)
     grandparent = system.spawn("grandparent", Grandparent, initial_message=Start())
     time.sleep(0.005)
