@@ -7,7 +7,7 @@ from lyrid.core.messaging import Address, Message, Ask, Reply
 from lyrid.core.messenger import IMessenger
 from lyrid.core.node import TaskScheduler, NodeSpawnProcessMessage, MessageHandlingCommand
 from lyrid.core.system import SystemSpawnActorCommand, SystemSpawnActorCompletedReply, ActorReplyAskCommand, \
-    ActorAskReply
+    ActorAskReply, Placement
 from ._root import RootActor
 from ...core.common import IdGenerator, Randomizer
 from ...core.process import ProcessFactory
@@ -16,9 +16,9 @@ from ...core.system import SystemAskCommand
 
 class ActorSystemBase(ProcessManagingNode):
     def __init__(self, scheduler: TaskScheduler, processor: CommandProcessingLoop, messenger: IMessenger,
-                 node_addresses: List[Address], root_address: Address, address: Address, messenger_address: Address,
-                 reply_queue: queue.Queue, id_generator: IdGenerator, randomizer: Randomizer,
-                 processors: List[CommandProcessingLoop] = None):
+                 placement: List[Placement], node_addresses: List[Address], root_address: Address, address: Address,
+                 messenger_address: Address, reply_queue: queue.Queue, id_generator: IdGenerator,
+                 randomizer: Randomizer, processors: List[CommandProcessingLoop] = None):
         super().__init__(address=address, scheduler=scheduler, processor=processor, messenger=messenger)
 
         self._root_address = root_address
@@ -31,6 +31,8 @@ class ActorSystemBase(ProcessManagingNode):
 
         self._root = RootActor(root_address, messenger, messenger_address, id_generator, randomizer, node_addresses,
                                reply_queue)
+        for p in placement:
+            p.policy.set_node_addresses(self._node_addresses)
 
     def handle_message(self, sender: Address, receiver: Address, message: Message):
         if isinstance(message, Reply):

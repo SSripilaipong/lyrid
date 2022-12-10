@@ -8,10 +8,11 @@ from lyrid.common._randomizer import BuiltinRandomizer
 from lyrid.core.command_processing_loop import CommandProcessingLoop
 from lyrid.core.messaging import Address
 from lyrid.core.messenger import IMessenger, Node
+from lyrid.core.system import Placement
 
 
 # noinspection PyPep8Naming
-def ActorSystem(n_nodes: int = None) -> ActorSystemBase:
+def ActorSystem(n_nodes: int = None, placement: List[Placement] = None) -> ActorSystemBase:
     messenger_address = Address("#messenger")
 
     messenger, messenger_processor = _create_messenger(messenger_address)
@@ -25,7 +26,8 @@ def ActorSystem(n_nodes: int = None) -> ActorSystemBase:
         node_addresses.append(address)
 
     system, system_processor = _create_actor_system(node_addresses, messenger, messenger_address,
-                                                    processors=node_processors + [messenger_processor])
+                                                    processors=node_processors + [messenger_processor],
+                                                    placement=placement or [])
 
     for node in node_processors:
         node.start()
@@ -36,7 +38,7 @@ def ActorSystem(n_nodes: int = None) -> ActorSystemBase:
 
 
 def _create_actor_system(node_addresses: List[Address], messenger: IMessenger, messenger_address: Address,
-                         processors: List[CommandProcessingLoop]) \
+                         processors: List[CommandProcessingLoop], placement: List[Placement]) \
         -> Tuple[ActorSystemBase, CommandProcessingLoop]:
     command_queue = mp.Manager().Queue()
     command_processor = MultiProcessedCommandProcessingLoop(command_queue=command_queue)
@@ -44,7 +46,7 @@ def _create_actor_system(node_addresses: List[Address], messenger: IMessenger, m
     randomizer = BuiltinRandomizer()
     reply_queue = mp.Manager().Queue()
     scheduler = ThreadedTaskScheduler(messenger=messenger)
-    system = ActorSystemBase(scheduler=scheduler, processor=command_processor, messenger=messenger,
+    system = ActorSystemBase(scheduler=scheduler, processor=command_processor, messenger=messenger, placement=[],
                              node_addresses=node_addresses, address=Address("$"),
                              messenger_address=messenger_address, reply_queue=reply_queue,
                              id_generator=id_generator, root_address=Address("$"), randomizer=randomizer,
