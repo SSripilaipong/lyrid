@@ -12,7 +12,7 @@ from tests.mock.id_generator import IdGeneratorMock
 from tests.mock.messenger import MessengerMock
 from tests.mock.processor import ProcessorMock
 from tests.mock.randomizer import RandomizerMock
-from tests.system.actor_dummy import ProcessDummy
+from tests.system.process_dummy import ProcessDummy
 from tests.system.util import root_process_message
 
 

@@ -8,6 +8,7 @@ from lyrid.core.messenger import MessengerRegisterAddressCompletedMessage, Messe
 from lyrid.core.node import NodeSpawnProcessCompletedMessage, NodeSpawnProcessMessage
 from lyrid.core.system import SpawnChildMessage, SpawnChildCompletedMessage, SystemSpawnActorCompletedReply, Placement
 from ._task import Task, ActorSpawnChildTask
+from ...core.process import ProcessFactory
 
 
 class RootActor(Actor):
@@ -44,21 +45,25 @@ class RootActor(Actor):
         ref_id = self._id_generator.generate()
         self._tasks[ref_id] = ActorSpawnChildTask(requester=requester, child_key=child_key)
 
+        node = self.choose_placement_node(message.type_)
+
+        self.tell(node, NodeSpawnProcessMessage(
+            address=requester.child(child_key), type_=message.type_, ref_id=ref_id,
+            initial_message=message.initial_message,
+        ))
+
+    def choose_placement_node(self, type_: ProcessFactory) -> Address:
         node = None
         if self._placements:
             for placement in self._placements:
-                if placement.match.match(message.type_):
+                if placement.match.match(type_):
                     node = placement.policy.get_placement_node()
                     break
 
         if node is None:
             idx = self._randomizer.randrange(len(self._node_addresses))
             node = self._node_addresses[idx]
-
-        self.tell(node, NodeSpawnProcessMessage(
-            address=requester.child(child_key), type_=message.type_, ref_id=ref_id,
-            initial_message=message.initial_message,
-        ))
+        return node
 
     def _complete_spawning_actor(self, _: Address, message: MessengerRegisterAddressCompletedMessage):
         task = self._tasks.get(message.ref_id, None)
