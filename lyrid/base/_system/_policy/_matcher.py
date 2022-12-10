@@ -13,4 +13,4 @@ class MatchType(PlacementPolicyMatcher):
         self._type = type_
 
     def match(self, type_: ProcessFactory) -> bool:
-        return type_ is self._type
+        return isinstance(type_, type) and isinstance(self._type, type) and issubclass(type_, self._type)

@@ -10,6 +10,10 @@ def test_should_return_false_when_type_is_not_matched():
     assert MatchType(ProcessDummyA).match(ProcessDummyB) is False
 
 
+def test_should_return_true_when_type_is_subclass():
+    assert MatchType(ProcessDummyA).match(ProcessDummyASub) is True
+
+
 class ProcessDummyA(VanillaActor):
     def on_receive(self, sender: Address, message: Message):
         pass
@@ -18,3 +22,7 @@ class ProcessDummyA(VanillaActor):
 class ProcessDummyB(VanillaActor):
     def on_receive(self, sender: Address, message: Message):
         pass
+
+
+class ProcessDummyASub(ProcessDummyA):
+    pass
