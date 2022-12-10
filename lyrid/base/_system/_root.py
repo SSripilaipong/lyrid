@@ -44,13 +44,14 @@ class RootActor(Actor):
         ref_id = self._id_generator.generate()
         self._tasks[ref_id] = ActorSpawnChildTask(requester=requester, child_key=child_key)
 
+        node = None
         if self._placements:
-            node = Address("#not-used")
             for placement in self._placements:
                 if placement.match.match(message.type_):
                     node = placement.policy.get_placement_node()
                     break
-        else:
+
+        if node is None:
             idx = self._randomizer.randrange(len(self._node_addresses))
             node = self._node_addresses[idx]
 

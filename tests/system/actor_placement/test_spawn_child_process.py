@@ -4,6 +4,7 @@ from lyrid.core.system import Placement, SpawnChildMessage
 from tests.factory.system import create_actor_system
 from tests.mock.messenger import MessengerMock
 from tests.mock.placement_policy import PlacementPolicyMatcherMock, PlacementPolicyMock
+from tests.mock.randomizer import RandomizerMock
 from tests.system.actor_dummy import ProcessDummy
 from tests.system.util import root_process_message
 
@@ -58,4 +59,28 @@ def test_should_use_node_address_from_first_matched_policy():
                          message=SpawnChildMessage(key="my_child", type_=ProcessDummy))
 
     assert messenger.send__receiver == Address("#node1") and \
+           isinstance(messenger.send__message, NodeSpawnProcessMessage)
+
+
+def test_should_use_random_node_when_no_matched_policy():
+    messenger = MessengerMock()
+    placements = [
+        Placement(
+            match=PlacementPolicyMatcherMock(match__return=False),
+            policy=PlacementPolicyMock(get_placement_node__return=Address("#node0")),
+        ),
+        Placement(
+            match=PlacementPolicyMatcherMock(match__return=False),
+            policy=PlacementPolicyMock(get_placement_node__return=Address("#node1")),
+        ),
+    ]
+    randomizer = RandomizerMock(randrange__return=2)
+
+    system = create_actor_system(messenger=messenger, placements=placements, randomizer=randomizer,
+                                 node_addresses=[Address("#node0"), Address("#node1"), Address("#node2")])
+
+    root_process_message(system, sender=Address("$.process"),
+                         message=SpawnChildMessage(key="my_child", type_=ProcessDummy))
+
+    assert messenger.send__receiver == Address("#node2") and \
            isinstance(messenger.send__message, NodeSpawnProcessMessage)
