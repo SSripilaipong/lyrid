@@ -8,8 +8,8 @@ def test_should_pass_placement_policy_all_node_addresses_when_creating_actor_sys
     policy1, policy2 = PlacementPolicyMock(), PlacementPolicyMock()
 
     create_actor_system(
-        placement=[Placement(match=PlacementPolicyMatcherMock(), policy=policy1),
-                   Placement(match=PlacementPolicyMatcherMock(), policy=policy2)],
+        placements=[Placement(match=PlacementPolicyMatcherMock(), policy=policy1),
+                    Placement(match=PlacementPolicyMatcherMock(), policy=policy2)],
         node_addresses=[Address("#node0"), Address("#node1"), Address("#node2")],
     )
 
