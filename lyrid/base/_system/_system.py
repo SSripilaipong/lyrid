@@ -21,7 +21,7 @@ class ActorSystemBase(ProcessManagingNode):
                  randomizer: Randomizer, background_task_executor: BackgroundTaskExecutor,
                  processors: List[CommandProcessingLoop] = None):
         super().__init__(address=address, scheduler=scheduler, processor=processor, messenger=messenger,
-                         background_task_executor=background_task_executor)
+                         background_task_executor=background_task_executor, id_generator=id_generator)
 
         self._root_address = root_address
         self._messenger = messenger

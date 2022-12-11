@@ -8,6 +8,7 @@ from tests.node.typing import NodeFactory
 from ._actor_dummy import MyProcess
 from ...message_dummy import MessageDummy
 from ...mock.background_task_executor import BackgroundTaskExecutorMock
+from ...mock.id_generator import IdGeneratorMock
 
 
 def assert_let_processor_process_spawn_process_command_when_handle_node_spawn_process_message(
@@ -35,7 +36,8 @@ def assert_register_process_in_scheduler_when_handling_spawn_actor_command(
     scheduler = SchedulerMock()
     messenger = MessengerMock()
     executor = BackgroundTaskExecutorMock()
-    node = create_node(scheduler=scheduler, messenger=messenger, background_task_executor=executor)
+    id_gen = IdGeneratorMock()
+    node = create_node(scheduler=scheduler, messenger=messenger, background_task_executor=executor, id_generator=id_gen)
 
     node.handle_processor_command(
         SpawnProcessCommand(address=Address("$.new"), type_=MyProcess, initial_message=MessageDummy("Hello!"),
@@ -44,7 +46,8 @@ def assert_register_process_in_scheduler_when_handling_spawn_actor_command(
     assert scheduler.register_process__address == Address("$.new") and \
            scheduler.register_process__initial_message == MessageDummy("Hello!") and \
            scheduler.register_process__process == \
-           MyProcess(ProcessContext(address=Address("$.new"), messenger=messenger, background_task_executor=executor))
+           MyProcess(ProcessContext(address=Address("$.new"), messenger=messenger, background_task_executor=executor,
+                                    id_generator=id_gen))
 
 
 def assert_reply_spawn_process_completed_message(

@@ -42,8 +42,9 @@ class Actor(Process, ABC):
                                      SpawnChildMessage(key=key, type_=type_, initial_message=initial_message))
         self._active_children.add(self._context.address.child(key))
 
-    def run_in_background(self, task: Callable, *, args: Tuple = ()):
+    def run_in_background(self, task: Callable, *, args: Tuple = ()) -> str:
         self._context.background_task_executor.execute(task, args=args)
+        return self._context.id_generator.generate()
 
     def receive(self, sender: Address, message: Message):
         if isinstance(message, ChildStopped):

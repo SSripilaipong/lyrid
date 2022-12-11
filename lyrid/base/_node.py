@@ -1,5 +1,6 @@
 from lyrid.core.command_processing_loop import Command, CommandProcessingLoop, ProcessorStartCommand, \
     ProcessorStopCommand
+from lyrid.core.common import IdGenerator
 from lyrid.core.messaging import Address, Message
 from lyrid.core.messenger import IMessenger, Node
 from lyrid.core.node import (
@@ -10,12 +11,13 @@ from lyrid.core.process import ProcessContext, BackgroundTaskExecutor
 
 class ProcessManagingNode(Node):
     def __init__(self, address: Address, scheduler: TaskScheduler, processor: CommandProcessingLoop,
-                 messenger: IMessenger, background_task_executor: BackgroundTaskExecutor):
+                 messenger: IMessenger, background_task_executor: BackgroundTaskExecutor, id_generator: IdGenerator):
         self._address = address
         self._scheduler = scheduler
         self._processor = processor
         self._messenger = messenger
         self._background_task_executor = background_task_executor
+        self._id_generator = id_generator
 
     def handle_message(self, sender: Address, receiver: Address, message: Message):
         if isinstance(message, NodeSpawnProcessMessage):
@@ -40,7 +42,8 @@ class ProcessManagingNode(Node):
     def _spawn_process(self, command: SpawnProcessCommand):
         self._scheduler.register_process(
             command.address,
-            command.type_(ProcessContext(command.address, self._messenger, self._background_task_executor)),
+            command.type_(
+                ProcessContext(command.address, self._messenger, self._background_task_executor, self._id_generator)),
             initial_message=command.initial_message)
         reply_message = NodeSpawnProcessCompletedMessage(
             process_address=command.address, node_address=self._address, ref_id=command.ref_id

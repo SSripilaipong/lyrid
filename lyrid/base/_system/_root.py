@@ -15,7 +15,7 @@ class RootActor(Actor):
     def __init__(self, address: Address, messenger: IMessenger, messenger_address: Address, id_generator: IdGenerator,
                  randomizer: Randomizer, node_addresses: List[Address], reply_queue: queue.Queue,
                  placements: List[Placement]):
-        super().__init__(ProcessContext(address, messenger, BackgroundTaskExecutorDummy()))
+        super().__init__(ProcessContext(address, messenger, BackgroundTaskExecutorDummy(), id_generator=id_generator))
 
         self._reply_queue = reply_queue
         self._messenger_address = messenger_address

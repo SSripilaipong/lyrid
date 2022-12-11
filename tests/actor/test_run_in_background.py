@@ -3,27 +3,38 @@ from dataclasses import dataclass
 from lyrid import VanillaActor, Address, Message
 from tests.factory.actor import create_actor
 from tests.mock.background_task_executor import BackgroundTaskExecutorMock
+from tests.mock.id_generator import IdGeneratorMock
 
 
 @dataclass
-class Start(Message):
+class RunSuccessTask(Message):
     pass
 
 
 class ActorWithBackgroundTask(VanillaActor):
 
     def on_receive(self, sender: Address, message: Message):
-        if isinstance(message, Start):
-            self.run_in_background(self.do_something, args=("a", 123))
+        if isinstance(message, RunSuccessTask):
+            self.run_in_background(self.success_task, args=("a", 123))
 
-    def do_something(self, x, y):
+    def success_task(self, x, y):
         pass
 
 
-def test_should_task_run_in_background_with_args():
+def test_should_run_task_in_background_with_args():
     executor = BackgroundTaskExecutorMock()
     actor = create_actor(ActorWithBackgroundTask, background_task_executor=executor)
 
-    actor.receive(Address("$.someone"), Start())
+    actor.receive(Address("$.someone"), RunSuccessTask())
 
-    assert executor.execute__task == actor.do_something and executor.execute__args == ("a", 123)
+    assert executor.execute__task == actor.success_task and executor.execute__args == ("a", 123)
+
+
+def test_should_return_generated_task_id():
+    executor = BackgroundTaskExecutorMock()
+    id_gen = IdGeneratorMock(generate__return="BgId123")
+    actor = create_actor(ActorWithBackgroundTask, background_task_executor=executor, id_gen=id_gen)
+
+    task_id = actor.run_in_background(actor.success_task, args=("x", 456))
+
+    assert task_id == "BgId123"
