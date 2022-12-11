@@ -1,6 +1,6 @@
 from typing import Callable, Tuple, Optional, SupportsFloat
 
-from lyrid.core.actor import BackgroundTaskExecutor
+from lyrid.core.process import BackgroundTaskExecutor
 
 
 class BackgroundTaskExecutorMock(BackgroundTaskExecutor):

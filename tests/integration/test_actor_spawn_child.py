@@ -3,7 +3,7 @@ from typing import Optional
 
 from lyrid import VanillaActor, ActorSystem
 from lyrid.core.messaging import Address, Message, Reply, Ask
-from lyrid.core.messenger import IMessenger
+from lyrid.core.process import ProcessContext
 from lyrid.core.system import SpawnChildCompletedMessage
 from tests.message_dummy import MessageDummy
 
@@ -19,8 +19,8 @@ class SpawnSecond(Message):
 
 
 class First(VanillaActor):
-    def __init__(self, address: Address, messenger: IMessenger):
-        super().__init__(address, messenger)
+    def __init__(self, context: ProcessContext):
+        super().__init__(context)
 
         self.reply_to: Optional[Address] = None
         self.ref_id: Optional[str] = None

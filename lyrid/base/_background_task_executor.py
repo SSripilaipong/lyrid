@@ -1,7 +1,7 @@
 from threading import Thread, Timer
 from typing import Callable, Tuple, SupportsFloat
 
-from lyrid.core.actor import BackgroundTaskExecutor
+from lyrid.core.process import BackgroundTaskExecutor
 
 
 class ThreadBackgroundTaskExecutor(BackgroundTaskExecutor):

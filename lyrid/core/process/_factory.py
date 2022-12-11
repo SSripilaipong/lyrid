@@ -1,9 +1,8 @@
 from typing import Protocol
 
-from lyrid.core.messaging import Address
-from lyrid.core.messenger import IMessenger
-from lyrid.core.process import Process
+from ._context import ProcessContext
+from ._process import Process
 
 
 class ProcessFactory(Protocol):
-    def __call__(self, address: Address, messenger: IMessenger) -> Process: ...
+    def __call__(self, context: ProcessContext) -> Process: ...

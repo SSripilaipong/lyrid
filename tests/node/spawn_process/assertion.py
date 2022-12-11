@@ -1,11 +1,13 @@
 from lyrid.core.messaging import Address
 from lyrid.core.node import NodeSpawnProcessMessage, SpawnProcessCommand, NodeSpawnProcessCompletedMessage
+from lyrid.core.process import ProcessContext
 from tests.mock.messenger import MessengerMock
 from tests.mock.processor import ProcessorMock
 from tests.mock.scheduler import SchedulerMock
 from tests.node.typing import NodeFactory
 from ._actor_dummy import MyProcess
 from ...message_dummy import MessageDummy
+from ...mock.background_task_executor import BackgroundTaskExecutorMock
 
 
 def assert_let_processor_process_spawn_process_command_when_handle_node_spawn_process_message(
@@ -32,15 +34,17 @@ def assert_register_process_in_scheduler_when_handling_spawn_actor_command(
 ):
     scheduler = SchedulerMock()
     messenger = MessengerMock()
-    node = create_node(scheduler=scheduler, messenger=messenger)
+    executor = BackgroundTaskExecutorMock()
+    node = create_node(scheduler=scheduler, messenger=messenger, background_task_executor=executor)
 
     node.handle_processor_command(
         SpawnProcessCommand(address=Address("$.new"), type_=MyProcess, initial_message=MessageDummy("Hello!"),
                             reply_to=Address("$"), ref_id="RefId999"))
 
     assert scheduler.register_process__address == Address("$.new") and \
-           scheduler.register_process__process == MyProcess(address=Address("$.new"), messenger=messenger) and \
-           scheduler.register_process__initial_message == MessageDummy("Hello!")
+           scheduler.register_process__initial_message == MessageDummy("Hello!") and \
+           scheduler.register_process__process == \
+           MyProcess(ProcessContext(address=Address("$.new"), messenger=messenger, background_task_executor=executor))
 
 
 def assert_reply_spawn_process_completed_message(

@@ -1,5 +1,5 @@
 import queue
-from typing import Dict, List
+from typing import Dict, List, Callable, SupportsFloat, Tuple
 
 from lyrid.base._actor import Actor
 from lyrid.core.common import IdGenerator, Randomizer
@@ -8,14 +8,14 @@ from lyrid.core.messenger import MessengerRegisterAddressCompletedMessage, Messe
 from lyrid.core.node import NodeSpawnProcessCompletedMessage, NodeSpawnProcessMessage
 from lyrid.core.system import SpawnChildMessage, SpawnChildCompletedMessage, SystemSpawnActorCompletedReply, Placement
 from ._task import Task, ActorSpawnChildTask
-from ...core.process import ProcessFactory
+from ...core.process import ProcessFactory, ProcessContext, BackgroundTaskExecutor
 
 
 class RootActor(Actor):
     def __init__(self, address: Address, messenger: IMessenger, messenger_address: Address, id_generator: IdGenerator,
                  randomizer: Randomizer, node_addresses: List[Address], reply_queue: queue.Queue,
                  placements: List[Placement]):
-        super().__init__(address, messenger)
+        super().__init__(ProcessContext(address, messenger, BackgroundTaskExecutorDummy()))
 
         self._reply_queue = reply_queue
         self._messenger_address = messenger_address
@@ -72,3 +72,11 @@ class RootActor(Actor):
             del self._tasks[message.ref_id]
         else:
             self._reply_queue.put(SystemSpawnActorCompletedReply(address=message.address))
+
+
+class BackgroundTaskExecutorDummy(BackgroundTaskExecutor):
+    def execute(self, task: Callable, *, args: Tuple = ()):
+        pass
+
+    def execute_with_delay(self, task: Callable, *, delay: SupportsFloat, args: Tuple = ()):
+        pass

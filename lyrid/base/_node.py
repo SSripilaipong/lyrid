@@ -5,15 +5,17 @@ from lyrid.core.messenger import IMessenger, Node
 from lyrid.core.node import (
     TaskScheduler, ProcessMessageDeliveryTask, MessageHandlingCommand, SpawnProcessCommand, NodeSpawnProcessMessage,
     NodeSpawnProcessCompletedMessage, )
+from lyrid.core.process import ProcessContext, BackgroundTaskExecutor
 
 
 class ProcessManagingNode(Node):
     def __init__(self, address: Address, scheduler: TaskScheduler, processor: CommandProcessingLoop,
-                 messenger: IMessenger):
+                 messenger: IMessenger, background_task_executor: BackgroundTaskExecutor):
         self._address = address
         self._scheduler = scheduler
         self._processor = processor
         self._messenger = messenger
+        self._background_task_executor = background_task_executor
 
     def handle_message(self, sender: Address, receiver: Address, message: Message):
         if isinstance(message, NodeSpawnProcessMessage):
@@ -36,8 +38,10 @@ class ProcessManagingNode(Node):
             raise NotImplementedError()
 
     def _spawn_process(self, command: SpawnProcessCommand):
-        self._scheduler.register_process(command.address, command.type_(command.address, self._messenger),
-                                         initial_message=command.initial_message)
+        self._scheduler.register_process(
+            command.address,
+            command.type_(ProcessContext(command.address, self._messenger, self._background_task_executor)),
+            initial_message=command.initial_message)
         reply_message = NodeSpawnProcessCompletedMessage(
             process_address=command.address, node_address=self._address, ref_id=command.ref_id
         )

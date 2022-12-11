@@ -10,7 +10,7 @@ from lyrid.core.system import SystemSpawnActorCommand, SystemSpawnActorCompleted
     ActorAskReply, Placement
 from ._root import RootActor
 from ...core.common import IdGenerator, Randomizer
-from ...core.process import ProcessFactory
+from ...core.process import ProcessFactory, BackgroundTaskExecutor
 from ...core.system import SystemAskCommand
 
 
@@ -18,8 +18,10 @@ class ActorSystemBase(ProcessManagingNode):
     def __init__(self, scheduler: TaskScheduler, processor: CommandProcessingLoop, messenger: IMessenger,
                  placements: List[Placement], node_addresses: List[Address], root_address: Address, address: Address,
                  messenger_address: Address, reply_queue: queue.Queue, id_generator: IdGenerator,
-                 randomizer: Randomizer, processors: List[CommandProcessingLoop] = None):
-        super().__init__(address=address, scheduler=scheduler, processor=processor, messenger=messenger)
+                 randomizer: Randomizer, background_task_executor: BackgroundTaskExecutor,
+                 processors: List[CommandProcessingLoop] = None):
+        super().__init__(address=address, scheduler=scheduler, processor=processor, messenger=messenger,
+                         background_task_executor=background_task_executor)
 
         self._root_address = root_address
         self._messenger = messenger

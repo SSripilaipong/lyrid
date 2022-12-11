@@ -4,8 +4,7 @@ from typing import List, Optional
 
 from lyrid import VanillaActor, ActorSystem
 from lyrid.core.messaging import Address, Message, Ask, Reply
-from lyrid.core.messenger import IMessenger
-from lyrid.core.process import ChildStopped
+from lyrid.core.process import ChildStopped, ProcessContext
 
 
 # noinspection DuplicatedCode
@@ -46,7 +45,7 @@ class Child(VanillaActor):
             self.tell(sender, Reply(Pong(), ref_id=message.ref_id))
 
     def on_stop(self):
-        self.tell(Address("$.logger"), IAmStopping(self._address))
+        self.tell(Address("$.logger"), IAmStopping(self.address))
 
 
 class Parent(VanillaActor):
@@ -57,7 +56,7 @@ class Parent(VanillaActor):
             self.stop()
 
     def on_stop(self):
-        self.tell(Address("$.logger"), IAmStopping(self._address))
+        self.tell(Address("$.logger"), IAmStopping(self.address))
 
 
 class Grandparent(VanillaActor):
@@ -69,8 +68,8 @@ class Grandparent(VanillaActor):
 
 
 class Logger(VanillaActor):
-    def __init__(self, address: Address, messenger: IMessenger):
-        super().__init__(address, messenger)
+    def __init__(self, context: ProcessContext):
+        super().__init__(context)
 
         self._log: List[Message] = []
         self._n: Optional[int] = None
