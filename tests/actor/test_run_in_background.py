@@ -42,4 +42,4 @@ def test_should_return_generated_task_id():
 
     task_id = actor.run_in_background(actor.success_task, args=("x", 456))
 
-    assert task_id == "BgId123"
+    assert task_id == executor.execute__task_id == "BgId123"
