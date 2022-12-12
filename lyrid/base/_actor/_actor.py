@@ -43,8 +43,9 @@ class Actor(Process, ABC):
         self._active_children.add(self._context.address.child(key))
 
     def run_in_background(self, task: Callable, *, args: Tuple = ()) -> str:
-        self._context.background_task_executor.execute(self.address, task, args=args)
-        return self._context.id_generator.generate()
+        task_id = self._context.id_generator.generate()
+        self._context.background_task_executor.execute(task_id, self.address, task, args=args)
+        return task_id
 
     def receive(self, sender: Address, message: Message):
         if isinstance(message, ChildStopped):

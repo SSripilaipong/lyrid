@@ -14,7 +14,7 @@ def test_should_start_thread_with_task_and_args():
 
     task.args = None
 
-    executor.execute(Address("$.me"), task, args=("a", 123))
+    executor.execute("xxx", Address("$.me"), task, args=("a", 123))
 
     client.start_thread__function(*client.start_thread__args)
 
@@ -26,7 +26,7 @@ def test_should_send_message_back_to_address_when_thread_completed():
     messenger = MessengerMock()
     executor = create_thread_background_task_executor(thread_client=client, messenger=messenger)
 
-    executor.execute(Address("$.me"), lambda: None, task_id="BgId123")
+    executor.execute("BgId123", Address("$.me"), lambda: None)
     messenger.send__clear_captures()
 
     client.start_thread__function(*client.start_thread__args)

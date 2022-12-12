@@ -12,8 +12,8 @@ class ThreadBackgroundTaskExecutor(BackgroundTaskExecutor):
         self._thread_client = thread_client
         self._messenger = messenger
 
-    def execute(self, address: Address, task: Callable, *, args: Tuple = (), task_id: str = None):
-        self._thread_client.start_thread(self._background_task_wrapper(task, task_id or "", address), args=args)
+    def execute(self, task_id: str, address: Address, task: Callable, *, args: Tuple = ()):
+        self._thread_client.start_thread(self._background_task_wrapper(task, task_id, address), args=args)
 
     def execute_with_delay(self, task: Callable, *, delay: SupportsFloat, args: Tuple = ()):
         Timer(float(delay), task, args=args).start()

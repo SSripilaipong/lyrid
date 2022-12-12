@@ -76,7 +76,7 @@ class RootActor(Actor):
 
 
 class BackgroundTaskExecutorDummy(BackgroundTaskExecutor):
-    def execute(self, address: Address, task: Callable, *, args: Tuple = (), task_id: str = None):
+    def execute(self, task_id: str, address: Address, task: Callable, *, args: Tuple = ()):
         pass
 
     def execute_with_delay(self, task: Callable, *, delay: SupportsFloat, args: Tuple = ()):

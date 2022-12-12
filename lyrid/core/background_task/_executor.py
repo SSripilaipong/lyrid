@@ -7,7 +7,7 @@ from lyrid.core.messaging import Address
 class BackgroundTaskExecutor(Protocol):
 
     @abstractmethod
-    def execute(self, address: Address, task: Callable, *, args: Tuple = (), task_id: str = None):
+    def execute(self, task_id: str, address: Address, task: Callable, *, args: Tuple = ()):
         pass
 
     @abstractmethod
