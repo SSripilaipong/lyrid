@@ -20,7 +20,11 @@ class ThreadBackgroundTaskExecutor(BackgroundTaskExecutor):
 
     def _background_task_wrapper(self, task: Callable, task_id: str, address: Address):
         def wrapper(*args):
-            return_value = task(*args)
-            self._messenger.send(address, address, BackgroundTaskExited(task_id, return_value=return_value))
+            try:
+                return_value = task(*args)
+                msg = BackgroundTaskExited(task_id, return_value=return_value)
+            except Exception as e:
+                msg = BackgroundTaskExited(task_id, exception=e)
+            self._messenger.send(address, address, msg)
 
         return wrapper

@@ -1,3 +1,5 @@
+from dataclasses import dataclass
+
 from lyrid import Address
 from lyrid.core.background_task import BackgroundTaskExited
 from tests.factory.thread_background_task_executor import create_thread_background_task_executor
@@ -46,3 +48,22 @@ def test_should_attach_return_value_in_background_task_exited_message():
     client.start_thread__function(*client.start_thread__args)
 
     assert messenger.send__message == BackgroundTaskExited("BgId456", return_value=999)
+
+
+def test_should_attach_exception_if_raised():
+    client = ThreadClientMock()
+    messenger = MessengerMock()
+    executor = create_thread_background_task_executor(thread_client=client, messenger=messenger)
+
+    @dataclass
+    class MyException(Exception):
+        description: str
+
+    def failing_task():
+        raise MyException("abc")
+
+    executor.execute("BgId456", Address("$.me"), failing_task)
+
+    client.start_thread__function(*client.start_thread__args)
+
+    assert messenger.send__message == BackgroundTaskExited("BgId456", exception=MyException("abc"))
