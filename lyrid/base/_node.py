@@ -1,3 +1,4 @@
+from lyrid.core.background_task import BackgroundTaskExecutor
 from lyrid.core.command_processing_loop import Command, CommandProcessingLoop, ProcessorStartCommand, \
     ProcessorStopCommand
 from lyrid.core.common import IdGenerator
@@ -6,7 +7,7 @@ from lyrid.core.messenger import IMessenger, Node
 from lyrid.core.node import (
     TaskScheduler, ProcessMessageDeliveryTask, MessageHandlingCommand, SpawnProcessCommand, NodeSpawnProcessMessage,
     NodeSpawnProcessCompletedMessage, )
-from lyrid.core.process import ProcessContext, BackgroundTaskExecutor
+from lyrid.core.process import ProcessContext
 
 
 class ProcessManagingNode(Node):

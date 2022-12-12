@@ -1,10 +1,11 @@
 from typing import TypeVar, Type
 
 from lyrid import VanillaActor
+from lyrid.core.background_task import BackgroundTaskExecutor
 from lyrid.core.common import IdGenerator
 from lyrid.core.messaging import Address
 from lyrid.core.messenger import IMessenger
-from lyrid.core.process import BackgroundTaskExecutor, ProcessContext
+from lyrid.core.process import ProcessContext
 from tests.mock.background_task_executor import BackgroundTaskExecutorMock
 from tests.mock.id_generator import IdGeneratorMock
 from tests.mock.messenger import MessengerMock

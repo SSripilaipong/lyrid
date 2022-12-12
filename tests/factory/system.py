@@ -2,12 +2,12 @@ import queue
 from typing import List
 
 from lyrid.base import ActorSystemBase
+from lyrid.core.background_task import BackgroundTaskExecutor
 from lyrid.core.command_processing_loop import CommandProcessingLoop
 from lyrid.core.common import IdGenerator, Randomizer
 from lyrid.core.messaging import Address
 from lyrid.core.messenger import IMessenger
 from lyrid.core.node import TaskScheduler
-from lyrid.core.process import BackgroundTaskExecutor
 from lyrid.core.system import Placement
 from tests.mock.background_task_executor import BackgroundTaskExecutorMock
 from tests.mock.id_generator import IdGeneratorMock

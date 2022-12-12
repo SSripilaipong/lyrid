@@ -46,11 +46,12 @@ def _create_actor_system(node_addresses: List[Address], messenger: IMessenger, m
     randomizer = BuiltinRandomizer()
     reply_queue = mp.Manager().Queue()
     scheduler = ThreadedTaskScheduler(messenger=messenger)
+    background_task_executor = ThreadBackgroundTaskExecutor(BuiltinThreadingClient(), messenger)
     system = ActorSystemBase(scheduler=scheduler, processor=command_processor, messenger=messenger,
                              placements=placement, node_addresses=node_addresses, address=Address("$"),
                              messenger_address=messenger_address, reply_queue=reply_queue,
                              id_generator=id_generator, root_address=Address("$"), randomizer=randomizer,
-                             background_task_executor=ThreadBackgroundTaskExecutor(BuiltinThreadingClient()),
+                             background_task_executor=background_task_executor,
                              processors=processors + [command_processor])
     command_processor.set_handle(system.handle_processor_command)
 
@@ -72,9 +73,10 @@ def _create_node(address: Address, messenger: IMessenger) -> Tuple[Node, Command
     command_queue = mp.Manager().Queue()
     command_processor = MultiProcessedCommandProcessingLoop(command_queue=command_queue)
     scheduler = ThreadedTaskScheduler(messenger=messenger)
+    background_task_executor = ThreadBackgroundTaskExecutor(BuiltinThreadingClient(), messenger)
     node = ProcessManagingNode(scheduler=scheduler, processor=command_processor, messenger=messenger,
                                address=address,
-                               background_task_executor=ThreadBackgroundTaskExecutor(BuiltinThreadingClient()),
+                               background_task_executor=background_task_executor,
                                id_generator=UUID4Generator())
     command_processor.set_handle(node.handle_processor_command)
 

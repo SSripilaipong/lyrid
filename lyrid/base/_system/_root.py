@@ -2,13 +2,14 @@ import queue
 from typing import Dict, List, Callable, SupportsFloat, Tuple
 
 from lyrid.base._actor import Actor
+from lyrid.core.background_task import BackgroundTaskExecutor
 from lyrid.core.common import IdGenerator, Randomizer
 from lyrid.core.messaging import Address, Message
 from lyrid.core.messenger import MessengerRegisterAddressCompletedMessage, MessengerRegisterAddressMessage, IMessenger
 from lyrid.core.node import NodeSpawnProcessCompletedMessage, NodeSpawnProcessMessage
+from lyrid.core.process import ProcessFactory, ProcessContext
 from lyrid.core.system import SpawnChildMessage, SpawnChildCompletedMessage, SystemSpawnActorCompletedReply, Placement
 from ._task import Task, ActorSpawnChildTask
-from ...core.process import ProcessFactory, ProcessContext, BackgroundTaskExecutor
 
 
 class RootActor(Actor):
@@ -75,7 +76,7 @@ class RootActor(Actor):
 
 
 class BackgroundTaskExecutorDummy(BackgroundTaskExecutor):
-    def execute(self, address: Address, task: Callable, *, args: Tuple = ()):
+    def execute(self, address: Address, task: Callable, *, args: Tuple = (), task_id: str = None):
         pass
 
     def execute_with_delay(self, task: Callable, *, delay: SupportsFloat, args: Tuple = ()):
