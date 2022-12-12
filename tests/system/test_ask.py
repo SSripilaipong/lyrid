@@ -85,7 +85,29 @@ def test_should_get_reply_from_reply_queue_and_return_reply_message():
         message=MessageDummy("Hi"),
         ref_id="AskId123",
     ))
-    system = create_actor_system(reply_queue=reply_queue)
+    id_gen = IdGeneratorMock(generate__return="AskId123")
+    system = create_actor_system(reply_queue=reply_queue, id_generator=id_gen)
+
+    reply = system.ask(Address("$.my_actor"), MessageDummy("Hello"))
+
+    assert reply == MessageDummy("Hi")
+
+
+def test_should_ignore_reply_message_with_wrong_ref_id():
+    reply_queue = queue.Queue()
+    reply_queue.put(ActorAskReply(
+        address=Address("$.my_actor"),
+        message=MessageDummy("Ignore Me!!"),
+        ref_id="WrongRefId999",
+    ))
+    # noinspection DuplicatedCode
+    reply_queue.put(ActorAskReply(
+        address=Address("$.my_actor"),
+        message=MessageDummy("Hi"),
+        ref_id="AskId123",
+    ))
+    id_gen = IdGeneratorMock(generate__return="AskId123")
+    system = create_actor_system(reply_queue=reply_queue, id_generator=id_gen)
 
     reply = system.ask(Address("$.my_actor"), MessageDummy("Hello"))
 

@@ -79,7 +79,11 @@ class ActorSystemBase(ProcessManagingNode):
     def ask(self, address: Address, message: Message) -> Message:
         ref_id = self._id_generator.generate()
         self._processor.process(SystemAskCommand(address=address, message=message, ref_id=ref_id))
-        reply: Reply = self._reply_queue.get()
+
+        while True:
+            reply: Reply = self._reply_queue.get()
+            if reply.ref_id == ref_id:
+                break
         return reply.message
 
     def _system_ask(self, command: SystemAskCommand):
