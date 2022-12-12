@@ -43,7 +43,7 @@ class Actor(Process, ABC):
         self._active_children.add(self._context.address.child(key))
 
     def run_in_background(self, task: Callable, *, args: Tuple = ()) -> str:
-        self._context.background_task_executor.execute(task, args=args)
+        self._context.background_task_executor.execute(self.address, task, args=args)
         return self._context.id_generator.generate()
 
     def receive(self, sender: Address, message: Message):

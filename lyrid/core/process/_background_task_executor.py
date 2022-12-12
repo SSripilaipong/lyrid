@@ -1,11 +1,13 @@
 from abc import abstractmethod
 from typing import Protocol, Callable, Tuple, SupportsFloat
 
+from lyrid.core.messaging import Address
+
 
 class BackgroundTaskExecutor(Protocol):
 
     @abstractmethod
-    def execute(self, task: Callable, *, args: Tuple = ()):
+    def execute(self, address: Address, task: Callable, *, args: Tuple = ()):
         pass
 
     @abstractmethod

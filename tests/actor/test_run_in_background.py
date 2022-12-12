@@ -21,13 +21,15 @@ class ActorWithBackgroundTask(VanillaActor):
         pass
 
 
-def test_should_run_task_in_background_with_args():
+def test_should_run_task_in_background_with_address_and_args():
     executor = BackgroundTaskExecutorMock()
-    actor = create_actor(ActorWithBackgroundTask, background_task_executor=executor)
+    actor = create_actor(ActorWithBackgroundTask, address=Address("$.me"), background_task_executor=executor)
 
     actor.receive(Address("$.someone"), RunSuccessTask())
 
-    assert executor.execute__task == actor.success_task and executor.execute__args == ("a", 123)
+    assert executor.execute__address == Address("$.me") and \
+           executor.execute__task == actor.success_task and \
+           executor.execute__args == ("a", 123)
 
 
 def test_should_return_generated_task_id():

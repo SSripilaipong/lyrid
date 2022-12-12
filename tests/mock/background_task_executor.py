@@ -1,10 +1,12 @@
 from typing import Callable, Tuple, Optional, SupportsFloat
 
+from lyrid.core.messaging import Address
 from lyrid.core.process import BackgroundTaskExecutor
 
 
 class BackgroundTaskExecutorMock(BackgroundTaskExecutor):
     def __init__(self):
+        self.execute__address: Optional[Address] = None
         self.execute__task: Optional[Callable] = None
         self.execute__args: Optional[Tuple] = None
 
@@ -12,7 +14,8 @@ class BackgroundTaskExecutorMock(BackgroundTaskExecutor):
         self.execute_with_delay__args: Optional[Tuple] = None
         self.execute_with_delay__delay: Optional[SupportsFloat] = None
 
-    def execute(self, task: Callable, *, args: Tuple = ()):
+    def execute(self, address: Address, task: Callable, *, args: Tuple = ()):
+        self.execute__address = address
         self.execute__task = task
         self.execute__args = args
 
