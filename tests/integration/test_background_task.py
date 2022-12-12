@@ -3,6 +3,7 @@ from dataclasses import dataclass
 from typing import Optional, List
 
 from lyrid import Address, Message, field, ActorSystem, StatefulActor
+from lyrid.core.background_task import BackgroundTaskExited
 from lyrid.core.messaging import Ask, Reply
 
 
@@ -24,10 +25,23 @@ class HelloList(Message):
     data: List[Hello]
 
 
+class GiveMeReturnValueList(Message):
+    pass
+
+
+@dataclass
+class ReturnValueList(Message):
+    data: List
+
+
 class Greeter(StatefulActor):
     hello_list: List[Hello] = field(default_factory=list)
-    reply_to: Optional[Address] = None
-    ref_id: Optional[str] = None
+    hello_reply_to: Optional[Address] = None
+    hello_ref_id: Optional[str] = None
+
+    return_list: List = field(default_factory=list)
+    return_reply_to: Optional[Address] = None
+    return_ref_id: Optional[str] = None
 
     def on_receive(self, sender: Address, message: Message):
         if isinstance(message, Start):
@@ -37,15 +51,26 @@ class Greeter(StatefulActor):
         elif isinstance(message, Hello):
             self.hello_list.append(message)
         elif isinstance(message, Ask) and isinstance(message.message, GiveMeHelloList):
-            self.reply_to = sender
-            self.ref_id = message.ref_id
+            self.hello_reply_to = sender
+            self.hello_ref_id = message.ref_id
+        elif isinstance(message, BackgroundTaskExited):
+            self.return_list.append(message.return_value)
+        elif isinstance(message, Ask) and isinstance(message.message, GiveMeReturnValueList):
+            self.return_reply_to = sender
+            self.return_ref_id = message.ref_id
 
-        if self.ref_id is not None and self.reply_to is not None and len(self.hello_list) == 2:
-            self.tell(self.reply_to, Reply(HelloList(self.hello_list), ref_id=self.ref_id))
+        if self.hello_ref_id is not None and self.hello_reply_to is not None and len(self.hello_list) == 2:
+            self.tell(self.hello_reply_to, Reply(HelloList(self.hello_list), ref_id=self.hello_ref_id))
+            self.hello_reply_to = self.hello_ref_id = None
+
+        if self.return_ref_id is not None and self.return_reply_to is not None and len(self.return_list) == 1:
+            self.tell(self.return_reply_to, Reply(ReturnValueList(self.return_list), ref_id=self.return_ref_id))
+            self.return_reply_to = self.return_ref_id = None
 
     def delayed_hello(self, value: int):
         time.sleep(0.01)
         self.tell(self.address, Hello(value))
+        return f"hello{value}"
 
 
 # noinspection DuplicatedCode
@@ -55,6 +80,8 @@ def test_should_get_hello_2_before_hello_1():
     time.sleep(0.05)
     system.tell(greeter, Start())
     time.sleep(0.05)
-    result = system.ask(greeter, GiveMeHelloList())
+    hello_result = system.ask(greeter, GiveMeHelloList())
+    return_result = system.ask(greeter, GiveMeReturnValueList())
     system.force_stop()
-    assert result == HelloList([Hello(2), Hello(1)])
+    assert hello_result == HelloList([Hello(2), Hello(1)])
+    assert return_result == ReturnValueList(["hello1"])
