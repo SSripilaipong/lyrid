@@ -1,5 +1,4 @@
-from lyrid import Address
-from lyrid.system import Placement
+from lyrid import Address, Placement
 from tests.factory.system import create_actor_system
 from tests.mock.placement_policy import PlacementPolicyMock, PlacementPolicyMatcherMock
 

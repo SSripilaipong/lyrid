@@ -2,10 +2,8 @@ import time
 from dataclasses import dataclass
 from typing import List, Optional
 
-from lyrid import VanillaActor, ActorSystem
-from lyrid.core.messaging import Address, Message, Ask, Reply
-from lyrid.core.process import ProcessContext
-from lyrid.system import Placement, MatchAll, RoundRobin
+from lyrid import VanillaActor, ActorSystem, Address, Message, Ask, Reply, ProcessContext, Placement, MatchAll, \
+    RoundRobin
 
 
 # noinspection DuplicatedCode

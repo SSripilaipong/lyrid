@@ -2,9 +2,7 @@ import time
 from dataclasses import dataclass
 from typing import Optional, List
 
-from lyrid import Address, Message, field, ActorSystem, StatefulActor
-from lyrid.core.background_task import BackgroundTaskExited
-from lyrid.core.messaging import Ask, Reply
+from lyrid import Address, Message, field, ActorSystem, StatefulActor, BackgroundTaskExited, Ask, Reply
 
 
 class Start(Message):

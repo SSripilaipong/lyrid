@@ -1,9 +1,8 @@
 from typing import List, Optional
 
-from lyrid import Address
+from lyrid import Address, PlacementPolicy
 from lyrid.core.process import ProcessFactory
 from lyrid.core.system import PlacementPolicyMatcher
-from lyrid.system import PlacementPolicy
 
 
 class PlacementPolicyMock(PlacementPolicy):

@@ -1,5 +1,4 @@
-from lyrid import Address
-from lyrid.system import RoundRobin
+from lyrid import Address, RoundRobin
 
 
 def test_should_return_all_node_addresses_without_repeating_in_any_order_when_getting_node_n_times():

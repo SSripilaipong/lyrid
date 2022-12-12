@@ -1,8 +1,6 @@
 from dataclasses import dataclass
 
-from lyrid import ActorSystem, VanillaActor
-from lyrid.core.messaging import Address, Message, Ask, Reply
-from lyrid.core.process import ProcessStoppedSignal
+from lyrid import ActorSystem, VanillaActor, Address, Message, Ask, Reply
 
 
 @dataclass
@@ -14,7 +12,7 @@ class Greeter(VanillaActor):
     def on_receive(self, sender: Address, message: Message):
         if isinstance(message, Ask) and isinstance(message.message, Greeting):
             self.tell(sender, Reply(Greeting(content="Hi!"), ref_id=message.ref_id))
-            raise ProcessStoppedSignal()
+            self.stop()
 
 
 def test_should_should_reply_ask():

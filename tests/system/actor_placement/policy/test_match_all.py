@@ -1,4 +1,4 @@
-from lyrid.system import MatchAll
+from lyrid import MatchAll
 from tests.system.process_dummy import ProcessDummy
 
 

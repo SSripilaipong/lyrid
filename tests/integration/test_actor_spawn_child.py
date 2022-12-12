@@ -1,10 +1,7 @@
 from dataclasses import dataclass
 from typing import Optional
 
-from lyrid import VanillaActor, ActorSystem
-from lyrid.core.messaging import Address, Message, Reply, Ask
-from lyrid.core.process import ProcessContext
-from lyrid.core.system import SpawnChildCompletedMessage
+from lyrid import VanillaActor, ActorSystem, Address, Message, Reply, Ask, SpawnChildCompleted, ProcessContext
 from tests.message_dummy import MessageDummy
 
 
@@ -33,7 +30,7 @@ class First(VanillaActor):
             self.reply_to = sender
             self.ref_id = message.ref_id
             self._try_greet_second()
-        elif isinstance(message, SpawnChildCompletedMessage):
+        elif isinstance(message, SpawnChildCompleted):
             self.second_address = message.address
             self._try_greet_second()
         elif isinstance(message, MessageDummy) and sender == self.second_address:

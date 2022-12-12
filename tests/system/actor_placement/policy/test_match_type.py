@@ -1,5 +1,4 @@
-from lyrid import VanillaActor, Address, Message
-from lyrid.system import MatchType
+from lyrid import VanillaActor, Address, Message, MatchType
 
 
 def test_should_return_true_when_type_is_matched():

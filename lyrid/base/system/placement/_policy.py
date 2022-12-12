@@ -1,7 +1,7 @@
 import random
 from typing import List
 
-from lyrid import Address
+from lyrid.core.messaging import Address
 from lyrid.core.system import PlacementPolicy
 
 

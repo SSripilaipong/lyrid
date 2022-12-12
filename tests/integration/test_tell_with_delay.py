@@ -2,8 +2,7 @@ import time
 from dataclasses import dataclass
 from typing import Optional, List
 
-from lyrid import Address, Message, field, ActorSystem, StatefulActor
-from lyrid.core.messaging import Ask, Reply
+from lyrid import Address, Message, field, ActorSystem, StatefulActor, Ask, Reply
 
 
 class Start(Message):

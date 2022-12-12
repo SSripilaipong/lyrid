@@ -5,7 +5,7 @@ import pytest
 from lyrid.core.messaging import Address
 from lyrid.core.messenger import MessengerRegisterAddressCompletedMessage
 from lyrid.core.node import NodeSpawnProcessMessage, MessageHandlingCommand, NodeSpawnProcessCompletedMessage
-from lyrid.core.system import SpawnChildMessage, SpawnChildCompletedMessage
+from lyrid.core.system import SpawnChildMessage, SpawnChildCompleted
 from tests.factory.system import create_actor_system
 from tests.message_dummy import MessageDummy
 from tests.mock.id_generator import IdGeneratorMock
@@ -115,7 +115,7 @@ def test_should_send_spawn_child_completed_message_to_actor_when_handling_acknow
     assert messenger.send__sender == Address("$") and \
            messenger.send__receiver == Address("$.my_actor") and \
            messenger.send__message == \
-           SpawnChildCompletedMessage(key="my_child", address=Address("$.my_actor.my_child"))
+           SpawnChildCompleted(key="my_child", address=Address("$.my_actor.my_child"))
 
 
 def test_should_not_put_reply_in_reply_queue_when_completing_spawning_child_for_actor():

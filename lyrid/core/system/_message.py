@@ -13,6 +13,6 @@ class SpawnChildMessage(Message):
 
 
 @dataclass
-class SpawnChildCompletedMessage(Message):
+class SpawnChildCompleted(Message):
     key: str
     address: Address

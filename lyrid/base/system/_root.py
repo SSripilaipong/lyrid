@@ -1,14 +1,14 @@
 import queue
 from typing import Dict, List, Callable, SupportsFloat, Tuple
 
-from lyrid.base._actor import Actor
+from lyrid.base.actor import Actor
 from lyrid.core.background_task import BackgroundTaskExecutor
 from lyrid.core.common import IdGenerator, Randomizer
 from lyrid.core.messaging import Address, Message
 from lyrid.core.messenger import MessengerRegisterAddressCompletedMessage, MessengerRegisterAddressMessage, IMessenger
 from lyrid.core.node import NodeSpawnProcessCompletedMessage, NodeSpawnProcessMessage
 from lyrid.core.process import ProcessFactory, ProcessContext
-from lyrid.core.system import SpawnChildMessage, SpawnChildCompletedMessage, SystemSpawnActorCompletedReply, Placement
+from lyrid.core.system import SpawnChildMessage, SpawnChildCompleted, SystemSpawnActorCompletedReply, Placement
 from ._task import Task, ActorSpawnChildTask
 
 
@@ -69,7 +69,7 @@ class RootActor(Actor):
     def _complete_spawning_actor(self, _: Address, message: MessengerRegisterAddressCompletedMessage):
         task = self._tasks.get(message.ref_id, None)
         if isinstance(task, ActorSpawnChildTask):
-            self.tell(task.requester, SpawnChildCompletedMessage(key=task.child_key, address=message.address))
+            self.tell(task.requester, SpawnChildCompleted(key=task.child_key, address=message.address))
             del self._tasks[message.ref_id]
         else:
             self._reply_queue.put(SystemSpawnActorCompletedReply(address=message.address))
