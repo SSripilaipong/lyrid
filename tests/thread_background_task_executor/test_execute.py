@@ -33,3 +33,16 @@ def test_should_send_message_back_to_address_when_thread_completed():
 
     assert messenger.send__sender == messenger.send__receiver == Address("$.me") and \
            messenger.send__message == BackgroundTaskExited("BgId123")
+
+
+def test_should_attach_return_value_in_background_task_exited_message():
+    client = ThreadClientMock()
+    messenger = MessengerMock()
+    executor = create_thread_background_task_executor(thread_client=client, messenger=messenger)
+
+    executor.execute("BgId456", Address("$.me"), lambda: 999)
+    messenger.send__clear_captures()
+
+    client.start_thread__function(*client.start_thread__args)
+
+    assert messenger.send__message == BackgroundTaskExited("BgId456", return_value=999)

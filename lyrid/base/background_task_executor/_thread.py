@@ -20,7 +20,7 @@ class ThreadBackgroundTaskExecutor(BackgroundTaskExecutor):
 
     def _background_task_wrapper(self, task: Callable, task_id: str, address: Address):
         def wrapper(*args):
-            task(*args)
-            self._messenger.send(address, address, BackgroundTaskExited(task_id))
+            return_value = task(*args)
+            self._messenger.send(address, address, BackgroundTaskExited(task_id, return_value=return_value))
 
         return wrapper
