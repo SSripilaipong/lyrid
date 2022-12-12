@@ -61,7 +61,7 @@ class Greeter(StatefulActor):
 
         if self.hello_ref_id is not None and self.hello_reply_to is not None and len(self.hello_list) == 2:
             self.tell(self.hello_reply_to, Reply(HelloList(self.hello_list), ref_id=self.hello_ref_id))
-            self.hello_reply_to = self.hello_ref_id = None
+            # self.hello_reply_to = self.hello_ref_id = None  # comment this out to test ask reply with wrong ref id
 
         if self.return_ref_id is not None and self.return_reply_to is not None and len(self.return_list) == 1:
             self.tell(self.return_reply_to, Reply(ReturnValueList(self.return_list), ref_id=self.return_ref_id))
