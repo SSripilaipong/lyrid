@@ -59,3 +59,16 @@ def test_should_raise_type_error_when_invalid_argument_name_is_specified():
                 pass
 
     assert str(e.value) == "'aaa' is an invalid argument for method 'func'"
+
+
+def test_should_raise_type_error_when_sender_argument_is_specified_with_wrong_type_annotation():
+    with raises(TypeError) as e:
+        class A(VanillaActor):
+            switch = Switch()
+            on_receive = switch.on_receive
+
+            @switch.message(type=Message)
+            def my_func(self, sender: int, message: Message):
+                pass
+
+    assert str(e.value) == "'sender' argument in method 'my_func' must be annotated with type 'Address'"

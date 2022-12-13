@@ -18,19 +18,23 @@ class MessageTypeHandlePolicy(HandlePolicy):
     type_: Type[Message]
 
     def create_handle_rule_with_function(self, function: Callable) -> HandleRule:
+        function_name = function.__name__
         signature = inspect.signature(function)
         required_params = _RequiredParams()
 
-        for arg in signature.parameters.keys():
-            if arg == "self":
+        for name, param in signature.parameters.items():
+            if name == "self":
                 continue
-            elif arg == "sender":
+            elif name == "sender":
                 required_params.sender = True
-            elif arg == "message":
+                if not isinstance(param.annotation, type) or not issubclass(param.annotation, Address):
+                    raise TypeError(f"'{name}' argument in method '{function_name}' "
+                                    f"must be annotated with type 'Address'")
+
+            elif name == "message":
                 required_params.message = True
             else:
-                func_name = function.__name__
-                raise TypeError(f"'{arg}' is an invalid argument for method '{func_name}'")
+                raise TypeError(f"'{name}' is an invalid argument for method '{function_name}'")
 
         return MessageTypeHandleRule(type_=self.type_, function=function, required_params=required_params)
 
