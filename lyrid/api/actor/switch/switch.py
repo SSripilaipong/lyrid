@@ -24,11 +24,11 @@ class Switch:
         return self
 
     # noinspection PyShadowingBuiltins
-    def message(self, *, type: Type):
+    def message(self, *, type: Type[Message]):
         return FunctionDecorator(self, policy=MessageTypeHandlePolicy(type_=type))
 
     # noinspection PyShadowingBuiltins
-    def ask(self, *, type: Type):
+    def ask(self, *, type: Type[Message]):
         return FunctionDecorator(self, policy=AskMessageTypeHandlePolicy(type_=type))
 
     def add_rule(self, rule: HandleRule):
