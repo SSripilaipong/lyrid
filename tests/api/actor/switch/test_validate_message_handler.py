@@ -1,7 +1,9 @@
 from dataclasses import dataclass
 from typing import Optional
 
-from lyrid import StatefulActor, Switch, Message, Address
+from pytest import raises
+
+from lyrid import StatefulActor, Switch, Message, Address, VanillaActor
 from tests.factory.actor import create_actor
 
 
@@ -44,3 +46,16 @@ def test_should_allow_handler_with_message_parameter_only():
     actor.receive(Address("$.someone"), CallHandleMessageOnly(123))
 
     assert actor.handle_message_only__message == CallHandleMessageOnly(123)
+
+
+def test_should_raise_type_error_when_invalid_argument_name_is_specified():
+    with raises(TypeError) as e:
+        class A(VanillaActor):
+            switch = Switch()
+            on_receive = switch.on_receive
+
+            @switch.message(type=Message)
+            def func(self, aaa: Address):
+                pass
+
+    assert str(e.value) == "'aaa' is an invalid argument for method 'func'"

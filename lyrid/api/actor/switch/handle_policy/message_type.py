@@ -9,8 +9,8 @@ from lyrid.core.messaging import Address, Message
 
 @dataclass
 class _RequiredParams:
-    sender: bool
-    message: bool
+    sender: bool = False
+    message: bool = False
 
 
 @dataclass
@@ -19,11 +19,19 @@ class MessageTypeHandlePolicy(HandlePolicy):
 
     def create_handle_rule_with_function(self, function: Callable) -> HandleRule:
         signature = inspect.signature(function)
+        required_params = _RequiredParams()
 
-        sender = signature.parameters.get("sender", None)
-        message = signature.parameters.get("message", None)
+        for arg in signature.parameters.keys():
+            if arg == "self":
+                continue
+            elif arg == "sender":
+                required_params.sender = True
+            elif arg == "message":
+                required_params.message = True
+            else:
+                func_name = function.__name__
+                raise TypeError(f"'{arg}' is an invalid argument for method '{func_name}'")
 
-        required_params = _RequiredParams(sender=sender is not None, message=message is not None)
         return MessageTypeHandleRule(type_=self.type_, function=function, required_params=required_params)
 
 
