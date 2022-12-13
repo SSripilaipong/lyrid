@@ -1,17 +1,10 @@
-from dataclasses import dataclass
-from typing import Type, Callable, Any, List, TYPE_CHECKING
+from typing import Type, Callable, List, TYPE_CHECKING
 
 from lyrid.base import Actor
 from lyrid.core.messaging import Address, Message
-from .handle_policy import HandlePolicy
 from .handle_policy.ask_message_type import AskMessageTypeHandlePolicy
 from .handle_policy.message_type import MessageTypeHandlePolicy
-
-
-@dataclass
-class HandleRule:
-    policy: HandlePolicy
-    function: Callable[[Actor, Address, Message], Any]
+from .handle_rule import HandlePolicy, HandleRule
 
 
 class Switch:
@@ -36,8 +29,8 @@ class Switch:
 
     def __call__(self, actor: Actor, sender: Address, message: Message):
         for rule in self._rules:
-            if rule.policy.matches(sender, message):
-                rule.policy.execute(rule.function, actor, sender, message)
+            if rule.match(sender, message):
+                rule.execute(actor, sender, message)
                 break
 
 
@@ -64,6 +57,5 @@ class FunctionDecorator:
         self._policy = policy
 
     def __call__(self, f: Callable) -> Callable:
-        f = self._policy.decorate(f)
-        self._switch_object.add_rule(HandleRule(policy=self._policy, function=f))
+        self._switch_object.add_rule(self._policy.create_handle_rule_with_function(f))
         return f
