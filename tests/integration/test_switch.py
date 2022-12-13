@@ -30,11 +30,11 @@ class MyActor(StatefulActor):
     on_receive = switch.on_receive
 
     @switch.message(type=IncreaseN)
-    def increase_n(self, _: Address, message: IncreaseN):
+    def increase_n(self, message: IncreaseN):
         self.n += message.by
 
     @switch.message(type=DecreaseN)
-    def decrease_n(self, _: Address, message: DecreaseN):
+    def decrease_n(self, message: DecreaseN):
         self.n -= message.by
 
     @switch.ask(type=GetN)
