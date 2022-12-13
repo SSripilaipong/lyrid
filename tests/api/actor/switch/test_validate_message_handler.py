@@ -28,7 +28,7 @@ class MyActor(StatefulActor):
         self.handle_sender_only__sender = sender
 
     @switch.message(type=CallHandleMessageOnly)
-    def handle_message_only(self, message: Message):
+    def handle_message_only(self, message: CallHandleMessageOnly):
         self.handle_message_only__message = message
 
 
@@ -72,3 +72,22 @@ def test_should_raise_type_error_when_sender_argument_is_specified_with_wrong_ty
                 pass
 
     assert str(e.value) == "'sender' argument in method 'my_func' must be annotated with type 'Address'"
+
+
+def test_should_raise_type_error_when_message_argument_is_specified_with_wrong_type_annotation():
+    class M1(Message):
+        pass
+
+    class M2(Message):
+        pass
+
+    with raises(TypeError) as e:
+        class A(VanillaActor):
+            switch = Switch()
+            on_receive = switch.on_receive
+
+            @switch.message(type=M1)
+            def my_func_2(self, sender: Address, message: M2):
+                pass
+
+    assert str(e.value) == "'message' argument in method 'my_func_2' must be annotated with type 'M1'"

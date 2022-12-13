@@ -26,12 +26,15 @@ class MessageTypeHandlePolicy(HandlePolicy):
             if name == "self":
                 continue
             elif name == "sender":
-                required_params.sender = True
                 if not isinstance(param.annotation, type) or not issubclass(param.annotation, Address):
                     raise TypeError(f"'{name}' argument in method '{function_name}' "
                                     f"must be annotated with type 'Address'")
+                required_params.sender = True
 
             elif name == "message":
+                if param.annotation != self.type_:
+                    raise TypeError(f"'{name}' argument in method '{function_name}' "
+                                    f"must be annotated with type '{self.type_.__name__}'")
                 required_params.message = True
             else:
                 raise TypeError(f"'{name}' is an invalid argument for method '{function_name}'")
