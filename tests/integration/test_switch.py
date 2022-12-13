@@ -38,7 +38,7 @@ class MyActor(StatefulActor):
         self.n -= message.by
 
     @switch.ask(type=GetN)
-    def get_n(self, sender: Address, _: GetN, ref_id: str):
+    def get_n(self, sender: Address, ref_id: str):
         self.reply(sender, NValue(self.n), ref_id=ref_id)
 
 
