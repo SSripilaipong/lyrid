@@ -1,24 +1,17 @@
 from dataclasses import dataclass
-from typing import Type, Callable, Any, List, Optional, TYPE_CHECKING
+from typing import Type, Callable, Any, List, TYPE_CHECKING
 
 from lyrid.base import Actor
 from lyrid.core.messaging import Address, Message
-
-
-@dataclass
-class Matching:
-    type_: Optional[Type] = None
-
-    def matches(self, _: Address, message: Message) -> bool:
-        if self.type_ is not None:
-            return isinstance(message, self.type_)
-        return False
+from .handle_policy import HandlePolicy
+from .handle_policy.ask_message_type import AskMessageTypeHandlePolicy
+from .handle_policy.message_type import MessageTypeHandlePolicy
 
 
 @dataclass
 class HandleRule:
-    matching: Matching
-    execute: Callable[[Actor, Address, Message], Any]
+    policy: HandlePolicy
+    function: Callable[[Actor, Address, Message], Any]
 
 
 class Switch:
@@ -32,15 +25,19 @@ class Switch:
 
     # noinspection PyShadowingBuiltins
     def message(self, *, type: Type):
-        return MessageMatcherDecorator(self, type_=type)
+        return FunctionDecorator(self, policy=MessageTypeHandlePolicy(type_=type))
+
+    # noinspection PyShadowingBuiltins
+    def ask(self, *, type: Type):
+        return FunctionDecorator(self, policy=AskMessageTypeHandlePolicy(type_=type))
 
     def add_rule(self, rule: HandleRule):
         self._rules.append(rule)
 
     def __call__(self, actor: Actor, sender: Address, message: Message):
         for rule in self._rules:
-            if rule.matching.matches(sender, message):
-                rule.execute(actor, sender, message)
+            if rule.policy.matches(sender, message):
+                rule.policy.execute(rule.function, actor, sender, message)
                 break
 
 
@@ -61,11 +58,12 @@ class OnReceive:
             self._switch(self._actor, sender, message)
 
 
-class MessageMatcherDecorator:
-    def __init__(self, switch: Switch, type_: Type = None):
+class FunctionDecorator:
+    def __init__(self, switch: Switch, policy: HandlePolicy):
         self._switch_object = switch
-        self._type = type_
+        self._policy = policy
 
-    def __call__(self, f: Callable[[Actor, Address, Message], Any]):
-        self._switch_object.add_rule(HandleRule(matching=Matching(type_=self._type), execute=f))
+    def __call__(self, f: Callable) -> Callable:
+        f = self._policy.decorate(f)
+        self._switch_object.add_rule(HandleRule(policy=self._policy, function=f))
         return f
