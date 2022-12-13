@@ -2,7 +2,7 @@ import time
 from dataclasses import dataclass
 from typing import List, Optional
 
-from lyrid import VanillaActor, ActorSystem, Address, Message, Ask, Reply, ChildStopped, ProcessContext
+from lyrid import VanillaActor, ActorSystem, Address, Message, Ask, ChildStopped, ProcessContext
 
 
 # noinspection DuplicatedCode
@@ -40,7 +40,7 @@ class Log(Message):
 class Child(VanillaActor):
     def on_receive(self, sender: Address, message: Message):
         if isinstance(message, Ask) and isinstance(message.message, Ping):
-            self.tell(sender, Reply(Pong(), ref_id=message.ref_id))
+            self.reply(sender, Pong(), ref_id=message.ref_id)
 
     def on_stop(self):
         self.tell(Address("$.logger"), IAmStopping(self.address))
@@ -84,7 +84,7 @@ class Logger(VanillaActor):
 
         if self._reply_to is not None and len(self._log) == self._n:
             assert self._ref_id is not None
-            self.tell(self._reply_to, Reply(Log(self._log), ref_id=self._ref_id))
+            self.reply(self._reply_to, Log(self._log), ref_id=self._ref_id)
 
 
 def test_should_receive_all_stop_log():

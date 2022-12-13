@@ -2,7 +2,7 @@ import time
 from dataclasses import dataclass
 from typing import Optional, List
 
-from lyrid import Address, Message, field, ActorSystem, StatefulActor, BackgroundTaskExited, Ask, Reply
+from lyrid import Address, Message, field, ActorSystem, StatefulActor, BackgroundTaskExited, Ask
 
 
 class Start(Message):
@@ -58,11 +58,11 @@ class Greeter(StatefulActor):
             self.return_ref_id = message.ref_id
 
         if self.hello_ref_id is not None and self.hello_reply_to is not None and len(self.hello_list) == 2:
-            self.tell(self.hello_reply_to, Reply(HelloList(self.hello_list), ref_id=self.hello_ref_id))
+            self.reply(self.hello_reply_to, HelloList(self.hello_list), ref_id=self.hello_ref_id)
             # self.hello_reply_to = self.hello_ref_id = None  # comment this out to test ask reply with wrong ref id
 
         if self.return_ref_id is not None and self.return_reply_to is not None and len(self.return_list) == 1:
-            self.tell(self.return_reply_to, Reply(ReturnValueList(self.return_list), ref_id=self.return_ref_id))
+            self.reply(self.return_reply_to, ReturnValueList(self.return_list), ref_id=self.return_ref_id)
             self.return_reply_to = self.return_ref_id = None
 
     def delayed_hello(self, value: int):

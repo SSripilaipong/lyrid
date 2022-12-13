@@ -1,7 +1,7 @@
 from dataclasses import dataclass
 from typing import Optional
 
-from lyrid import VanillaActor, ActorSystem, Address, Message, Reply, Ask, SpawnChildCompleted, ProcessContext
+from lyrid import VanillaActor, ActorSystem, Address, Message, Ask, SpawnChildCompleted, ProcessContext
 from tests.message_dummy import MessageDummy
 
 
@@ -35,7 +35,7 @@ class First(VanillaActor):
             self._try_greet_second()
         elif isinstance(message, MessageDummy) and sender == self.second_address:
             assert self.reply_to is not None and self.ref_id is not None
-            self.tell(self.reply_to, Reply(MessageDummy("second said: " + message.text), ref_id=self.ref_id))
+            self.reply(self.reply_to, MessageDummy("second said: " + message.text), ref_id=self.ref_id)
             self.stop()
 
     def _try_greet_second(self):

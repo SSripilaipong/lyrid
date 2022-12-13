@@ -2,7 +2,7 @@ import time
 from dataclasses import dataclass
 from typing import Optional, List
 
-from lyrid import Address, Message, field, ActorSystem, StatefulActor, Ask, Reply
+from lyrid import Address, Message, field, ActorSystem, StatefulActor, Ask
 
 
 class Start(Message):
@@ -39,7 +39,7 @@ class Greeter(StatefulActor):
             self.ref_id = message.ref_id
 
         if self.ref_id is not None and self.reply_to is not None and len(self.hello_list) == 2:
-            self.tell(self.reply_to, Reply(HelloList(self.hello_list), ref_id=self.ref_id))
+            self.reply(self.reply_to, HelloList(self.hello_list), ref_id=self.ref_id)
 
 
 # noinspection DuplicatedCode

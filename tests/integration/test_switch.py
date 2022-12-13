@@ -1,6 +1,6 @@
 from dataclasses import dataclass
 
-from lyrid import StatefulActor, Switch, Message, Address, Reply, ActorSystem
+from lyrid import StatefulActor, Switch, Message, Address, ActorSystem
 
 
 @dataclass
@@ -39,7 +39,7 @@ class MyActor(StatefulActor):
 
     @switch.ask(type=GetN)
     def get_n(self, sender: Address, _: GetN, ref_id: str):
-        self.tell(sender, Reply(NValue(self.n), ref_id=ref_id))
+        self.reply(sender, NValue(self.n), ref_id=ref_id)
 
 
 def test_main():
