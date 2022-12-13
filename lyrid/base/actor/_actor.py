@@ -3,7 +3,7 @@ from contextlib import suppress
 from enum import Enum
 from typing import TypeVar, Set, Optional, Callable, Tuple, SupportsFloat
 
-from lyrid.core.messaging import Address, Message
+from lyrid.core.messaging import Address, Message, Reply
 from lyrid.core.process import ProcessFactory, Process, ProcessStoppedSignal, ChildStopped, SupervisorForceStop, \
     ProcessContext
 from lyrid.core.system import SpawnChildMessage
@@ -36,6 +36,9 @@ class Actor(Process, ABC):
         else:
             self._context.background_task_executor.execute_with_delay(self._context.messenger.send, delay=delay,
                                                                       args=(self._context.address, receiver, message))
+
+    def reply(self, receiver: Address, message: Message, *, ref_id: str):
+        self.tell(receiver, Reply(message, ref_id=ref_id))
 
     def spawn(self, key: str, type_: ProcessFactory, *, initial_message: Optional[Message] = None):
         self._context.messenger.send(self._context.address, self._system_address,
