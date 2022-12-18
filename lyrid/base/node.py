@@ -3,7 +3,7 @@ from lyrid.core.command_processing_loop import Command, CommandProcessingLoop, P
     ProcessorStopCommand
 from lyrid.core.common import IdGenerator
 from lyrid.core.messaging import Address, Message
-from lyrid.core.messenger import IMessenger, Node
+from lyrid.core.messenger import Messenger, Node
 from lyrid.core.node import (
     TaskScheduler, ProcessMessageDeliveryTask, MessageHandlingCommand, SpawnProcessCommand, NodeSpawnProcessMessage,
     NodeSpawnProcessCompletedMessage, )
@@ -12,7 +12,7 @@ from lyrid.core.process import ProcessContext
 
 class ProcessManagingNode(Node):
     def __init__(self, address: Address, scheduler: TaskScheduler, processor: CommandProcessingLoop,
-                 messenger: IMessenger, background_task_executor: BackgroundTaskExecutor, id_generator: IdGenerator):
+                 messenger: Messenger, background_task_executor: BackgroundTaskExecutor, id_generator: IdGenerator):
         self._address = address
         self._scheduler = scheduler
         self._processor = processor

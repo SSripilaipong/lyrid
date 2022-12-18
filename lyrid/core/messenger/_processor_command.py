@@ -4,22 +4,26 @@ from lyrid.core.command_processing_loop import Command
 from lyrid.core.messaging import Address, Message
 
 
+class MessengerCommand(Command):
+    pass
+
+
 @dataclass
-class SendingCommand(Command):
+class SendingCommand(MessengerCommand):
     sender: Address
     receiver: Address
     message: Message
 
 
 @dataclass
-class SendingToManagerCommand(Command):
+class SendingToNodeCommand(MessengerCommand):
     sender: Address
     of: Address
     message: Message
 
 
 @dataclass
-class RegisterAddressCommand(Command):
+class RegisterAddressCommand(MessengerCommand):
     address: Address
     node_address: Address
     requester_address: Address

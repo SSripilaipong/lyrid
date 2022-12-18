@@ -4,11 +4,11 @@ from typing import Callable, Tuple, SupportsFloat
 from lyrid.core.background_task import BackgroundTaskExecutor, BackgroundTaskExited
 from lyrid.core.messaging import Address
 from ._threading_client import ThreadingClient
-from ...core.messenger import IMessenger
+from ...core.messenger import Messenger
 
 
 class ThreadBackgroundTaskExecutor(BackgroundTaskExecutor):
-    def __init__(self, thread_client: ThreadingClient, messenger: IMessenger):
+    def __init__(self, thread_client: ThreadingClient, messenger: Messenger):
         self._thread_client = thread_client
         self._messenger = messenger
 

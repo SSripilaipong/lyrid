@@ -3,7 +3,7 @@ from lyrid.core.background_task import BackgroundTaskExecutor
 from lyrid.core.command_processing_loop import CommandProcessingLoop
 from lyrid.core.common import IdGenerator
 from lyrid.core.messaging import Address
-from lyrid.core.messenger import IMessenger
+from lyrid.core.messenger import Messenger
 from lyrid.core.node import TaskScheduler
 from tests.mock.background_task_executor import BackgroundTaskExecutorMock
 from tests.mock.id_generator import IdGeneratorMock
@@ -14,7 +14,7 @@ from tests.mock.scheduler import SchedulerMock
 
 def create_process_managing_node(*, address: Address = None, scheduler: TaskScheduler = None,
                                  processor: CommandProcessingLoop = None,
-                                 messenger: IMessenger = None,
+                                 messenger: Messenger = None,
                                  background_task_executor: BackgroundTaskExecutor = None,
                                  id_generator: IdGenerator = None) -> ProcessManagingNode:
     address = address or Address("$.me")

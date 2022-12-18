@@ -5,7 +5,7 @@ from lyrid.base.actor import Actor
 from lyrid.core.background_task import BackgroundTaskExecutor
 from lyrid.core.common import IdGenerator, Randomizer
 from lyrid.core.messaging import Address, Message
-from lyrid.core.messenger import MessengerRegisterAddressCompletedMessage, MessengerRegisterAddressMessage, IMessenger
+from lyrid.core.messenger import MessengerRegisterAddressCompletedMessage, MessengerRegisterAddressMessage, Messenger
 from lyrid.core.node import NodeSpawnProcessCompletedMessage, NodeSpawnProcessMessage
 from lyrid.core.process import ProcessFactory, ProcessContext
 from lyrid.core.system import SpawnChildMessage, SpawnChildCompleted, SystemSpawnActorCompletedReply, Placement
@@ -13,7 +13,7 @@ from ._task import Task, ActorSpawnChildTask
 
 
 class RootActor(Actor):
-    def __init__(self, address: Address, messenger: IMessenger, messenger_address: Address, id_generator: IdGenerator,
+    def __init__(self, address: Address, messenger: Messenger, messenger_address: Address, id_generator: IdGenerator,
                  randomizer: Randomizer, node_addresses: List[Address], reply_queue: queue.Queue,
                  placements: List[Placement]):
         super().__init__(ProcessContext(address, messenger, BackgroundTaskExecutorDummy(), id_generator=id_generator))

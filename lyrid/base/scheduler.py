@@ -4,7 +4,7 @@ from queue import Queue
 from typing import Dict, Optional
 
 from lyrid.core.messaging import Address, Message
-from lyrid.core.messenger import IMessenger
+from lyrid.core.messenger import Messenger
 from lyrid.core.node import (
     Task, ProcessMessageDeliveryTask, StopSchedulerTask, ProcessTargetedTaskGroup, ProcessTargetedTask, TaskScheduler,
 )
@@ -12,7 +12,7 @@ from lyrid.core.process import Process, ProcessStoppedSignal
 
 
 class ThreadedTaskScheduler(TaskScheduler):
-    def __init__(self, messenger: IMessenger):
+    def __init__(self, messenger: Messenger):
         self._messenger = messenger
 
         self._task_queue: Queue[Task] = Queue()

@@ -3,7 +3,7 @@ from typing import TYPE_CHECKING
 
 from lyrid.core.command_processing_loop import ProcessorStartCommand, ProcessorStopCommand
 from lyrid.core.messaging import Address, Message
-from lyrid.core.messenger import IMessenger
+from lyrid.core.messenger import Messenger
 from lyrid.core.node import (
     ProcessMessageDeliveryTask, MessageHandlingCommand
 )
@@ -73,10 +73,10 @@ def assert_schedule_actor_task_when_handling_actor_message_sending_command(
 @dataclass
 class MyProcess(Process):
     address: Address
-    messenger: IMessenger
+    messenger: Messenger
 
     def receive(self, sender: Address, message: Message):
         pass
 
     if TYPE_CHECKING:
-        def __init__(self, address: Address, messenger: IMessenger): ...
+        def __init__(self, address: Address, messenger: Messenger): ...

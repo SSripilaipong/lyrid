@@ -6,7 +6,7 @@ from lyrid.core.background_task import BackgroundTaskExecutor
 from lyrid.core.command_processing_loop import CommandProcessingLoop
 from lyrid.core.common import IdGenerator, Randomizer
 from lyrid.core.messaging import Address
-from lyrid.core.messenger import IMessenger
+from lyrid.core.messenger import Messenger
 from lyrid.core.node import TaskScheduler
 from lyrid.core.system import Placement
 from tests.mock.background_task_executor import BackgroundTaskExecutorMock
@@ -19,7 +19,7 @@ from tests.mock.scheduler import SchedulerMock
 
 def create_actor_system(*, root_address: Address = None, address: Address = None, scheduler: TaskScheduler = None,
                         processor: CommandProcessingLoop = None,
-                        messenger: IMessenger = None, reply_queue: queue.Queue = None,
+                        messenger: Messenger = None, reply_queue: queue.Queue = None,
                         placements: List[Placement] = None, node_addresses: List[Address] = None,
                         messenger_address: Address = None, id_generator: IdGenerator = None,
                         randomizer: Randomizer = None,

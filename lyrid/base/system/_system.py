@@ -6,7 +6,7 @@ from lyrid.core.background_task import BackgroundTaskExecutor
 from lyrid.core.command_processing_loop import CommandProcessingLoop, Command
 from lyrid.core.common import IdGenerator, Randomizer
 from lyrid.core.messaging import Address, Message, Ask, Reply
-from lyrid.core.messenger import IMessenger
+from lyrid.core.messenger import Messenger
 from lyrid.core.node import TaskScheduler, NodeSpawnProcessMessage, MessageHandlingCommand
 from lyrid.core.process import ProcessFactory
 from lyrid.core.system import SystemSpawnActorCommand, SystemSpawnActorCompletedReply, ActorReplyAskCommand, \
@@ -15,7 +15,7 @@ from ._root import RootActor
 
 
 class ActorSystemBase(ProcessManagingNode):
-    def __init__(self, scheduler: TaskScheduler, processor: CommandProcessingLoop, messenger: IMessenger,
+    def __init__(self, scheduler: TaskScheduler, processor: CommandProcessingLoop, messenger: Messenger,
                  placements: List[Placement], node_addresses: List[Address], root_address: Address, address: Address,
                  messenger_address: Address, reply_queue: queue.Queue, id_generator: IdGenerator,
                  randomizer: Randomizer, background_task_executor: BackgroundTaskExecutor,

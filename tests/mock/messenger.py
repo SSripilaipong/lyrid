@@ -1,9 +1,9 @@
 from lyrid.core.command_processing_loop import Command
 from lyrid.core.messaging import Address, Message
-from lyrid.core.messenger import Node, IMessenger
+from lyrid.core.messenger import Node, Messenger
 
 
-class MessengerMock(IMessenger):
+class MessengerMock(Messenger):
 
     def __init__(self):
         self.send__sender = None
