@@ -1,19 +1,14 @@
 from queue import Queue
-from typing import Dict
 
 from lyrid.core.messaging import Address, Message
-from lyrid.core.messenger import Messenger, Node, RegisterAddressCommand, SendingCommand, \
+from lyrid.core.messenger import Messenger, RegisterAddressCommand, SendingCommand, \
     MessengerRegisterAddressMessage, SendingToNodeCommand, MessengerCommand
 
 
 class QueueBasedMessenger(Messenger):
-    def __init__(self, address: Address, command_queue: Queue, nodes: Dict[Address, Node] = None):
+    def __init__(self, address: Address, command_queue: Queue):
         self._address = address
         self._command_queue = command_queue
-
-        self._nodes = nodes or dict()
-        self._address_to_node: Dict[Address, Node] = dict()
-        self._address_to_node_address: Dict[Address, Address] = dict()
 
     def send(self, sender: Address, receiver: Address, message: Message):
         if isinstance(message, MessengerRegisterAddressMessage):

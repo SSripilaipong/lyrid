@@ -28,21 +28,21 @@ def ActorSystem(n_nodes: int = None, placement: List[Placement] = None) -> Actor
         node_addresses.append(address)
 
     system, system_processor = _create_actor_system(node_addresses, messenger, messenger_address,
-                                                    processors=node_processors + [messenger_processor],
                                                     placement=placement or [])
     messenger_command_processor.add_node(Address("$"), system)
     messenger_command_processor.initial_register_address(Address("$"), Address("$"))
 
+    messenger_processor.start()
     for node_processor in node_processors:
         node_processor.start()
-    messenger_processor.start()
     system_processor.start()
+    system.register_running_processors(node_processors + [messenger_processor, system_processor])
 
     return system
 
 
 def _create_actor_system(node_addresses: List[Address], messenger: Messenger, messenger_address: Address,
-                         processors: List[CommandProcessingLoop], placement: List[Placement]) \
+                         placement: List[Placement]) \
         -> Tuple[ActorSystemBase, CommandProcessingLoop]:
     command_queue = mp.Manager().Queue()
     command_processor = MultiProcessedCommandProcessingLoop(command_queue=command_queue)
@@ -55,8 +55,7 @@ def _create_actor_system(node_addresses: List[Address], messenger: Messenger, me
                              placements=placement, node_addresses=node_addresses, address=Address("$"),
                              messenger_address=messenger_address, reply_queue=reply_queue,
                              id_generator=id_generator, root_address=Address("$"), randomizer=randomizer,
-                             background_task_executor=background_task_executor,
-                             processors=processors + [command_processor])
+                             background_task_executor=background_task_executor)
     command_processor.set_handle(system.handle_processor_command)
 
     return system, command_processor
@@ -65,10 +64,8 @@ def _create_actor_system(node_addresses: List[Address], messenger: Messenger, me
 def _create_messenger(address: Address) -> Tuple[Messenger, CommandProcessingLoop, MessengerCommandProcessor]:
     command_queue = mp.Manager().Queue()
     command_processor_loop = MultiProcessedCommandProcessingLoop(command_queue=command_queue)
-    messenger = QueueBasedMessenger(address=address,
-                                    command_queue=command_queue)
-    command_processor = MessengerCommandProcessor(address=address,
-                                                  command_queue=command_queue)
+    messenger = QueueBasedMessenger(address=address, command_queue=command_queue)
+    command_processor = MessengerCommandProcessor(address=address, command_queue=command_queue)
     command_processor_loop.set_handle(command_processor.handle_command)
 
     return messenger, command_processor_loop, command_processor

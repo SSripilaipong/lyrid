@@ -38,6 +38,9 @@ class ActorSystemBase(ProcessManagingNode):
         self._root = RootActor(root_address, messenger, messenger_address, id_generator, randomizer, node_addresses,
                                reply_queue, placements)
 
+    def register_running_processors(self, processors: List[CommandProcessingLoop]):
+        self._processors += processors
+
     def handle_message(self, sender: Address, receiver: Address, message: Message):
         if isinstance(message, Reply):
             self._processor.process(ActorReplyAskCommand(

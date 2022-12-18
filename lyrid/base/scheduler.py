@@ -15,12 +15,12 @@ class ThreadedTaskScheduler(TaskScheduler):
     def __init__(self, messenger: Messenger):
         self._messenger = messenger
 
-        self._task_queue: Queue[Task] = Queue()
         self._process_tasks: Dict[Address, ProcessTargetedTaskGroup] = dict()
         self._processes: Dict[Address, Process] = dict()
 
-        self._lock = threading.Lock()
-        self._thread: Optional[threading.Thread] = None
+        self._task_queue_optional: Optional[Queue[Task]] = None
+        self._lock_optional: Optional[threading.Lock] = None
+        self._thread_optional: Optional[threading.Thread] = None
 
     def schedule(self, task: ProcessTargetedTask):
         if isinstance(task, ProcessMessageDeliveryTask):
@@ -46,7 +46,9 @@ class ThreadedTaskScheduler(TaskScheduler):
             self._thread.join()
 
     def start(self):
-        self._thread = threading.Thread(target=self._scheduler_loop)
+        self._lock_optional = threading.Lock()
+        self._task_queue_optional = Queue()
+        self._thread_optional = threading.Thread(target=self._scheduler_loop)
         self._thread.start()
 
     def _scheduler_loop(self):
@@ -94,3 +96,18 @@ class ThreadedTaskScheduler(TaskScheduler):
     def _handle_stopped_process(self, address: Address):
         with self._lock:
             del self._processes[address]
+
+    @property
+    def _lock(self) -> threading.Lock:
+        assert self._lock_optional is not None
+        return self._lock_optional
+
+    @property
+    def _thread(self) -> threading.Thread:
+        assert self._thread_optional is not None
+        return self._thread_optional
+
+    @property
+    def _task_queue(self) -> Queue:
+        assert self._task_queue_optional is not None
+        return self._task_queue_optional
