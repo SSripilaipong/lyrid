@@ -67,6 +67,7 @@ class ActorSystemBase(ProcessManagingNode):
             type_=command.type_,
             ref_id=self._id_generator.generate(),
             initial_message=command.initial_message,
+            process=None,
         )
         node = self._root.choose_placement_node(command.type_)
         self._messenger.send(self._address, node, msg)

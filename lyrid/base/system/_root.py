@@ -50,7 +50,7 @@ class RootActor(Actor):
 
         self.tell(node, NodeSpawnProcessMessage(
             address=requester.child(child_key), type_=message.type_, ref_id=ref_id,
-            initial_message=message.initial_message,
+            initial_message=message.initial_message, process=message.process,
         ))
 
     def choose_placement_node(self, type_: ProcessFactory) -> Address:

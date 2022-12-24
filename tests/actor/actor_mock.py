@@ -12,6 +12,12 @@ class MyActor(VanillaActor):
         pass
 
 
+class ChildActorWithContext(VanillaActor):
+
+    def on_receive(self, sender: Address, message: Message):
+        pass
+
+
 class ChildActor(VanillaActor):
 
     def on_receive(self, sender: Address, message: Message):

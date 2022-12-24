@@ -2,11 +2,12 @@ from lyrid.base import ActorSystemBase
 from lyrid.core.process import ProcessFactory
 from lyrid.core.system import SystemSpawnActorCommand
 from tests.system.actor_placement.assertion import assert_handle_placement_like_when_spawning_child_process
-from tests.system.process_dummy import ProcessDummy
+from tests.system.process_dummy import ProcessDummyWithContext
 
 
 def test_should_handle_placement_like_when_spawning_child_process():
-    assert_handle_placement_like_when_spawning_child_process(spawn_process_with_type(ProcessDummy), ProcessDummy)
+    assert_handle_placement_like_when_spawning_child_process(spawn_process_with_type(ProcessDummyWithContext),
+                                                             ProcessDummyWithContext)
 
 
 def spawn_process_with_type(type_: ProcessFactory):

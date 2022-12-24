@@ -24,7 +24,8 @@ class ProcessManagingNode(Node):
         if isinstance(message, NodeSpawnProcessMessage):
             self._processor.process(
                 SpawnProcessCommand(address=message.address, type_=message.type_, reply_to=sender,
-                                    initial_message=message.initial_message, ref_id=message.ref_id))
+                                    initial_message=message.initial_message, ref_id=message.ref_id,
+                                    process=message.process))
         else:
             self._processor.process(MessageHandlingCommand(sender=sender, receiver=receiver, message=message))
 
@@ -41,10 +42,12 @@ class ProcessManagingNode(Node):
             raise NotImplementedError()
 
     def _spawn_process(self, command: SpawnProcessCommand):
+        context = ProcessContext(command.address, self._messenger, self._background_task_executor, self._id_generator)
+        if command.process is not None:  # TODO: should remove this
+            command.process.set_context(context)
         self._scheduler.register_process(
             command.address,
-            command.type_(
-                ProcessContext(command.address, self._messenger, self._background_task_executor, self._id_generator)),
+            command.type_(context),
             initial_message=command.initial_message)
         reply_message = NodeSpawnProcessCompletedMessage(
             process_address=command.address, node_address=self._address, ref_id=command.ref_id

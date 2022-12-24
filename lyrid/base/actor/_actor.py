@@ -42,7 +42,8 @@ class Actor(Process, ABC):
 
     def spawn(self, key: str, type_: ProcessFactory, *, initial_message: Optional[Message] = None):
         self._context.messenger.send(self._context.address, self._system_address,
-                                     SpawnChildMessage(key=key, type_=type_, initial_message=initial_message))
+                                     SpawnChildMessage(key=key, type_=type_, initial_message=initial_message,
+                                                       process=None))
         self._active_children.add(self._context.address.child(key))
 
     def run_in_background(self, task: Callable, *, args: Tuple = ()) -> str:

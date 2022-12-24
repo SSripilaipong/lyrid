@@ -6,7 +6,7 @@ import pytest
 from lyrid import VanillaActor
 from lyrid.core.messaging import Address, Message
 from lyrid.core.process import ProcessStoppedSignal, ChildStopped, SupervisorForceStop
-from tests.actor.actor_mock import ChildActor
+from tests.actor.actor_mock import ChildActorWithContext
 from tests.factory.actor import create_actor
 from tests.message_dummy import MessageDummy
 from tests.mock.messenger import MessengerMock
@@ -35,8 +35,8 @@ def assert_should_send_supervisor_force_stop_message_to_spawned_children(actor_t
     messenger = MessengerMock()
     actor = create_actor(actor_type, address=my_address, messenger=messenger)
 
-    actor.spawn("child1", ChildActor)
-    actor.spawn("child2", ChildActor)
+    actor.spawn("child1", ChildActorWithContext)
+    actor.spawn("child2", ChildActorWithContext)
     messenger.send__clear_captures()
     stop(actor, my_address)
 
@@ -54,9 +54,9 @@ def assert_should_send_supervisor_force_stop_message_to_not_stopped_children_onl
     messenger = MessengerMock()
     actor = create_actor(actor_type, address=my_address, messenger=messenger)
 
-    actor.spawn("child1", ChildActor)
-    actor.spawn("child2", ChildActor)
-    actor.spawn("child3", ChildActor)
+    actor.spawn("child1", ChildActorWithContext)
+    actor.spawn("child2", ChildActorWithContext)
+    actor.spawn("child3", ChildActorWithContext)
     actor.receive(Address("$.me.child2"), ChildStopped(child_address=Address("$.me.child2")))
     messenger.send__clear_captures()
     stop(actor, my_address)
@@ -74,9 +74,9 @@ def assert_should_raise_actor_stopped_signal_to_outside_after_actor_tried_to_sto
     actor = create_actor(actor_type, address=my_address)
 
     # noinspection DuplicatedCode
-    actor.spawn("child1", ChildActor)
-    actor.spawn("child2", ChildActor)
-    actor.spawn("child3", ChildActor)
+    actor.spawn("child1", ChildActorWithContext)
+    actor.spawn("child2", ChildActorWithContext)
+    actor.spawn("child3", ChildActorWithContext)
     actor.receive(Address("$.me.child2"), ChildStopped(child_address=Address("$.me.child2")))
     stop(actor, my_address)
     actor.receive(Address("$.me.child3"), ChildStopped(child_address=Address("$.me.child3")))
@@ -96,8 +96,8 @@ def assert_should_not_let_actor_receive_any_message_when_stopping(
     my_address = Address("$.me")
     actor = create_actor(actor_type, address=my_address)
 
-    actor.spawn("child1", ChildActor)
-    actor.spawn("child2", ChildActor)
+    actor.spawn("child1", ChildActorWithContext)
+    actor.spawn("child2", ChildActorWithContext)
     stop(actor, my_address)
     on_receive__clear_captures(actor)
 
@@ -129,7 +129,7 @@ def assert_should_send_child_actor_stopped_message_to_supervisor_after_all_activ
     messenger = MessengerMock()
     actor = create_actor(actor_type, address=my_address, messenger=messenger)
 
-    actor.spawn("child2", ChildActor)
+    actor.spawn("child2", ChildActorWithContext)
     stop(actor, my_address)
     messenger.send__clear_captures()
 
@@ -150,8 +150,8 @@ def assert_should_not_send_child_actor_stopped_message_to_supervisor_before_all_
     messenger = MessengerMock()
     actor = create_actor(actor_type, address=my_address, messenger=messenger)
 
-    actor.spawn("child1", ChildActor)
-    actor.spawn("child2", ChildActor)
+    actor.spawn("child1", ChildActorWithContext)
+    actor.spawn("child2", ChildActorWithContext)
     stop(actor, my_address)
     actor.receive(Address("$.me.child2"), ChildStopped(child_address=Address("$.me.child2")))
 

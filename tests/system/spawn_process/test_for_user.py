@@ -10,7 +10,7 @@ from tests.mock.id_generator import IdGeneratorMock
 from tests.mock.messenger import MessengerMock
 from tests.mock.processor import ProcessorMock
 from tests.mock.randomizer import RandomizerMock
-from tests.system.process_dummy import ProcessDummy
+from tests.system.process_dummy import ProcessDummyWithContext
 from tests.system.util import root_process_message
 
 
@@ -20,9 +20,9 @@ def test_should_let_processor_process_spawn_actor_command_when_spawn_is_called()
     reply_queue.put(SystemSpawnActorCompletedReply(address=Address("$.hello")))
     system = create_actor_system(processor=processor, reply_queue=reply_queue)
 
-    system.spawn("hello", ProcessDummy)
+    system.spawn("hello", ProcessDummyWithContext)
 
-    assert processor.process__command == SystemSpawnActorCommand(key="hello", type_=ProcessDummy)
+    assert processor.process__command == SystemSpawnActorCommand(key="hello", type_=ProcessDummyWithContext)
 
 
 def test_should_let_processor_process_spawn_actor_command_with_initial_message_if_not_none():
@@ -31,9 +31,9 @@ def test_should_let_processor_process_spawn_actor_command_with_initial_message_i
     reply_queue.put(SystemSpawnActorCompletedReply(address=Address("$.hello")))
     system = create_actor_system(processor=processor, reply_queue=reply_queue)
 
-    system.spawn("hello", ProcessDummy, initial_message=MessageDummy("Do It!"))
+    system.spawn("hello", ProcessDummyWithContext, initial_message=MessageDummy("Do It!"))
 
-    assert processor.process__command == SystemSpawnActorCommand(key="hello", type_=ProcessDummy,
+    assert processor.process__command == SystemSpawnActorCommand(key="hello", type_=ProcessDummyWithContext,
                                                                  initial_message=MessageDummy("Do It!"))
 
 
@@ -43,12 +43,13 @@ def test_should_send_spawn_actor_message_to_manager_via_messenger_when_handling_
     system = create_actor_system(address=Address("$"), messenger=messenger,
                                  node_addresses=[Address("#manager1")], id_generator=id_gen)
 
-    system.handle_processor_command(SystemSpawnActorCommand(key="hello", type_=ProcessDummy))
+    system.handle_processor_command(SystemSpawnActorCommand(key="hello", type_=ProcessDummyWithContext))
 
     assert messenger.send__sender == Address("$") and \
            messenger.send__receiver == Address("#manager1") and \
            messenger.send__message == \
-           NodeSpawnProcessMessage(address=Address("$.hello"), type_=ProcessDummy, ref_id="GenId123")
+           NodeSpawnProcessMessage(address=Address("$.hello"), type_=ProcessDummyWithContext, ref_id="GenId123",
+                                   process=None)
 
 
 def test_should_send_node_spawn_actor_message_with_initial_message_if_not_none():
@@ -59,13 +60,13 @@ def test_should_send_node_spawn_actor_message_with_initial_message_if_not_none()
                                  id_generator=id_gen)
 
     system.handle_processor_command(
-        SystemSpawnActorCommand(key="hello", type_=ProcessDummy, initial_message=MessageDummy("Hey!")))
+        SystemSpawnActorCommand(key="hello", type_=ProcessDummyWithContext, initial_message=MessageDummy("Hey!")))
 
     assert messenger.send__sender == Address("$") and \
            messenger.send__receiver == Address("#node0") and \
            messenger.send__message == \
-           NodeSpawnProcessMessage(address=Address("$.hello"), type_=ProcessDummy,
-                                   initial_message=MessageDummy("Hey!"), ref_id="GenId456")
+           NodeSpawnProcessMessage(address=Address("$.hello"), type_=ProcessDummyWithContext,
+                                   initial_message=MessageDummy("Hey!"), ref_id="GenId456", process=None)
 
 
 def test_should_send_node_spawn_process_message_to_randomly_selected_node():
@@ -75,7 +76,7 @@ def test_should_send_node_spawn_process_message_to_randomly_selected_node():
     system = create_actor_system(messenger=messenger, id_generator=id_gen, randomizer=randomizer,
                                  node_addresses=[Address("#node0"), Address("#node1"), Address("#node2")])
 
-    system.handle_processor_command(SystemSpawnActorCommand(key="hello", type_=ProcessDummy))
+    system.handle_processor_command(SystemSpawnActorCommand(key="hello", type_=ProcessDummyWithContext))
 
     assert messenger.send__receiver == Address("#node1")
 
@@ -86,7 +87,7 @@ def test_should_random_range_with_number_of_node_addresses():
     system = create_actor_system(id_generator=id_gen, randomizer=randomizer,
                                  node_addresses=[Address("#node0"), Address("#node1"), Address("#node2")])
 
-    system.handle_processor_command(SystemSpawnActorCommand(key="hello", type_=ProcessDummy))
+    system.handle_processor_command(SystemSpawnActorCommand(key="hello", type_=ProcessDummyWithContext))
 
     assert randomizer.randrange__n == 3
 
@@ -109,6 +110,6 @@ def test_should_get_reply_from_reply_queue_and_return_spawned_address():
     reply_queue.put(SystemSpawnActorCompletedReply(address=Address("$.new")))
     system = create_actor_system(reply_queue=reply_queue)
 
-    address = system.spawn("new", ProcessDummy)
+    address = system.spawn("new", ProcessDummyWithContext)
 
     assert address == Address("$.new")
