@@ -2,7 +2,8 @@ import inspect
 from dataclasses import dataclass
 from typing import Type, Callable, Dict, Any
 
-from lyrid.api.actor.switch.handle_policy.error_message import invalid_argument_for_function_error
+from lyrid.api.actor.switch.handle_policy.error_message import invalid_argument_for_method_error, \
+    argument_in_method_must_be_included_as_type_error, argument_in_method_must_be_annotated_as_type_error
 from lyrid.api.actor.switch.handle_rule import HandleRule, HandlePolicy
 from lyrid.base import Actor
 from lyrid.core.messaging import Address, Message
@@ -29,18 +30,20 @@ class AskMessageTypeHandlePolicy(HandlePolicy):
             if name == "self":
                 continue
             elif name == "sender":
+                if not isinstance(param.annotation, type) or not issubclass(param.annotation, Address):
+                    raise argument_in_method_must_be_annotated_as_type_error(name, function_name, Address.__name__)
                 required_params.sender = True
             elif name == "message":
                 required_params.message = True
             elif name == "ref_id":
                 required_params.ref_id = True
             else:
-                raise invalid_argument_for_function_error(name, function_name)
+                raise invalid_argument_for_method_error(name, function_name)
 
         if not required_params.sender:
-            raise TypeError(f"'sender' argument in method '{function_name}' must be included with type 'Address'")
+            raise argument_in_method_must_be_included_as_type_error("sender", function_name, Address.__name__)
         if not required_params.ref_id:
-            raise TypeError(f"'ref_id' argument in method '{function_name}' must be included with type 'str'")
+            raise argument_in_method_must_be_included_as_type_error("ref_id", function_name, "str")
 
         return AskMessageTypeHandleRule(type_=self.type_, function=function, required_params=required_params)
 

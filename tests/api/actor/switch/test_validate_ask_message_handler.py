@@ -3,7 +3,8 @@ from typing import Optional
 from pytest import raises
 
 from lyrid import StatefulActor, Switch, Message, Address, Ask, VanillaActor
-from lyrid.api.actor.switch.handle_policy.error_message import invalid_argument_for_function_error
+from lyrid.api.actor.switch.handle_policy.error_message import invalid_argument_for_method_error, \
+    argument_in_method_must_be_included_as_type_error, argument_in_method_must_be_annotated_as_type_error
 from tests.factory.actor import create_actor
 
 
@@ -47,7 +48,7 @@ def test_should_raise_type_error_when_sender_argument_is_missing():
             def my_func(self, message: M1, ref_id: str):
                 pass
 
-    assert str(e.value) == "'sender' argument in method 'my_func' must be included with type 'Address'"
+    assert str(e.value) == str(argument_in_method_must_be_included_as_type_error("sender", "my_func", "Address"))
 
 
 def test_should_raise_type_error_when_ref_id_argument_is_missing():
@@ -63,7 +64,7 @@ def test_should_raise_type_error_when_ref_id_argument_is_missing():
             def my_func_2(self, message: M1, sender: Address):
                 pass
 
-    assert str(e.value) == "'ref_id' argument in method 'my_func_2' must be included with type 'str'"
+    assert str(e.value) == str(argument_in_method_must_be_included_as_type_error("ref_id", "my_func_2", "str"))
 
 
 def test_should_raise_type_error_when_invalid_argument_name_is_specified():
@@ -76,4 +77,17 @@ def test_should_raise_type_error_when_invalid_argument_name_is_specified():
             def fn(self, sender: Address, ref_id: str, bb: Message):
                 pass
 
-    assert str(e.value) == str(invalid_argument_for_function_error("bb", "fn"))
+    assert str(e.value) == str(invalid_argument_for_method_error("bb", "fn"))
+
+
+def test_should_raise_type_error_when_sender_argument_is_specified_with_wrong_type_annotation():
+    with raises(TypeError) as e:
+        class A(VanillaActor):
+            switch = Switch()
+            on_receive = switch.on_receive
+
+            @switch.ask(type=Message)
+            def fx(self, sender: str, message: Message, ref_id: str):
+                pass
+
+    assert str(e.value) == str(argument_in_method_must_be_annotated_as_type_error("sender", "fx", "Address"))

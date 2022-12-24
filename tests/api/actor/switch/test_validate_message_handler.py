@@ -4,7 +4,8 @@ from typing import Optional
 from pytest import raises
 
 from lyrid import StatefulActor, Switch, Message, Address, VanillaActor
-from lyrid.api.actor.switch.handle_policy.error_message import invalid_argument_for_function_error
+from lyrid.api.actor.switch.handle_policy.error_message import invalid_argument_for_method_error, \
+    argument_in_method_must_be_annotated_as_type_error
 from tests.factory.actor import create_actor
 
 
@@ -59,7 +60,7 @@ def test_should_raise_type_error_when_invalid_argument_name_is_specified():
             def func(self, aaa: Address):
                 pass
 
-    assert str(e.value) == str(invalid_argument_for_function_error('aaa', 'func'))
+    assert str(e.value) == str(invalid_argument_for_method_error('aaa', 'func'))
 
 
 def test_should_raise_type_error_when_sender_argument_is_specified_with_wrong_type_annotation():
@@ -72,7 +73,7 @@ def test_should_raise_type_error_when_sender_argument_is_specified_with_wrong_ty
             def my_func(self, sender: int, message: Message):
                 pass
 
-    assert str(e.value) == "'sender' argument in method 'my_func' must be annotated with type 'Address'"
+    assert str(e.value) == str(argument_in_method_must_be_annotated_as_type_error("sender", "my_func", "Address"))
 
 
 def test_should_raise_type_error_when_message_argument_is_specified_with_wrong_type_annotation():
@@ -91,4 +92,4 @@ def test_should_raise_type_error_when_message_argument_is_specified_with_wrong_t
             def my_func_2(self, sender: Address, message: M2):
                 pass
 
-    assert str(e.value) == "'message' argument in method 'my_func_2' must be annotated with type 'M1'"
+    assert str(e.value) == str(argument_in_method_must_be_annotated_as_type_error("message", "my_func_2", "M1"))
