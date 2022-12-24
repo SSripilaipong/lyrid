@@ -1,6 +1,6 @@
 from abc import ABC, abstractmethod
 from contextlib import suppress
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from enum import Enum
 from typing import TypeVar, Set, Optional, Callable, Tuple, SupportsFloat
 
@@ -18,15 +18,17 @@ class ActorStatus(str, Enum):
 
 
 @dataclass
+class ActorContext(ProcessContext):
+    system_address: Address = Address("$")
+    status: str = ActorStatus.ACTIVE
+
+    active_children: Set[Address] = field(default_factory=set)
+    stopped_message_to_report: Optional[ChildStopped] = None
+
+
 class Actor(Process, ABC):
-    _context: ProcessContext = ProcessContext(None, None, None, None)  # type: ignore  # TODO: fix this
-
-    def __init__(self):
-        self._system_address = Address("$")
-
-        self._status = ActorStatus.ACTIVE
-        self._active_children: Set[Address] = set()
-        self._stopped_message_to_report: Optional[ChildStopped] = None
+    _context: ActorContext = ActorContext(None, None, None, None,  # type: ignore  # TODO: fix this
+                                          None, None, None, None)  # type: ignore  # TODO: fix this
 
     @property
     def address(self) -> Address:
@@ -43,9 +45,9 @@ class Actor(Process, ABC):
         self.tell(receiver, Reply(message, ref_id=ref_id))
 
     def spawn(self, key: str, process: Process, *, initial_message: Optional[Message] = None):
-        self._context.messenger.send(self._context.address, self._system_address,
+        self._context.messenger.send(self._context.address, self._context.system_address,
                                      SpawnChildMessage(key=key, initial_message=initial_message, process=process))
-        self._active_children.add(self._context.address.child(key))
+        self._context.active_children.add(self._context.address.child(key))
 
     def run_in_background(self, task: Callable, *, args: Tuple = ()) -> str:
         task_id = self._context.id_generator.generate()
@@ -54,13 +56,13 @@ class Actor(Process, ABC):
 
     def receive(self, sender: Address, message: Message):
         if isinstance(message, ChildStopped):
-            self._active_children -= {message.child_address}
+            self._context.active_children -= {message.child_address}
         elif isinstance(message, SupervisorForceStop):
             self._handle_stopping(None)
 
-        if self._status is ActorStatus.ACTIVE:
+        if self._context.status is ActorStatus.ACTIVE:
             self._receive_when_active(sender, message)
-        elif self._status is ActorStatus.STOPPING:
+        elif self._context.status is ActorStatus.STOPPING:
             self._receive_when_stopping(sender, message)
 
     def stop(self):
@@ -84,20 +86,22 @@ class Actor(Process, ABC):
     def _handle_stopping(self, exception: Exception = None):
         with suppress(Exception):
             self.on_stop()
-        self._status = ActorStatus.STOPPING
-        self._stopped_message_to_report = ChildStopped(child_address=self._context.address, exception=exception)
-        if not self._active_children:
-            self.tell(self._context.address.supervisor(), self._stopped_message_to_report)
+        self._context.status = ActorStatus.STOPPING
+        self._context.stopped_message_to_report = ChildStopped(child_address=self._context.address, exception=exception)
+        if not self._context.active_children:
+            self.tell(self._context.address.supervisor(), self._context.stopped_message_to_report)
             raise ProcessStoppedSignal()
         else:
-            for child in self._active_children:
+            for child in self._context.active_children:
                 self.tell(child, SupervisorForceStop(address=child))
 
     def _receive_when_stopping(self, _: Address, __: Message):
-        if not self._active_children:
-            if self._stopped_message_to_report is not None:
-                self.tell(self._context.address.supervisor(), self._stopped_message_to_report)
+        if not self._context.active_children:
+            if self._context.stopped_message_to_report is not None:
+                self.tell(self._context.address.supervisor(), self._context.stopped_message_to_report)
             raise ProcessStoppedSignal()
 
     def set_context(self, context: ProcessContext):
-        self._context = context
+        self._context = ActorContext(
+            context.address, context.messenger, context.background_task_executor, context.id_generator,
+        )
