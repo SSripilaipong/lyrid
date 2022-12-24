@@ -1,29 +1,13 @@
 from abc import ABC, abstractmethod
 from contextlib import suppress
-from dataclasses import dataclass, field
-from enum import Enum
-from typing import TypeVar, Set, Optional, Callable, Tuple, SupportsFloat
+from typing import Optional, Callable, Tuple, SupportsFloat
 
 from lyrid.core.messaging import Address, Message, Reply
 from lyrid.core.process import Process, ProcessStoppedSignal, ChildStopped, SupervisorForceStop, \
     ProcessContext
 from lyrid.core.system import SpawnChildMessage
-
-T = TypeVar("T", bound='Actor')
-
-
-class ActorStatus(str, Enum):
-    ACTIVE: str = "ACTIVE"
-    STOPPING: str = "STOPPING"
-
-
-@dataclass
-class ActorContext(ProcessContext):
-    system_address: Address = Address("$")
-    status: str = ActorStatus.ACTIVE
-
-    active_children: Set[Address] = field(default_factory=set)
-    stopped_message_to_report: Optional[ChildStopped] = None
+from ._context import ActorContext
+from ._status import ActorStatus
 
 
 class Actor(Process, ABC):
