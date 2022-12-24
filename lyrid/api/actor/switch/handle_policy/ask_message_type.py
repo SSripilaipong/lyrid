@@ -33,6 +33,8 @@ class AskMessageTypeHandlePolicy(HandlePolicy):
                 required_params.ref_id = True
         if not required_params.sender:
             raise TypeError(f"'sender' argument in method '{function_name}' must be included with type 'Address'")
+        if not required_params.ref_id:
+            raise TypeError(f"'ref_id' argument in method '{function_name}' must be included with type 'str'")
 
         return AskMessageTypeHandleRule(type_=self.type_, function=function, required_params=required_params)
 

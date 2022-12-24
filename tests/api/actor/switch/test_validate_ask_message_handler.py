@@ -47,3 +47,19 @@ def test_should_raise_type_error_when_sender_argument_is_missing():
                 pass
 
     assert str(e.value) == "'sender' argument in method 'my_func' must be included with type 'Address'"
+
+
+def test_should_raise_type_error_when_ref_id_argument_is_missing():
+    class M1(Message):
+        pass
+
+    with raises(TypeError) as e:
+        class A(VanillaActor):
+            switch = Switch()
+            on_receive = switch.on_receive
+
+            @switch.ask(type=M1)
+            def my_func_2(self, message: M1, sender: Address):
+                pass
+
+    assert str(e.value) == "'ref_id' argument in method 'my_func_2' must be included with type 'str'"
