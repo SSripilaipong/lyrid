@@ -2,6 +2,7 @@ import inspect
 from dataclasses import dataclass
 from typing import Type, Callable, Dict, Any
 
+from lyrid.api.actor.switch.handle_policy.error_message import invalid_argument_for_function_error
 from lyrid.api.actor.switch.handle_rule import HandleRule, HandlePolicy
 from lyrid.base import Actor
 from lyrid.core.messaging import Address, Message
@@ -25,12 +26,17 @@ class AskMessageTypeHandlePolicy(HandlePolicy):
 
         required_params = _RequiredParams()
         for name, param in signature.parameters.items():
-            if name == "sender":
+            if name == "self":
+                continue
+            elif name == "sender":
                 required_params.sender = True
             elif name == "message":
                 required_params.message = True
             elif name == "ref_id":
                 required_params.ref_id = True
+            else:
+                raise invalid_argument_for_function_error(name, function_name)
+
         if not required_params.sender:
             raise TypeError(f"'sender' argument in method '{function_name}' must be included with type 'Address'")
         if not required_params.ref_id:

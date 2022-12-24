@@ -3,6 +3,7 @@ from typing import Optional
 from pytest import raises
 
 from lyrid import StatefulActor, Switch, Message, Address, Ask, VanillaActor
+from lyrid.api.actor.switch.handle_policy.error_message import invalid_argument_for_function_error
 from tests.factory.actor import create_actor
 
 
@@ -63,3 +64,16 @@ def test_should_raise_type_error_when_ref_id_argument_is_missing():
                 pass
 
     assert str(e.value) == "'ref_id' argument in method 'my_func_2' must be included with type 'str'"
+
+
+def test_should_raise_type_error_when_invalid_argument_name_is_specified():
+    with raises(TypeError) as e:
+        class A(VanillaActor):
+            switch = Switch()
+            on_receive = switch.on_receive
+
+            @switch.ask(type=Message)
+            def fn(self, sender: Address, ref_id: str, bb: Message):
+                pass
+
+    assert str(e.value) == str(invalid_argument_for_function_error("bb", "fn"))

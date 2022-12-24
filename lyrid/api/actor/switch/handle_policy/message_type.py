@@ -2,6 +2,7 @@ import inspect
 from dataclasses import dataclass
 from typing import Type, Callable, Dict, Any
 
+from lyrid.api.actor.switch.handle_policy.error_message import invalid_argument_for_function_error
 from lyrid.api.actor.switch.handle_rule import HandleRule, HandlePolicy
 from lyrid.base import Actor
 from lyrid.core.messaging import Address, Message
@@ -37,7 +38,7 @@ class MessageTypeHandlePolicy(HandlePolicy):
                                     f"must be annotated with type '{self.type_.__name__}'")
                 required_params.message = True
             else:
-                raise TypeError(f"'{name}' is an invalid argument for method '{function_name}'")
+                raise invalid_argument_for_function_error(name, function_name)
 
         return MessageTypeHandleRule(type_=self.type_, function=function, required_params=required_params)
 

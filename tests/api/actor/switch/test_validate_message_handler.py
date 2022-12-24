@@ -4,6 +4,7 @@ from typing import Optional
 from pytest import raises
 
 from lyrid import StatefulActor, Switch, Message, Address, VanillaActor
+from lyrid.api.actor.switch.handle_policy.error_message import invalid_argument_for_function_error
 from tests.factory.actor import create_actor
 
 
@@ -58,7 +59,7 @@ def test_should_raise_type_error_when_invalid_argument_name_is_specified():
             def func(self, aaa: Address):
                 pass
 
-    assert str(e.value) == "'aaa' is an invalid argument for method 'func'"
+    assert str(e.value) == str(invalid_argument_for_function_error('aaa', 'func'))
 
 
 def test_should_raise_type_error_when_sender_argument_is_specified_with_wrong_type_annotation():
