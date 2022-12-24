@@ -20,9 +20,20 @@ class AskMessageTypeHandlePolicy(HandlePolicy):
     type_: Type[Message]
 
     def create_handle_rule_with_function(self, function: Callable) -> HandleRule:
+        function_name = function.__name__
         signature = inspect.signature(function)
-        required_params = _RequiredParams(sender=True, ref_id=True,
-                                          message=signature.parameters.get("message", None) is not None)
+
+        required_params = _RequiredParams()
+        for name, param in signature.parameters.items():
+            if name == "sender":
+                required_params.sender = True
+            elif name == "message":
+                required_params.message = True
+            elif name == "ref_id":
+                required_params.ref_id = True
+        if not required_params.sender:
+            raise TypeError(f"'sender' argument in method '{function_name}' must be included with type 'Address'")
+
         return AskMessageTypeHandleRule(type_=self.type_, function=function, required_params=required_params)
 
 
