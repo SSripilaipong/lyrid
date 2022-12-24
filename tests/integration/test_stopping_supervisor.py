@@ -2,7 +2,7 @@ import time
 from dataclasses import dataclass
 from typing import List, Optional
 
-from lyrid import VanillaActor, ActorSystem, Address, Message, Ask, ChildStopped, ProcessContext
+from lyrid import VanillaActor, ActorSystem, Address, Message, Ask, ChildStopped
 
 
 # noinspection DuplicatedCode
@@ -49,7 +49,7 @@ class Child(VanillaActor):
 class Parent(VanillaActor):
     def on_receive(self, sender: Address, message: Message):
         if isinstance(message, Start):
-            self.spawn("child", Child)
+            self.spawn("child", Child())
         elif isinstance(message, Stop):
             self.stop()
 
@@ -60,14 +60,14 @@ class Parent(VanillaActor):
 class Grandparent(VanillaActor):
     def on_receive(self, sender: Address, message: Message):
         if isinstance(message, Start):
-            self.spawn("parent", Parent, initial_message=Start())
+            self.spawn("parent", Parent(), initial_message=Start())
         elif isinstance(message, ChildStopped):
             self.tell(Address("$.logger"), message)
 
 
 class Logger(VanillaActor):
-    def __init__(self, context: ProcessContext):
-        super().__init__(context)
+    def __init__(self):
+        super().__init__()
 
         self._log: List[Message] = []
         self._n: Optional[int] = None
@@ -90,8 +90,8 @@ class Logger(VanillaActor):
 def test_should_receive_all_stop_log():
     # noinspection DuplicatedCode
     system = ActorSystem(n_nodes=1)
-    logger = system.spawn("logger", Logger)
-    grandparent = system.spawn("grandparent", Grandparent, initial_message=Start())
+    logger = system.spawn("logger", Logger())
+    grandparent = system.spawn("grandparent", Grandparent(), initial_message=Start())
     time.sleep(0.008)
     parent = grandparent.child("parent")
     system.ask(parent.child("child"), Ping())

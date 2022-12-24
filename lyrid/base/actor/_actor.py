@@ -1,10 +1,11 @@
 from abc import ABC, abstractmethod
 from contextlib import suppress
+from dataclasses import dataclass
 from enum import Enum
 from typing import TypeVar, Set, Optional, Callable, Tuple, SupportsFloat
 
 from lyrid.core.messaging import Address, Message, Reply
-from lyrid.core.process import ProcessFactory, Process, ProcessStoppedSignal, ChildStopped, SupervisorForceStop, \
+from lyrid.core.process import Process, ProcessStoppedSignal, ChildStopped, SupervisorForceStop, \
     ProcessContext
 from lyrid.core.system import SpawnChildMessage
 
@@ -16,10 +17,11 @@ class ActorStatus(str, Enum):
     STOPPING: str = "STOPPING"
 
 
+@dataclass
 class Actor(Process, ABC):
+    _context: ProcessContext = ProcessContext(None, None, None, None)  # type: ignore  # TODO: fix this
 
-    def __init__(self, context: ProcessContext):
-        self._context = context
+    def __init__(self):
         self._system_address = Address("$")
 
         self._status = ActorStatus.ACTIVE
@@ -40,10 +42,9 @@ class Actor(Process, ABC):
     def reply(self, receiver: Address, message: Message, *, ref_id: str):
         self.tell(receiver, Reply(message, ref_id=ref_id))
 
-    def spawn(self, key: str, type_: ProcessFactory, *, initial_message: Optional[Message] = None):
+    def spawn(self, key: str, process: Process, *, initial_message: Optional[Message] = None):
         self._context.messenger.send(self._context.address, self._system_address,
-                                     SpawnChildMessage(key=key, type_=type_, initial_message=initial_message,
-                                                       process=None))
+                                     SpawnChildMessage(key=key, initial_message=initial_message, process=process))
         self._active_children.add(self._context.address.child(key))
 
     def run_in_background(self, task: Callable, *, args: Tuple = ()) -> str:
@@ -97,3 +98,6 @@ class Actor(Process, ABC):
             if self._stopped_message_to_report is not None:
                 self.tell(self._context.address.supervisor(), self._stopped_message_to_report)
             raise ProcessStoppedSignal()
+
+    def set_context(self, context: ProcessContext):
+        self._context = context

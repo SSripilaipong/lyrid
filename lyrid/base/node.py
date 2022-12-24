@@ -23,7 +23,7 @@ class ProcessManagingNode(Node):
     def handle_message(self, sender: Address, receiver: Address, message: Message):
         if isinstance(message, NodeSpawnProcessMessage):
             self._processor.process(
-                SpawnProcessCommand(address=message.address, type_=message.type_, reply_to=sender,
+                SpawnProcessCommand(address=message.address, reply_to=sender,
                                     initial_message=message.initial_message, ref_id=message.ref_id,
                                     process=message.process))
         else:
@@ -43,11 +43,10 @@ class ProcessManagingNode(Node):
 
     def _spawn_process(self, command: SpawnProcessCommand):
         context = ProcessContext(command.address, self._messenger, self._background_task_executor, self._id_generator)
-        if command.process is not None:  # TODO: should remove this
-            command.process.set_context(context)
+        command.process.set_context(context)
         self._scheduler.register_process(
             command.address,
-            command.type_(context),
+            command.process,
             initial_message=command.initial_message)
         reply_message = NodeSpawnProcessCompletedMessage(
             process_address=command.address, node_address=self._address, ref_id=command.ref_id

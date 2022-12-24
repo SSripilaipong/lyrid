@@ -1,9 +1,9 @@
-from typing import Callable, Any
+from typing import Callable, Any, Type
 
 from lyrid import Address
 from lyrid.base import ActorSystemBase
 from lyrid.core.node import NodeSpawnProcessMessage
-from lyrid.core.process import ProcessFactory
+from lyrid.core.process import Process
 from lyrid.core.system import Placement
 from tests.factory.system import create_actor_system
 from tests.mock.messenger import MessengerMock
@@ -11,7 +11,7 @@ from tests.mock.placement_policy import PlacementPolicyMatcherMock, PlacementPol
 from tests.mock.randomizer import RandomizerMock
 
 
-def assert_pass_process_type_to_policy_matcher(spawn_process: Callable[[ActorSystemBase], Any], type_: ProcessFactory):
+def assert_pass_process_type_to_policy_matcher(spawn_process: Callable[[ActorSystemBase], Any], type_: Type[Process]):
     matcher = PlacementPolicyMatcherMock()
     system = create_actor_system(placements=[Placement(match=matcher, policy=PlacementPolicyMock())],
                                  node_addresses=[Address("#node0"), Address("#node1"), Address("#node2")])

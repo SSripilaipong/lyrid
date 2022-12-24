@@ -45,7 +45,7 @@ class Greeter(StatefulActor):
 # noinspection DuplicatedCode
 def test_should_get_hello_2_before_hello_1():
     system = ActorSystem(n_nodes=1)
-    greeter = system.spawn("greeter", Greeter)
+    greeter = system.spawn("greeter", Greeter())
     time.sleep(0.05)
     system.tell(greeter, Start())
     time.sleep(0.05)

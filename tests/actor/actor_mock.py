@@ -3,7 +3,6 @@ from typing import List
 
 from lyrid import VanillaActor
 from lyrid.core.messaging import Address, Message
-from lyrid.core.process import ProcessContext
 
 
 class MyActor(VanillaActor):
@@ -30,8 +29,8 @@ class StopDummy(Message):
 
 
 class WillStop(VanillaActor):
-    def __init__(self, context: ProcessContext):
-        super(WillStop, self).__init__(context)
+    def __init__(self):
+        super(WillStop, self).__init__()
 
         self.on_receive__senders: List[Address] = []
         self.on_receive__messages: List[Message] = []
@@ -59,8 +58,8 @@ class FailDummy(Message):
 
 
 class WillFail(VanillaActor):
-    def __init__(self, context: ProcessContext):
-        super(WillFail, self).__init__(context)
+    def __init__(self):
+        super(WillFail, self).__init__()
 
         self.on_receive__senders: List[Address] = []
         self.on_receive__messages: List[Message] = []

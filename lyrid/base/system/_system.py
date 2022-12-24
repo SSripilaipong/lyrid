@@ -8,7 +8,7 @@ from lyrid.core.common import IdGenerator, Randomizer
 from lyrid.core.messaging import Address, Message, Ask, Reply
 from lyrid.core.messenger import Messenger
 from lyrid.core.node import TaskScheduler, NodeSpawnProcessMessage, MessageHandlingCommand
-from lyrid.core.process import ProcessFactory
+from lyrid.core.process import Process
 from lyrid.core.system import SystemSpawnActorCommand, SystemSpawnActorCompletedReply, ActorReplyAskCommand, \
     ActorAskReply, Placement, SystemAskCommand
 from ._root import RootActor
@@ -64,16 +64,15 @@ class ActorSystemBase(ProcessManagingNode):
     def _node_spawn_process_for_user(self, command: SystemSpawnActorCommand):
         msg = NodeSpawnProcessMessage(
             address=self._address.child(command.key),
-            type_=command.type_,
             ref_id=self._id_generator.generate(),
             initial_message=command.initial_message,
-            process=None,
+            process=command.process,
         )
-        node = self._root.choose_placement_node(command.type_)
+        node = self._root.choose_placement_node(command.process)
         self._messenger.send(self._address, node, msg)
 
-    def spawn(self, key: str, actor_type: ProcessFactory, *, initial_message: Optional[Message] = None) -> Address:
-        self._processor.process(SystemSpawnActorCommand(key=key, type_=actor_type, initial_message=initial_message))
+    def spawn(self, key: str, process: Process, *, initial_message: Optional[Message] = None) -> Address:
+        self._processor.process(SystemSpawnActorCommand(key=key, process=process, initial_message=initial_message))
         reply: SystemSpawnActorCompletedReply = self._reply_queue.get()
         return reply.address
 

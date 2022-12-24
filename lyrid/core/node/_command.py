@@ -3,7 +3,7 @@ from typing import Generic, TypeVar, Optional
 
 from lyrid.core.command_processing_loop import Command
 from lyrid.core.messaging import Address, Message
-from lyrid.core.process import ProcessFactory, Process
+from lyrid.core.process import Process
 
 M = TypeVar("M", bound=Message)
 
@@ -19,7 +19,6 @@ class MessageHandlingCommand(Command, Generic[M]):
 class SpawnProcessCommand(Command):
     reply_to: Address
     address: Address
-    type_: ProcessFactory
-    process: Optional[Process]
+    process: Process
     ref_id: str
     initial_message: Optional[Message] = None

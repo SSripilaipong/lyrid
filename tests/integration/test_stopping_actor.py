@@ -2,7 +2,7 @@ import time
 from dataclasses import dataclass
 from typing import List, Optional
 
-from lyrid import VanillaActor, ActorSystem, Address, Message, Ask, ProcessContext, Placement, MatchAll, \
+from lyrid import VanillaActor, ActorSystem, Address, Message, Ask, Placement, MatchAll, \
     RoundRobin
 
 
@@ -61,9 +61,9 @@ class TellMeToStop(VanillaActor):
 class Parent(VanillaActor):
     def on_receive(self, sender: Address, message: Message):
         if isinstance(message, Start):
-            self.spawn("child1", WillStopMyself)
-            self.spawn("child2", TellMeToStop)
-            self.spawn("child3", TellMeToStop)
+            self.spawn("child1", WillStopMyself())
+            self.spawn("child2", TellMeToStop())
+            self.spawn("child3", TellMeToStop())
 
     def on_stop(self):
         self.tell(Address("$.logger"), IAmStopping(self.address))
@@ -72,7 +72,7 @@ class Parent(VanillaActor):
 class Grandparent(VanillaActor):
     def on_receive(self, sender: Address, message: Message):
         if isinstance(message, Start):
-            self.spawn("parent", Parent, initial_message=Start())
+            self.spawn("parent", Parent(), initial_message=Start())
         elif isinstance(message, Stop):
             self.stop()
 
@@ -81,8 +81,8 @@ class Grandparent(VanillaActor):
 
 
 class Logger(VanillaActor):
-    def __init__(self, context: ProcessContext):
-        super().__init__(context)
+    def __init__(self):
+        super().__init__()
 
         self._log: List[Message] = []
         self._n: Optional[int] = None
@@ -105,8 +105,8 @@ class Logger(VanillaActor):
 def test_should_receive_all_stop_log():
     # noinspection DuplicatedCode
     system = ActorSystem(n_nodes=1, placement=[Placement(MatchAll(), RoundRobin())])
-    logger = system.spawn("logger", Logger)
-    grandparent = system.spawn("grandparent", Grandparent, initial_message=Start())
+    logger = system.spawn("logger", Logger())
+    grandparent = system.spawn("grandparent", Grandparent(), initial_message=Start())
     time.sleep(0.005)
     parent = grandparent.child("parent")
     system.ask(parent.child("child1"), Ping())

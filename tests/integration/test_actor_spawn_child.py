@@ -1,7 +1,7 @@
 from dataclasses import dataclass
 from typing import Optional
 
-from lyrid import VanillaActor, ActorSystem, Address, Message, Ask, SpawnChildCompleted, ProcessContext
+from lyrid import VanillaActor, ActorSystem, Address, Message, Ask, SpawnChildCompleted
 from tests.message_dummy import MessageDummy
 
 
@@ -16,8 +16,8 @@ class SpawnSecond(Message):
 
 
 class First(VanillaActor):
-    def __init__(self, context: ProcessContext):
-        super().__init__(context)
+    def __init__(self):
+        super().__init__()
 
         self.reply_to: Optional[Address] = None
         self.ref_id: Optional[str] = None
@@ -25,7 +25,7 @@ class First(VanillaActor):
 
     def on_receive(self, sender: Address, message: Message):
         if isinstance(message, SpawnSecond):
-            self.spawn("second", Second)
+            self.spawn("second", Second())
         elif isinstance(message, Ask) and isinstance(message.message, GreetSecond):
             self.reply_to = sender
             self.ref_id = message.ref_id
@@ -53,7 +53,7 @@ class Second(VanillaActor):
 
 def test_should_spawn_and_ask_second_actor():
     system = ActorSystem(n_nodes=1)
-    first = system.spawn("first", First, initial_message=SpawnSecond())
+    first = system.spawn("first", First(), initial_message=SpawnSecond())
 
     second_response = system.ask(first, GreetSecond())
 

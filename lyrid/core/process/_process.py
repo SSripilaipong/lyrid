@@ -1,11 +1,10 @@
-from abc import abstractmethod
-from typing import Protocol
+from abc import abstractmethod, ABC
 
 from lyrid.core.messaging import Address, Message
 from ._context import ProcessContext
 
 
-class Process(Protocol):
+class Process(ABC):
 
     @abstractmethod
     def receive(self, sender: Address, message: Message):

@@ -4,7 +4,6 @@ from dataclasses import dataclass
 from typing import Optional, Any, Callable, _ProtocolMeta
 
 from lyrid.base import Actor
-from lyrid.core.process import ProcessContext
 
 ACTOR_KEYWORDS = ("address", "_address", "_messenger")
 
@@ -23,8 +22,8 @@ class _Meta(_ProtocolMeta, ABCMeta):
 
 
 class StatefulActor(Actor, ABC, metaclass=_Meta):
-    def __init__(self, context: ProcessContext):
-        super().__init__(context)
+    def __init__(self):
+        super().__init__()
 
         for name, type_ in self.__annotations__.items():
             assert name not in ACTOR_KEYWORDS

@@ -12,7 +12,7 @@ from tests.mock.id_generator import IdGeneratorMock
 from tests.mock.messenger import MessengerMock
 from tests.mock.processor import ProcessorMock
 from tests.mock.randomizer import RandomizerMock
-from tests.system.process_dummy import ProcessDummyWithContext, ProcessDummy
+from tests.system.process_dummy import ProcessDummy
 from tests.system.util import root_process_message
 
 
@@ -24,12 +24,12 @@ def test_should_let_processor_process_handle_spawn_child_actor_message():
     system.handle_message(
         sender=Address("$.process"),
         receiver=Address("$"),
-        message=SpawnChildMessage(key="my_child", type_=ProcessDummyWithContext, process=process)
+        message=SpawnChildMessage(key="my_child", process=process)
     )
 
     assert processor.process__command == MessageHandlingCommand(
         sender=Address("$.process"), receiver=Address("$"),
-        message=SpawnChildMessage(key="my_child", type_=ProcessDummyWithContext, process=process),
+        message=SpawnChildMessage(key="my_child", process=process),
     )
 
 
@@ -42,13 +42,12 @@ def test_should_send_manager_spawn_actor_message_to_manager_with_generated_ref_i
 
     process = ProcessDummy()
     root_process_message(system, sender=Address("$.process"),
-                         message=SpawnChildMessage(key="my_child", type_=ProcessDummyWithContext, process=process))
+                         message=SpawnChildMessage(key="my_child", process=process))
 
     assert messenger.send__sender == Address("$") and \
            messenger.send__receiver == Address("#manager1") and \
            messenger.send__message == \
-           NodeSpawnProcessMessage(address=Address("$.process.my_child"), type_=ProcessDummyWithContext,
-                                   ref_id="GenId123", process=process)
+           NodeSpawnProcessMessage(address=Address("$.process.my_child"), ref_id="GenId123", process=process)
 
 
 def test_should_send_node_spawn_actor_message_with_initial_message_if_not_none():
@@ -60,15 +59,14 @@ def test_should_send_node_spawn_actor_message_with_initial_message_if_not_none()
 
     process = ProcessDummy()
     root_process_message(system, sender=Address("$.process"),
-                         message=SpawnChildMessage(key="my_child", type_=ProcessDummyWithContext,
-                                                   initial_message=MessageDummy("Hi!"), process=process))
+                         message=SpawnChildMessage(key="my_child", initial_message=MessageDummy("Hi!"),
+                                                   process=process))
 
     assert messenger.send__sender == Address("$") and \
            messenger.send__receiver == Address("#node0") and \
            messenger.send__message == \
-           NodeSpawnProcessMessage(address=Address("$.process.my_child"), type_=ProcessDummyWithContext,
-                                   initial_message=MessageDummy("Hi!"), ref_id="GenId456",
-                                   process=process)
+           NodeSpawnProcessMessage(address=Address("$.process.my_child"), initial_message=MessageDummy("Hi!"),
+                                   ref_id="GenId456", process=process)
 
 
 # noinspection DuplicatedCode
@@ -79,8 +77,7 @@ def test_should_send_node_spawn_process_message_to_randomly_selected_node():
                                  node_addresses=[Address("#node0"), Address("#node1"), Address("#node2")])
 
     root_process_message(system, sender=Address("$.process"),
-                         message=SpawnChildMessage(key="my_child", type_=ProcessDummyWithContext,
-                                                   process=ProcessDummy()))
+                         message=SpawnChildMessage(key="my_child", process=ProcessDummy()))
 
     assert messenger.send__receiver == Address("#node1") and \
            isinstance(messenger.send__message, NodeSpawnProcessMessage)
@@ -93,8 +90,7 @@ def test_should_random_range_with_number_of_node_addresses():
                                  node_addresses=[Address("#node0"), Address("#node1"), Address("#node2")])
 
     root_process_message(system, sender=Address("$.process"),
-                         message=SpawnChildMessage(key="my_child", type_=ProcessDummyWithContext,
-                                                   process=ProcessDummy()))
+                         message=SpawnChildMessage(key="my_child", process=ProcessDummy()))
 
     assert randomizer.randrange__n == 3
 
@@ -108,7 +104,7 @@ def test_should_send_spawn_child_completed_message_to_actor_when_handling_acknow
 
     root_process_message(
         system, sender=Address("$.my_actor"),
-        message=SpawnChildMessage(key="my_child", type_=ProcessDummyWithContext, process=ProcessDummy()),
+        message=SpawnChildMessage(key="my_child", process=ProcessDummy()),
     )
     root_process_message(
         system, sender=Address("manager1"), message=NodeSpawnProcessCompletedMessage(
@@ -136,7 +132,7 @@ def test_should_not_put_reply_in_reply_queue_when_completing_spawning_child_for_
 
     root_process_message(
         system, sender=Address("$.my_actor"),
-        message=SpawnChildMessage(key="my_child", type_=ProcessDummyWithContext, process=ProcessDummy()),
+        message=SpawnChildMessage(key="my_child", process=ProcessDummy()),
     )
     root_process_message(
         system, sender=Address("#manager1"), message=NodeSpawnProcessCompletedMessage(

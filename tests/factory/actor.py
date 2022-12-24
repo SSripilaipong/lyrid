@@ -19,6 +19,9 @@ def create_actor(type_: Type[A], *, address: Address = None, messenger: Messenge
     messenger = messenger or MessengerMock()
     background_task_executor = background_task_executor or BackgroundTaskExecutorMock()
     id_gen = id_gen or IdGeneratorMock()
-    return type_(ProcessContext(
+
+    process = type_()
+    process.set_context(ProcessContext(
         address=address, messenger=messenger, background_task_executor=background_task_executor, id_generator=id_gen,
     ))
+    return process

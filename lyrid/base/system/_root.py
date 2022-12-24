@@ -7,7 +7,7 @@ from lyrid.core.common import IdGenerator, Randomizer
 from lyrid.core.messaging import Address, Message
 from lyrid.core.messenger import MessengerRegisterAddressCompletedMessage, MessengerRegisterAddressMessage, Messenger
 from lyrid.core.node import NodeSpawnProcessCompletedMessage, NodeSpawnProcessMessage
-from lyrid.core.process import ProcessFactory, ProcessContext
+from lyrid.core.process import ProcessContext, Process
 from lyrid.core.system import SpawnChildMessage, SpawnChildCompleted, SystemSpawnActorCompletedReply, Placement
 from ._task import Task, ActorSpawnChildTask
 
@@ -16,7 +16,8 @@ class RootActor(Actor):
     def __init__(self, address: Address, messenger: Messenger, messenger_address: Address, id_generator: IdGenerator,
                  randomizer: Randomizer, node_addresses: List[Address], reply_queue: queue.Queue,
                  placements: List[Placement]):
-        super().__init__(ProcessContext(address, messenger, BackgroundTaskExecutorDummy(), id_generator=id_generator))
+        super().__init__()
+        self.set_context(ProcessContext(address, messenger, BackgroundTaskExecutorDummy(), id_generator=id_generator))
 
         self._reply_queue = reply_queue
         self._messenger_address = messenger_address
@@ -46,18 +47,18 @@ class RootActor(Actor):
         ref_id = self._id_generator.generate()
         self._tasks[ref_id] = ActorSpawnChildTask(requester=requester, child_key=child_key)
 
-        node = self.choose_placement_node(message.type_)
+        node = self.choose_placement_node(message.process)
 
         self.tell(node, NodeSpawnProcessMessage(
-            address=requester.child(child_key), type_=message.type_, ref_id=ref_id,
+            address=requester.child(child_key), ref_id=ref_id,
             initial_message=message.initial_message, process=message.process,
         ))
 
-    def choose_placement_node(self, type_: ProcessFactory) -> Address:
+    def choose_placement_node(self, process: Process) -> Address:
         node = None
         if self._placements:
             for placement in self._placements:
-                if placement.match.match(type_):
+                if placement.match.match(process.__class__):
                     node = placement.policy.get_placement_node()
                     break
 

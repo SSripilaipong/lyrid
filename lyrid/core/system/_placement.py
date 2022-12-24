@@ -1,15 +1,15 @@
 from abc import abstractmethod
 from dataclasses import dataclass
-from typing import Protocol, List
+from typing import Protocol, List, Type
 
 from lyrid.core.messaging import Address
-from lyrid.core.process import ProcessFactory
+from lyrid.core.process import Process
 
 
 class PlacementPolicyMatcher(Protocol):
 
     @abstractmethod
-    def match(self, type_: ProcessFactory) -> bool:
+    def match(self, type_: Type[Process]) -> bool:
         pass
 
 
