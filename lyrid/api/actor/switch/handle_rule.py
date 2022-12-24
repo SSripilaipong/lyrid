@@ -1,7 +1,7 @@
 from abc import abstractmethod
 from typing import Protocol, Callable
 
-from lyrid.base import Actor
+from lyrid.base import ActorProcess
 from lyrid.core.messaging import Address, Message
 
 
@@ -11,7 +11,7 @@ class HandleRule(Protocol):
         pass
 
     @abstractmethod
-    def execute(self, actor: Actor, sender: Address, message: Message):
+    def execute(self, actor: ActorProcess, sender: Address, message: Message):
         pass
 
 

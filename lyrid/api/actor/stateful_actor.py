@@ -3,7 +3,7 @@ from dataclasses import dataclass
 # noinspection PyUnresolvedReferences
 from typing import Optional, Any, Callable, _ProtocolMeta
 
-from lyrid.base import Actor
+from lyrid.base import ActorProcess
 
 ACTOR_KEYWORDS = ("address", "_address", "_messenger")
 
@@ -21,7 +21,7 @@ class _Meta(_ProtocolMeta, ABCMeta):
         return obj
 
 
-class StatefulActor(Actor, ABC, metaclass=_Meta):
+class StatefulActor(ActorProcess, ABC, metaclass=_Meta):
     def __init__(self):
         super().__init__()
 

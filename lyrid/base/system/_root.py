@@ -1,7 +1,7 @@
 import queue
 from typing import Dict, List, Callable, SupportsFloat, Tuple
 
-from lyrid.base.actor import Actor
+from lyrid.base.actor import ActorProcess
 from lyrid.core.background_task import BackgroundTaskExecutor
 from lyrid.core.common import IdGenerator, Randomizer
 from lyrid.core.messaging import Address, Message
@@ -12,7 +12,7 @@ from lyrid.core.system import SpawnChildMessage, SpawnChildCompleted, SystemSpaw
 from ._task import Task, ActorSpawnChildTask
 
 
-class RootActor(Actor):
+class RootActorProcess(ActorProcess):
     def __init__(self, address: Address, messenger: Messenger, messenger_address: Address, id_generator: IdGenerator,
                  randomizer: Randomizer, node_addresses: List[Address], reply_queue: queue.Queue,
                  placements: List[Placement]):

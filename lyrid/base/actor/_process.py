@@ -10,7 +10,7 @@ from ._context import ActorContext
 from ._status import ActorStatus
 
 
-class Actor(Process, ABC):
+class ActorProcess(Process, ABC):
     _context: ActorContext = ActorContext(None, None, None, None,  # type: ignore  # TODO: fix this
                                           None, None, None, None)  # type: ignore  # TODO: fix this
 
