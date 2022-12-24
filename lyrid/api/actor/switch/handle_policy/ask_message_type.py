@@ -34,6 +34,8 @@ class AskMessageTypeHandlePolicy(HandlePolicy):
                     raise argument_in_method_must_be_annotated_as_type_error(name, function_name, Address.__name__)
                 required_params.sender = True
             elif name == "message":
+                if not isinstance(param.annotation, type) or not issubclass(param.annotation, self.type_):
+                    raise argument_in_method_must_be_annotated_as_type_error(name, function_name, self.type_.__name__)
                 required_params.message = True
             elif name == "ref_id":
                 required_params.ref_id = True

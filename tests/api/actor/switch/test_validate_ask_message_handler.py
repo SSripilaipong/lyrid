@@ -91,3 +91,22 @@ def test_should_raise_type_error_when_sender_argument_is_specified_with_wrong_ty
                 pass
 
     assert str(e.value) == str(argument_in_method_must_be_annotated_as_type_error("sender", "fx", "Address"))
+
+
+def test_should_raise_type_error_when_message_argument_is_specified_with_wrong_type_annotation():
+    class Msg1(Message):
+        pass
+
+    class Msg2(Message):
+        pass
+
+    with raises(TypeError) as e:
+        class A(VanillaActor):
+            switch = Switch()
+            on_receive = switch.on_receive
+
+            @switch.ask(type=Msg1)
+            def my_func(self, sender: Address, message: Msg2, ref_id: str):
+                pass
+
+    assert str(e.value) == str(argument_in_method_must_be_annotated_as_type_error("message", "my_func", "Msg1"))
