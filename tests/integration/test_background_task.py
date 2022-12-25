@@ -2,7 +2,7 @@ import time
 from dataclasses import dataclass, field
 from typing import Optional, List
 
-from lyrid import Address, Message, ActorSystem, BackgroundTaskExited, Ask, AbstractActor, ActorProcess
+from lyrid import Address, Message, ActorSystem, BackgroundTaskExited, Ask, Actor, ActorProcess
 
 
 class Start(Message):
@@ -33,7 +33,7 @@ class ReturnValueList(Message):
 
 
 @dataclass
-class Greeter(AbstractActor):
+class Greeter(Actor):
     hello_list: List[Hello] = field(default_factory=list)
     hello_reply_to: Optional[Address] = None
     hello_ref_id: Optional[str] = None

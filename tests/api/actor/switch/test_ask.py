@@ -1,7 +1,7 @@
 from dataclasses import dataclass
 from typing import Optional
 
-from lyrid import Switch, Message, Ask, AbstractActor
+from lyrid import Switch, Message, Ask, Actor
 from lyrid.core.messaging import Address
 from tests.factory.actor import create_actor_process
 
@@ -17,7 +17,7 @@ class QuestionB(Message):
 
 
 @dataclass
-class MyActor(AbstractActor):
+class MyActor(Actor):
     handle_ask_a__sender: Optional[Address] = None
     handle_ask_a__message: Optional[Message] = None
     handle_ask_a__ref_id: Optional[str] = None

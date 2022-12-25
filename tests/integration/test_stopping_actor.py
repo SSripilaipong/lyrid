@@ -2,7 +2,7 @@ import time
 from dataclasses import dataclass
 from typing import List, Optional
 
-from lyrid import AbstractActor, ActorSystem, Address, Message, Ask, Placement, MatchAll, \
+from lyrid import Actor, ActorSystem, Address, Message, Ask, Placement, MatchAll, \
     RoundRobin, ActorProcess
 
 
@@ -38,7 +38,7 @@ class Log(Message):
     records: List[Message]
 
 
-class WillStopMyself(AbstractActor):
+class WillStopMyself(Actor):
     def on_receive(self, sender: Address, message: Message):
         if isinstance(message, Stop):
             self.stop()
@@ -49,7 +49,7 @@ class WillStopMyself(AbstractActor):
         self.tell(Address("$.logger"), IAmStopping(self.address))
 
 
-class TellMeToStop(AbstractActor):
+class TellMeToStop(Actor):
     def on_receive(self, sender: Address, message: Message):
         if isinstance(message, Ask) and isinstance(message.message, Ping):
             self.reply(sender, Pong(), ref_id=message.ref_id)
@@ -58,7 +58,7 @@ class TellMeToStop(AbstractActor):
         self.tell(Address("$.logger"), IAmStopping(self.address))
 
 
-class Parent(AbstractActor):
+class Parent(Actor):
     def on_receive(self, sender: Address, message: Message):
         if isinstance(message, Start):
             self.spawn("child1", ActorProcess(WillStopMyself()))
@@ -69,7 +69,7 @@ class Parent(AbstractActor):
         self.tell(Address("$.logger"), IAmStopping(self.address))
 
 
-class Grandparent(AbstractActor):
+class Grandparent(Actor):
     def on_receive(self, sender: Address, message: Message):
         if isinstance(message, Start):
             self.spawn("parent", ActorProcess(Parent()), initial_message=Start())
@@ -80,7 +80,7 @@ class Grandparent(AbstractActor):
         self.tell(Address("$.logger"), IAmStopping(self.address))
 
 
-class Logger(AbstractActor):
+class Logger(Actor):
     def __init__(self):
         super().__init__()
 

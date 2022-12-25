@@ -1,3 +1,3 @@
-from ._abstract import AbstractActor
-from ._context import ActorContext
+from ._abstract import ActorContext
+from ._actor import Actor
 from ._process import ActorProcess

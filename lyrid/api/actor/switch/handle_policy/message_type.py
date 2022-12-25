@@ -5,7 +5,7 @@ from typing import Type, Callable, Dict, Any
 from lyrid.api.actor.switch.handle_policy.error_message import invalid_argument_for_method_error, \
     argument_in_method_must_be_annotated_as_type_error
 from lyrid.api.actor.switch.handle_rule import HandleRule, HandlePolicy
-from lyrid.base.actor import AbstractActor
+from lyrid.base.actor import Actor
 from lyrid.core.messaging import Address, Message
 
 
@@ -51,7 +51,7 @@ class MessageTypeHandleRule(HandleRule):
     def match(self, sender: Address, message: Message) -> bool:
         return isinstance(message, self.type_)
 
-    def execute(self, actor: AbstractActor, sender: Address, message: Message):
+    def execute(self, actor: Actor, sender: Address, message: Message):
         params: Dict[str, Any] = {}
         if self.required_params.message:
             params["message"] = message

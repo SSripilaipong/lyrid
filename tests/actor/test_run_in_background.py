@@ -1,6 +1,6 @@
 from dataclasses import dataclass
 
-from lyrid import Address, Message, AbstractActor
+from lyrid import Address, Message, Actor
 from tests.factory.actor import create_actor_process
 from tests.mock.background_task_executor import BackgroundTaskExecutorMock
 from tests.mock.id_generator import IdGeneratorMock
@@ -11,7 +11,7 @@ class RunSuccessTask(Message):
     pass
 
 
-class ActorWithBackgroundTask(AbstractActor):
+class ActorWithBackgroundTask(Actor):
 
     def on_receive(self, sender: Address, message: Message):
         if isinstance(message, RunSuccessTask):

@@ -1,7 +1,7 @@
 from dataclasses import dataclass
 from typing import Optional
 
-from lyrid import ActorSystem, Address, Message, Ask, SpawnChildCompleted, AbstractActor, ActorProcess
+from lyrid import ActorSystem, Address, Message, Ask, SpawnChildCompleted, Actor, ActorProcess
 from tests.message_dummy import MessageDummy
 
 
@@ -15,7 +15,7 @@ class SpawnSecond(Message):
     pass
 
 
-class First(AbstractActor):
+class First(Actor):
     def __init__(self):
         super().__init__()
 
@@ -44,7 +44,7 @@ class First(AbstractActor):
         self.tell(self.second_address, MessageDummy("how are you"))
 
 
-class Second(AbstractActor):
+class Second(Actor):
     def on_receive(self, sender: Address, message: Message):
         if isinstance(message, MessageDummy) and message.text == "how are you":
             self.tell(sender, MessageDummy("i'm good, thanks"))

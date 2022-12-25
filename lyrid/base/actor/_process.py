@@ -3,15 +3,15 @@ from contextlib import suppress
 from lyrid.core.messaging import Address, Message
 from lyrid.core.process import Process, ProcessStoppedSignal, ChildStopped, SupervisorForceStop, ProcessContext
 from ._abstract import AbstractActor
-from ._context import ActorContext
+from ._actor import ActorContext
 from ._status import ActorStatus
 
 
 class ActorProcess(Process):
     _context: ActorContext
 
-    def __init__(self, actor: AbstractActor):
-        self._actor = actor
+    def __init__(self, initial_actor: AbstractActor):
+        self._actor = initial_actor
 
     # noinspection DuplicatedCode
     def receive(self, sender: Address, message: Message):
@@ -26,8 +26,9 @@ class ActorProcess(Process):
             self._receive_when_stopping(sender, message)
 
     def on_receive(self, sender: Address, message: Message):
+        self._actor = self._context.next_actor
         self._actor.set_context(self._context)
-        return self._actor.on_receive(sender, message)
+        self._actor.on_receive(sender, message)
 
     def on_stop(self):
         self._actor.on_stop()
@@ -63,5 +64,6 @@ class ActorProcess(Process):
     def set_context(self, context: ProcessContext):
         self._context = ActorContext(
             context.address, context.messenger, context.background_task_executor, context.id_generator,
+            next_actor=self._actor,
         )
         self._actor.set_context(self._context)

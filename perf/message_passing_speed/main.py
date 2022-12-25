@@ -4,7 +4,7 @@ import time
 from dataclasses import dataclass, field
 from typing import Optional, List
 
-from lyrid import Switch, Message, Address, ActorSystem, Placement, MatchAll, RoundRobin, AbstractActor, ActorProcess
+from lyrid import Switch, Message, Address, ActorSystem, Placement, MatchAll, RoundRobin, Actor, ActorProcess
 
 
 @dataclass
@@ -35,7 +35,7 @@ class Result(Message):
 
 
 # noinspection SpellCheckingInspection
-class Ponger(AbstractActor):
+class Ponger(Actor):
     switch = Switch()
     on_receive = switch.on_receive
 
@@ -46,7 +46,7 @@ class Ponger(AbstractActor):
 
 # noinspection SpellCheckingInspection
 @dataclass
-class Pinger(AbstractActor):
+class Pinger(Actor):
     timestamp: float = .0
     ponger: Optional[Address] = None
     result: List[float] = field(default_factory=list)

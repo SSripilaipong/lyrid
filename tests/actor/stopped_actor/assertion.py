@@ -1,6 +1,6 @@
 from typing import Callable, List
 
-from lyrid import ActorProcess, AbstractActor
+from lyrid import ActorProcess, Actor
 from lyrid.core.messaging import Address, Message
 from tests.actor.stopped_actor._assertion import assert_should_send_child_actor_stopped_message_to_supervisor, \
     assert_should_send_supervisor_force_stop_message_to_spawned_children, \
@@ -13,12 +13,12 @@ from tests.actor.stopped_actor._assertion import assert_should_send_child_actor_
     assert_should_ignore_any_exception_when_running_on_stop
 
 
-def assert_handle_stopped_actor(actor_type: Callable[[], AbstractActor],
+def assert_handle_stopped_actor(actor_type: Callable[[], Actor],
                                 stop: Callable[[ActorProcess, Address], None],
-                                on_receive__clear_captures: Callable[[AbstractActor], None],
-                                on_receive__senders: Callable[[AbstractActor], List[Address]],
-                                on_receive__messages: Callable[[AbstractActor], List[Message]],
-                                on_stop__is_called: Callable[[AbstractActor], bool],
+                                on_receive__clear_captures: Callable[[Actor], None],
+                                on_receive__senders: Callable[[Actor], List[Address]],
+                                on_receive__messages: Callable[[Actor], List[Message]],
+                                on_stop__is_called: Callable[[Actor], bool],
                                 exception: Exception = None):
     assert_should_send_child_actor_stopped_message_to_supervisor(actor_type, stop, exception=exception)
     assert_should_send_supervisor_force_stop_message_to_spawned_children(actor_type, stop)

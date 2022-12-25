@@ -1,6 +1,6 @@
 from dataclasses import dataclass
 
-from lyrid import Switch, Message, Address, ActorSystem, AbstractActor, ActorProcess
+from lyrid import Switch, Message, Address, ActorSystem, Actor, ActorProcess
 
 
 @dataclass
@@ -24,7 +24,7 @@ class NValue(Message):
 
 
 @dataclass
-class MyActor(AbstractActor):
+class MyActor(Actor):
     n: int = 0
 
     switch = Switch()

@@ -1,6 +1,6 @@
 from typing import Type, Callable, List, TYPE_CHECKING
 
-from lyrid.base.actor import AbstractActor
+from lyrid.base.actor import Actor
 from lyrid.core.messaging import Address, Message
 from .handle_policy.ask_message_type import AskMessageTypeHandlePolicy
 from .handle_policy.message_type import MessageTypeHandlePolicy
@@ -12,7 +12,7 @@ class Switch:
         self._rules: List[HandleRule] = []
         self.on_receive = OnReceive(self)
 
-    def __get__(self, instance: AbstractActor, owner=None):
+    def __get__(self, instance: Actor, owner=None):
         self._actor = instance
         return self
 
@@ -27,7 +27,7 @@ class Switch:
     def add_rule(self, rule: HandleRule):
         self._rules.append(rule)
 
-    def __call__(self, actor: AbstractActor, sender: Address, message: Message):
+    def __call__(self, actor: Actor, sender: Address, message: Message):
         for rule in self._rules:
             if rule.match(sender, message):
                 rule.execute(actor, sender, message)
@@ -44,7 +44,7 @@ class OnReceive:
 
     if TYPE_CHECKING:
         @staticmethod
-        def __call__(actor: AbstractActor, sender: Address, message: Message):
+        def __call__(actor: Actor, sender: Address, message: Message):
             pass
     else:
         def __call__(self, sender: Address, message: Message):

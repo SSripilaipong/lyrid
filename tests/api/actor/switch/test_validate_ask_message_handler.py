@@ -2,7 +2,7 @@ from typing import Optional
 
 from pytest import raises
 
-from lyrid import Switch, Message, Address, Ask, AbstractActor
+from lyrid import Switch, Message, Address, Ask, Actor
 from lyrid.api.actor.switch.handle_policy.error_message import invalid_argument_for_method_error, \
     argument_in_method_must_be_included_as_type_error, argument_in_method_must_be_annotated_as_type_error
 from tests.factory.actor import create_actor_process
@@ -12,7 +12,7 @@ class CallHandleWithoutMessage(Message):
     pass
 
 
-class MyActor(AbstractActor):
+class MyActor(Actor):
     handle_without_message__sender: Optional[Address] = None
     handle_without_message__ref_id: Optional[str] = None
     handle_message_only__message: Optional[Message] = None
@@ -41,7 +41,7 @@ def test_should_raise_type_error_when_sender_argument_is_missing():
         pass
 
     with raises(TypeError) as e:
-        class A(AbstractActor):
+        class A(Actor):
             switch = Switch()
             on_receive = switch.on_receive
 
@@ -57,7 +57,7 @@ def test_should_raise_type_error_when_ref_id_argument_is_missing():
         pass
 
     with raises(TypeError) as e:
-        class A(AbstractActor):
+        class A(Actor):
             switch = Switch()
             on_receive = switch.on_receive
 
@@ -70,7 +70,7 @@ def test_should_raise_type_error_when_ref_id_argument_is_missing():
 
 def test_should_raise_type_error_when_invalid_argument_name_is_specified():
     with raises(TypeError) as e:
-        class A(AbstractActor):
+        class A(Actor):
             switch = Switch()
             on_receive = switch.on_receive
 
@@ -83,7 +83,7 @@ def test_should_raise_type_error_when_invalid_argument_name_is_specified():
 
 def test_should_raise_type_error_when_sender_argument_is_specified_with_wrong_type_annotation():
     with raises(TypeError) as e:
-        class A(AbstractActor):
+        class A(Actor):
             switch = Switch()
             on_receive = switch.on_receive
 
@@ -102,7 +102,7 @@ def test_should_raise_type_error_when_message_argument_is_specified_with_wrong_t
         pass
 
     with raises(TypeError) as e:
-        class A(AbstractActor):
+        class A(Actor):
             switch = Switch()
             on_receive = switch.on_receive
 
@@ -118,7 +118,7 @@ def test_should_raise_type_error_when_ref_id_argument_is_specified_with_wrong_ty
         pass
 
     with raises(TypeError) as e:
-        class A(AbstractActor):
+        class A(Actor):
             switch = Switch()
             on_receive = switch.on_receive
 
