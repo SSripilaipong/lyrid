@@ -13,6 +13,10 @@ class ActorProcess(Process):
     def __init__(self, initial_actor: AbstractActor):
         self._actor = initial_actor
 
+    @property
+    def actor(self) -> AbstractActor:
+        return self._actor
+
     # noinspection DuplicatedCode
     def receive(self, sender: Address, message: Message):
         if isinstance(message, ChildStopped):

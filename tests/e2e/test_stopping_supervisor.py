@@ -49,7 +49,7 @@ class Child(Actor):
 class Parent(Actor):
     def on_receive(self, sender: Address, message: Message):
         if isinstance(message, Start):
-            self.spawn("child", ActorProcess(Child()))
+            self.spawn("child", Child())
         elif isinstance(message, Stop):
             self.stop()
 
@@ -60,7 +60,7 @@ class Parent(Actor):
 class Grandparent(Actor):
     def on_receive(self, sender: Address, message: Message):
         if isinstance(message, Start):
-            self.spawn("parent", ActorProcess(Parent()), initial_message=Start())
+            self.spawn("parent", Parent(), initial_message=Start())
         elif isinstance(message, ChildStopped):
             self.tell(Address("$.logger"), message)
 

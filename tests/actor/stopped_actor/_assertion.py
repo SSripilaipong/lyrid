@@ -39,8 +39,8 @@ def assert_should_send_supervisor_force_stop_message_to_spawned_children(
     actor = actor_factory()
     process = create_actor_process(actor, address=my_address, messenger=messenger)
 
-    actor.spawn("child1", ActorProcess(ActorMock()))
-    actor.spawn("child2", ActorProcess(ActorMock()))
+    actor.spawn("child1", ActorMock())
+    actor.spawn("child2", ActorMock())
     messenger.send__clear_captures()
     stop(process, my_address)
 
@@ -60,9 +60,9 @@ def assert_should_send_supervisor_force_stop_message_to_not_stopped_children_onl
     actor = actor_factory()
     process = create_actor_process(actor, address=my_address, messenger=messenger)
 
-    actor.spawn("child1", ActorProcess(ActorMock()))
-    actor.spawn("child2", ActorProcess(ActorMock()))
-    actor.spawn("child3", ActorProcess(ActorMock()))
+    actor.spawn("child1", ActorMock())
+    actor.spawn("child2", ActorMock())
+    actor.spawn("child3", ActorMock())
     process.receive(Address("$.me.child2"), ChildStopped(child_address=Address("$.me.child2")))
     messenger.send__clear_captures()
     stop(process, my_address)
@@ -82,9 +82,9 @@ def assert_should_raise_actor_stopped_signal_to_outside_after_actor_tried_to_sto
     process = create_actor_process(actor, address=my_address)
 
     # noinspection DuplicatedCode
-    actor.spawn("child1", ActorProcess(ActorMock()))
-    actor.spawn("child2", ActorProcess(ActorMock()))
-    actor.spawn("child3", ActorProcess(ActorMock()))
+    actor.spawn("child1", ActorMock())
+    actor.spawn("child2", ActorMock())
+    actor.spawn("child3", ActorMock())
     process.receive(Address("$.me.child2"), ChildStopped(child_address=Address("$.me.child2")))
     stop(process, my_address)
     process.receive(Address("$.me.child3"), ChildStopped(child_address=Address("$.me.child3")))
@@ -105,8 +105,8 @@ def assert_should_not_let_actor_receive_any_message_when_stopping(
     actor = actor_factory()
     process = create_actor_process(actor, address=my_address)
 
-    actor.spawn("child1", ActorProcess(ActorMock()))
-    actor.spawn("child2", ActorProcess(ActorMock()))
+    actor.spawn("child1", ActorMock())
+    actor.spawn("child2", ActorMock())
     stop(process, my_address)
     on_receive__clear_captures(actor)
 
@@ -141,7 +141,7 @@ def assert_should_send_child_actor_stopped_message_to_supervisor_after_all_activ
     actor = actor_factory()
     process = create_actor_process(actor, address=my_address, messenger=messenger)
 
-    actor.spawn("child2", ActorProcess(ActorMock()))
+    actor.spawn("child2", ActorMock())
     stop(process, my_address)
     messenger.send__clear_captures()
 
@@ -163,8 +163,8 @@ def assert_should_not_send_child_actor_stopped_message_to_supervisor_before_all_
     actor = actor_factory()
     process = create_actor_process(actor, address=my_address, messenger=messenger)
 
-    actor.spawn("child1", ActorProcess(ActorMock()))
-    actor.spawn("child2", ActorProcess(ActorMock()))
+    actor.spawn("child1", ActorMock())
+    actor.spawn("child2", ActorMock())
     stop(process, my_address)
     process.receive(Address("$.me.child2"), ChildStopped(child_address=Address("$.me.child2")))
 

@@ -25,7 +25,7 @@ class First(Actor):
 
     def on_receive(self, sender: Address, message: Message):
         if isinstance(message, SpawnSecond):
-            self.spawn("second", ActorProcess(Second()))
+            self.spawn("second", Second())
         elif isinstance(message, Ask) and isinstance(message.message, GreetSecond):
             self.reply_to = sender
             self.ref_id = message.ref_id

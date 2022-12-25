@@ -1,16 +1,15 @@
-from abc import ABC, abstractmethod
 from typing import SupportsFloat, Optional, Callable, Tuple
 
 from lyrid.core.messaging import Address, Message, Reply
-from lyrid.core.process import Process, ProcessStoppedSignal
+from lyrid.core.process import ProcessStoppedSignal
 from lyrid.core.system import SpawnChildMessage
 from ._abstract import AbstractActor, ActorContext
+from ._process import ActorProcess
 
 
-class Actor(AbstractActor, ABC):
+class Actor(AbstractActor):
     _context: ActorContext
 
-    @abstractmethod
     def on_receive(self, sender: Address, message: Message):
         pass
 
@@ -38,7 +37,8 @@ class Actor(AbstractActor, ABC):
     def reply(self, receiver: Address, message: Message, *, ref_id: str):
         self.tell(receiver, Reply(message, ref_id=ref_id))
 
-    def spawn(self, key: str, process: Process, *, initial_message: Optional[Message] = None):
+    def spawn(self, key: str, actor: 'Actor', *, initial_message: Optional[Message] = None):
+        process = ActorProcess(actor)
         self._context.messenger.send(self._context.address, self._context.system_address,
                                      SpawnChildMessage(key=key, initial_message=initial_message, process=process))
         self._context.active_children.add(self._context.address.child(key))
