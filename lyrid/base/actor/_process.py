@@ -11,8 +11,7 @@ from ._status import ActorStatus
 
 
 class ActorProcess(Process, ABC):
-    _context: ActorContext = ActorContext(None, None, None, None,  # type: ignore  # TODO: fix this
-                                          None, None, None, None)  # type: ignore  # TODO: fix this
+    _context: ActorContext
 
     @property
     def address(self) -> Address:
