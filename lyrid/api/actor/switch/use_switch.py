@@ -1,3 +1,4 @@
+import inspect
 from typing import Type, List, Optional, TypeVar, Dict
 
 from lyrid.api.actor.switch.handle_rule import HandlePolicy, HandleRule
@@ -35,11 +36,15 @@ A = TypeVar("A", bound=Actor)
 
 def use_switch(actor: Type[A]) -> Type[A]:
     rules: List[HandleRule] = []
-    for name, method in actor.__dict__.items():
-        policy: Optional[HandlePolicy] = getattr(method, "_lyrid_switch_policy", None)
-        if policy is None:
+
+    for cls in inspect.getmro(actor):
+        if not issubclass(cls, Actor) and cls is not Actor:
             continue
-        rules.append(policy.create_handle_rule_with_function(method))
+        for name, method in cls.__dict__.items():
+            policy: Optional[HandlePolicy] = getattr(method, "_lyrid_switch_policy", None)
+            if policy is None:
+                continue
+            rules.append(policy.create_handle_rule_with_function(method))
 
     setattr(actor, "on_receive", OnReceiveDescriptor(rules))
     return actor

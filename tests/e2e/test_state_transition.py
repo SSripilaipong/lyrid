@@ -1,7 +1,7 @@
 import time
 from dataclasses import dataclass
 
-from lyrid import Actor, Address, Message, Ask, ActorSystem
+from lyrid import Actor, Address, Message, ActorSystem, switch, use_switch
 
 
 class WhoAreYou(Message):
@@ -22,25 +22,26 @@ class CalmDown(Message):
 
 
 class Base(Actor):
-    def on_receive(self, sender: Address, message: Message):
-        if isinstance(message, Ask) and isinstance(message.message, WhoAreYou):
-            self.reply(sender, IAm(self.__class__.__name__), ref_id=message.ref_id)
+
+    @switch.ask(type=WhoAreYou)
+    def who_are_you(self, sender: Address, ref_id: str):
+        self.reply(sender, IAm(self.__class__.__name__), ref_id=ref_id)
 
 
+@use_switch
 class Banner(Base):
-    def on_receive(self, sender: Address, message: Message):
-        super().on_receive(sender, message)
 
-        if isinstance(message, MakeHimAngry):
-            self.become(Hulk())
+    @switch.message(type=MakeHimAngry)
+    def make_him_angry(self):
+        self.become(Hulk())
 
 
+@use_switch
 class Hulk(Base):
-    def on_receive(self, sender: Address, message: Message):
-        super().on_receive(sender, message)
 
-        if isinstance(message, CalmDown):
-            self.become(Banner())
+    @switch.message(type=CalmDown)
+    def calm_down(self):
+        self.become(Banner())
 
 
 def test_should_transit_state_back_and_forth():
