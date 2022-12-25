@@ -47,3 +47,20 @@ def test_should_send_actor_spawn_child_actor_message_with_initial_message():
            messenger.send__receiver == Address("$") and \
            messenger.send__message == SpawnChildMessage(key="my_child", process=ActorProcess(child),
                                                         initial_message=MessageDummy("Wake Up!"))
+
+
+def test_should_return_address():
+    messenger = MessengerMock()
+    actor = ActorMock()
+    _ = create_actor_process(actor, address=Address("$.me"), messenger=messenger)
+
+    assert actor.spawn(ActorMock(), key="you") == Address("$.me.you")
+
+
+def test_should_return_address_with_random_key_if_used():
+    messenger = MessengerMock()
+    actor = ActorMock()
+    _ = create_actor_process(actor, address=Address("$.parent.me"), messenger=messenger,
+                             id_gen=IdGeneratorMock(generate__return="Id999"))
+
+    assert actor.spawn(ActorMock()) == Address("$.parent.me.Id999")
