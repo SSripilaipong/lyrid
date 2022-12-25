@@ -2,13 +2,13 @@ import queue
 from typing import List, Optional
 
 from lyrid.base import ProcessManagingNode
+from lyrid.base.actor import Actor, ActorProcess
 from lyrid.core.background_task import BackgroundTaskExecutor
 from lyrid.core.command_processing_loop import CommandProcessingLoop, Command
 from lyrid.core.common import IdGenerator, Randomizer
 from lyrid.core.messaging import Address, Message, Ask, Reply
 from lyrid.core.messenger import Messenger
 from lyrid.core.node import TaskScheduler, NodeSpawnProcessMessage, MessageHandlingCommand
-from lyrid.core.process import Process
 from lyrid.core.system import SystemSpawnActorCommand, SystemSpawnActorCompletedReply, ActorReplyAskCommand, \
     ActorAskReply, Placement, SystemAskCommand
 from ._root import RootActor
@@ -73,7 +73,8 @@ class ActorSystemBase(ProcessManagingNode):
         node = self._root.choose_placement_node(command.process)
         self._messenger.send(self._address, node, msg)
 
-    def spawn(self, key: str, process: Process, *, initial_message: Optional[Message] = None) -> Address:
+    def spawn(self, key: str, actor: Actor, *, initial_message: Optional[Message] = None) -> Address:
+        process = ActorProcess(actor)
         self._processor.process(SystemSpawnActorCommand(key=key, process=process, initial_message=initial_message))
         reply: SystemSpawnActorCompletedReply = self._reply_queue.get()
         return reply.address

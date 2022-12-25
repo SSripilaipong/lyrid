@@ -1,11 +1,13 @@
 import queue
 
+from lyrid import ActorProcess
 from lyrid.core.messaging import Address
 from lyrid.core.messenger import MessengerRegisterAddressCompletedMessage
 from lyrid.core.node import NodeSpawnProcessMessage
 from lyrid.core.system import SystemSpawnActorCommand, SystemSpawnActorCompletedReply
 from tests.factory.system import create_actor_system
 from tests.message_dummy import MessageDummy
+from tests.mock.actor import ActorMock
 from tests.mock.id_generator import IdGeneratorMock
 from tests.mock.messenger import MessengerMock
 from tests.mock.processor import ProcessorMock
@@ -20,10 +22,13 @@ def test_should_let_processor_process_spawn_actor_command_when_spawn_is_called()
     reply_queue.put(SystemSpawnActorCompletedReply(address=Address("$.hello")))
     system = create_actor_system(processor=processor, reply_queue=reply_queue)
 
-    process = ProcessDummy()
-    system.spawn("hello", process)
+    actor = ActorMock()
+    system.spawn("hello", actor)
 
-    assert processor.process__command == SystemSpawnActorCommand(key="hello", process=process)
+    assert isinstance(processor.process__command, SystemSpawnActorCommand) and \
+           processor.process__command.key == "hello" and \
+           isinstance(processor.process__command.process, ActorProcess) and \
+           processor.process__command.process.actor == actor
 
 
 def test_should_let_processor_process_spawn_actor_command_with_initial_message_if_not_none():
@@ -32,11 +37,14 @@ def test_should_let_processor_process_spawn_actor_command_with_initial_message_i
     reply_queue.put(SystemSpawnActorCompletedReply(address=Address("$.hello")))
     system = create_actor_system(processor=processor, reply_queue=reply_queue)
 
-    process = ProcessDummy()
-    system.spawn("hello", process, initial_message=MessageDummy("Do It!"))
+    actor = ActorMock()
+    system.spawn("hello", actor, initial_message=MessageDummy("Do It!"))
 
-    assert processor.process__command == SystemSpawnActorCommand(key="hello", process=process,
-                                                                 initial_message=MessageDummy("Do It!"))
+    assert isinstance(processor.process__command, SystemSpawnActorCommand) and \
+           processor.process__command.key == "hello" and \
+           processor.process__command.initial_message == MessageDummy("Do It!") and \
+           isinstance(processor.process__command.process, ActorProcess) and \
+           processor.process__command.process.actor == actor
 
 
 def test_should_send_spawn_actor_message_to_manager_via_messenger_when_handling_spawn_actor_processor_command():
@@ -113,6 +121,6 @@ def test_should_get_reply_from_reply_queue_and_return_spawned_address():
     reply_queue.put(SystemSpawnActorCompletedReply(address=Address("$.new")))
     system = create_actor_system(reply_queue=reply_queue)
 
-    address = system.spawn("new", ProcessDummy())
+    address = system.spawn("new", ActorMock())
 
     assert address == Address("$.new")

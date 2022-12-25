@@ -1,7 +1,7 @@
 import time
 from dataclasses import dataclass
 
-from lyrid import Actor, Address, Message, Ask, ActorSystem, ActorProcess
+from lyrid import Actor, Address, Message, Ask, ActorSystem
 
 
 class WhoAreYou(Message):
@@ -47,7 +47,7 @@ def test_should_transit_state_back_and_forth():
     system = ActorSystem(n_nodes=1)
 
     try:
-        banner = system.spawn("banner", ActorProcess(Banner()))
+        banner = system.spawn("banner", Banner())
         time.sleep(0.03)
 
         assert system.ask(banner, WhoAreYou()) == IAm('Banner')

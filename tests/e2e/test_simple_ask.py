@@ -1,6 +1,6 @@
 from dataclasses import dataclass
 
-from lyrid import ActorSystem, Address, Message, Ask, Actor, ActorProcess
+from lyrid import ActorSystem, Address, Message, Ask, Actor
 
 
 @dataclass
@@ -17,7 +17,7 @@ class Greeter(Actor):
 
 def test_should_should_reply_ask():
     system = ActorSystem(n_nodes=1)
-    greeter = system.spawn("greeter", ActorProcess(Greeter()))
+    greeter = system.spawn("greeter", Greeter())
     reply = system.ask(greeter, Greeting("Hello there"))
     system.force_stop()
     assert reply == Greeting("Hi!")

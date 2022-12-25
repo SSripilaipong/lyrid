@@ -1,7 +1,7 @@
 from dataclasses import dataclass
 from typing import Optional
 
-from lyrid import ActorSystem, Address, Message, Ask, SpawnChildCompleted, Actor, ActorProcess
+from lyrid import ActorSystem, Address, Message, Ask, SpawnChildCompleted, Actor
 from tests.message_dummy import MessageDummy
 
 
@@ -53,7 +53,7 @@ class Second(Actor):
 
 def test_should_spawn_and_ask_second_actor():
     system = ActorSystem(n_nodes=1)
-    first = system.spawn("first", ActorProcess(First()), initial_message=SpawnSecond())
+    first = system.spawn("first", First(), initial_message=SpawnSecond())
 
     second_response = system.ask(first, GreetSecond())
 

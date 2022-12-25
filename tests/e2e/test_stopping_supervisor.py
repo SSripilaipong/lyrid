@@ -2,7 +2,7 @@ import time
 from dataclasses import dataclass
 from typing import List, Optional
 
-from lyrid import Actor, ActorSystem, Address, Message, Ask, ChildStopped, ActorProcess
+from lyrid import Actor, ActorSystem, Address, Message, Ask, ChildStopped
 
 
 # noinspection DuplicatedCode
@@ -90,8 +90,8 @@ class Logger(Actor):
 def test_should_receive_all_stop_log():
     # noinspection DuplicatedCode
     system = ActorSystem(n_nodes=1)
-    logger = system.spawn("logger", ActorProcess(Logger()))
-    grandparent = system.spawn("grandparent", ActorProcess(Grandparent()), initial_message=Start())
+    logger = system.spawn("logger", Logger())
+    grandparent = system.spawn("grandparent", Grandparent(), initial_message=Start())
     time.sleep(0.008)
     parent = grandparent.child("parent")
     system.ask(parent.child("child"), Ping())

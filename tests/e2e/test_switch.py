@@ -1,6 +1,6 @@
 from dataclasses import dataclass
 
-from lyrid import Switch, Message, Address, ActorSystem, Actor, ActorProcess
+from lyrid import Switch, Message, Address, ActorSystem, Actor
 
 
 @dataclass
@@ -45,7 +45,7 @@ class MyActor(Actor):
 
 def test_main():
     system = ActorSystem()
-    my_actor = system.spawn("my_actor", ActorProcess(MyActor()))
+    my_actor = system.spawn("my_actor", MyActor())
 
     try:
         assert system.ask(my_actor, GetN()) == NValue(0)

@@ -4,7 +4,7 @@ import time
 from dataclasses import dataclass, field
 from typing import Optional, List
 
-from lyrid import Switch, Message, Address, ActorSystem, Placement, MatchAll, RoundRobin, Actor, ActorProcess
+from lyrid import Switch, Message, Address, ActorSystem, Placement, MatchAll, RoundRobin, Actor
 
 
 @dataclass
@@ -96,9 +96,9 @@ def main():
     n_loop, message_size = 1_000, 10_000
 
     s = ActorSystem(n_nodes=3, placement=[Placement(MatchAll(), RoundRobin())])
-    ponger = s.spawn("ponger", ActorProcess(Ponger()))
+    ponger = s.spawn("ponger", Ponger())
     time.sleep(0.1)
-    pinger = s.spawn("pinger", ActorProcess(Pinger()), initial_message=Start(ponger, n_loop, message_size))
+    pinger = s.spawn("pinger", Pinger(), initial_message=Start(ponger, n_loop, message_size))
     time.sleep(0.1)
 
     result = s.ask(pinger, GetResult())
