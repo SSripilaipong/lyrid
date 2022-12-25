@@ -1,23 +1,23 @@
 import queue
 from typing import Dict, List, Callable, SupportsFloat, Tuple
 
-from lyrid.base.actor import ActorProcess
+from lyrid.base.actor import AbstractActor, ActorContext
 from lyrid.core.background_task import BackgroundTaskExecutor
 from lyrid.core.common import IdGenerator, Randomizer
 from lyrid.core.messaging import Address, Message
 from lyrid.core.messenger import MessengerRegisterAddressCompletedMessage, MessengerRegisterAddressMessage, Messenger
 from lyrid.core.node import NodeSpawnProcessCompletedMessage, NodeSpawnProcessMessage
-from lyrid.core.process import ProcessContext, Process
+from lyrid.core.process import Process
 from lyrid.core.system import SpawnChildMessage, SpawnChildCompleted, SystemSpawnActorCompletedReply, Placement
 from ._task import Task, ActorSpawnChildTask
 
 
-class RootActorProcess(ActorProcess):
+class RootActor(AbstractActor):
     def __init__(self, address: Address, messenger: Messenger, messenger_address: Address, id_generator: IdGenerator,
                  randomizer: Randomizer, node_addresses: List[Address], reply_queue: queue.Queue,
                  placements: List[Placement]):
         super().__init__()
-        self.set_context(ProcessContext(address, messenger, BackgroundTaskExecutorDummy(), id_generator=id_generator))
+        self.set_context(ActorContext(address, messenger, BackgroundTaskExecutorDummy(), id_generator=id_generator))
 
         self._reply_queue = reply_queue
         self._messenger_address = messenger_address

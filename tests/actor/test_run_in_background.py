@@ -1,7 +1,7 @@
 from dataclasses import dataclass
 
-from lyrid import VanillaActor, Address, Message
-from tests.factory.actor import create_actor
+from lyrid import Address, Message, AbstractActor
+from tests.factory.actor import create_actor_process
 from tests.mock.background_task_executor import BackgroundTaskExecutorMock
 from tests.mock.id_generator import IdGeneratorMock
 
@@ -11,7 +11,7 @@ class RunSuccessTask(Message):
     pass
 
 
-class ActorWithBackgroundTask(VanillaActor):
+class ActorWithBackgroundTask(AbstractActor):
 
     def on_receive(self, sender: Address, message: Message):
         if isinstance(message, RunSuccessTask):
@@ -24,10 +24,13 @@ class ActorWithBackgroundTask(VanillaActor):
 def test_should_run_task_in_background_with_task_id_and_address_and_args():
     executor = BackgroundTaskExecutorMock()
     id_gen = IdGeneratorMock(generate__return="BgId456")
-    actor = create_actor(ActorWithBackgroundTask, address=Address("$.me"), background_task_executor=executor,
-                         id_gen=id_gen)
 
-    actor.receive(Address("$.someone"), RunSuccessTask())
+    actor = ActorWithBackgroundTask()
+    process = create_actor_process(actor, address=Address("$.me"),
+                                   background_task_executor=executor,
+                                   id_gen=id_gen)
+
+    process.receive(Address("$.someone"), RunSuccessTask())
 
     assert executor.execute__address == Address("$.me") and \
            executor.execute__task_id == "BgId456" and \
@@ -38,7 +41,9 @@ def test_should_run_task_in_background_with_task_id_and_address_and_args():
 def test_should_return_generated_task_id():
     executor = BackgroundTaskExecutorMock()
     id_gen = IdGeneratorMock(generate__return="BgId123")
-    actor = create_actor(ActorWithBackgroundTask, background_task_executor=executor, id_gen=id_gen)
+
+    actor = ActorWithBackgroundTask()
+    _ = create_actor_process(actor, background_task_executor=executor, id_gen=id_gen)
 
     task_id = actor.run_in_background(actor.success_task, args=("x", 456))
 

@@ -1,9 +1,9 @@
 from dataclasses import dataclass
 from typing import Optional
 
-from lyrid import StatefulActor, Switch, Message, Ask
+from lyrid import Switch, Message, Ask, AbstractActor
 from lyrid.core.messaging import Address
-from tests.factory.actor import create_actor
+from tests.factory.actor import create_actor_process
 
 
 @dataclass
@@ -16,7 +16,8 @@ class QuestionB(Message):
     name: str
 
 
-class MyActor(StatefulActor):
+@dataclass
+class MyActor(AbstractActor):
     handle_ask_a__sender: Optional[Address] = None
     handle_ask_a__message: Optional[Message] = None
     handle_ask_a__ref_id: Optional[str] = None
@@ -42,9 +43,10 @@ class MyActor(StatefulActor):
 
 
 def test_should_call_handle_ask_a():
-    actor = create_actor(MyActor)
+    actor = MyActor()
+    process = create_actor_process(actor)
 
-    actor.receive(Address("$.from.me"), Ask(QuestionA(value=123), ref_id="Q1"))
+    process.receive(Address("$.from.me"), Ask(QuestionA(value=123), ref_id="Q1"))
 
     assert actor.handle_ask_a__sender == Address("$.from.me") and \
            actor.handle_ask_a__message == QuestionA(value=123) and \
@@ -53,9 +55,10 @@ def test_should_call_handle_ask_a():
 
 
 def test_should_call_handle_ask_b():
-    actor = create_actor(MyActor)
+    actor = MyActor()
+    process = create_actor_process(actor)
 
-    actor.receive(Address("$.someone"), Ask(QuestionB(name="Shane"), ref_id="Q2"))
+    process.receive(Address("$.someone"), Ask(QuestionB(name="Shane"), ref_id="Q2"))
 
     assert actor.handle_ask_a__sender is actor.handle_ask_a__message is actor.handle_ask_a__ref_id is None
     assert actor.handle_ask_b__sender == Address("$.someone") and \

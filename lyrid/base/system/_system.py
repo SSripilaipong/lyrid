@@ -11,7 +11,7 @@ from lyrid.core.node import TaskScheduler, NodeSpawnProcessMessage, MessageHandl
 from lyrid.core.process import Process
 from lyrid.core.system import SystemSpawnActorCommand, SystemSpawnActorCompletedReply, ActorReplyAskCommand, \
     ActorAskReply, Placement, SystemAskCommand
-from ._root import RootActorProcess
+from ._root import RootActor
 
 
 class ActorSystemBase(ProcessManagingNode):
@@ -35,9 +35,10 @@ class ActorSystemBase(ProcessManagingNode):
             p.policy.set_node_addresses(self._node_addresses)
         self._placements = placements
 
-        self._root = RootActorProcess(root_address, messenger, messenger_address, id_generator, randomizer,
-                                      node_addresses,
-                                      reply_queue, placements)
+        self._root = RootActor(
+            root_address, messenger, messenger_address, id_generator, randomizer,
+            node_addresses, reply_queue, placements,
+        )
 
     def register_running_processors(self, processors: List[CommandProcessingLoop]):
         self._processors += processors
@@ -52,7 +53,7 @@ class ActorSystemBase(ProcessManagingNode):
 
     def handle_processor_command(self, command: Command):
         if isinstance(command, MessageHandlingCommand) and command.receiver == self._root_address:
-            self._root.receive(command.sender, command.message)
+            self._root.on_receive(command.sender, command.message)
         elif isinstance(command, SystemSpawnActorCommand):
             self._node_spawn_process_for_user(command)
         elif isinstance(command, SystemAskCommand):

@@ -1,4 +1,4 @@
-from .actor import ActorProcess
+from .actor import Actor, AbstractActor, ActorProcess
 from .command_processing_loop import MultiProcessedCommandProcessingLoop
 from .messenger import QueueBasedMessenger
 from .node import ProcessManagingNode

@@ -5,7 +5,8 @@ from dataclasses import dataclass
 from typing import Optional, List
 
 from lyrid import (
-    StatefulActor, Switch, Message, Address, field, ActorSystem, VanillaActor, Placement, MatchAll, RoundRobin,
+    Switch, Message, Address, field, ActorSystem, Placement, MatchAll, RoundRobin,
+    AbstractActor, ActorProcess,
 )
 
 
@@ -37,7 +38,17 @@ class Result(Message):
 
 
 # noinspection SpellCheckingInspection
-class Pinger(StatefulActor):
+class Ponger(AbstractActor):
+    switch = Switch()
+    on_receive = switch.on_receive
+
+    @switch.message(type=Ping)
+    def pinged(self, sender: Address, message: Ping):
+        self.tell(sender, Pong(payload=message.payload))
+
+
+# noinspection SpellCheckingInspection
+class Pinger(AbstractActor):
     timestamp: float = .0
     ponger: Optional[Address] = None
     result: List[float] = field(default_factory=list)
@@ -83,23 +94,13 @@ class Pinger(StatefulActor):
 
 
 # noinspection SpellCheckingInspection
-class Ponger(VanillaActor):
-    switch = Switch()
-    on_receive = switch.on_receive
-
-    @switch.message(type=Ping)
-    def pinged(self, sender: Address, message: Ping):
-        self.tell(sender, Pong(payload=message.payload))
-
-
-# noinspection SpellCheckingInspection
 def main():
     n_loop, message_size = 1_000, 10_000
 
     s = ActorSystem(n_nodes=3, placement=[Placement(MatchAll(), RoundRobin())])
-    ponger = s.spawn("ponger", Ponger)
+    ponger = s.spawn("ponger", ActorProcess(Ponger()))
     time.sleep(0.1)
-    pinger = s.spawn("pinger", Pinger, initial_message=Start(ponger, n_loop, message_size))
+    pinger = s.spawn("pinger", ActorProcess(Pinger()), initial_message=Start(ponger, n_loop, message_size))
     time.sleep(0.1)
 
     result = s.ask(pinger, GetResult())

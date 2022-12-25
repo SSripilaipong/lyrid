@@ -1,6 +1,6 @@
 from lyrid.core.messaging import Address
 from tests.actor.actor_mock import MyActor
-from tests.factory.actor import create_actor
+from tests.factory.actor import create_actor_process
 from tests.message_dummy import MessageDummy
 from tests.mock.background_task_executor import BackgroundTaskExecutorMock
 from tests.mock.messenger import MessengerMock
@@ -9,7 +9,10 @@ from tests.mock.messenger import MessengerMock
 def test_should_not_send_message_via_messenger_immediately():
     messenger = MessengerMock()
     executor = BackgroundTaskExecutorMock()
-    actor = create_actor(MyActor, address=Address("$.me"), messenger=messenger, background_task_executor=executor)
+
+    actor = MyActor()
+    _ = create_actor_process(actor, address=Address("$.me"), messenger=messenger,
+                             background_task_executor=executor)
 
     actor.tell(Address("$.you"), MessageDummy("Hello!"), delay=555.123)
 
@@ -19,7 +22,10 @@ def test_should_not_send_message_via_messenger_immediately():
 def test_should_execute_message_sending_in_background_executor():
     messenger = MessengerMock()
     executor = BackgroundTaskExecutorMock()
-    actor = create_actor(MyActor, address=Address("$.from.me"), messenger=messenger, background_task_executor=executor)
+
+    actor = MyActor()
+    _ = create_actor_process(actor, address=Address("$.from.me"), messenger=messenger,
+                             background_task_executor=executor)
 
     actor.tell(Address("$.to.you"), MessageDummy("Yeah!"), delay=123)
     executor.execute_with_delay__task(*executor.execute_with_delay__args)
@@ -31,7 +37,9 @@ def test_should_execute_message_sending_in_background_executor():
 
 def test_should_execute_with_delay():
     executor = BackgroundTaskExecutorMock()
-    actor = create_actor(MyActor, address=Address("$.from.me"), background_task_executor=executor)
+
+    actor = MyActor()
+    _ = create_actor_process(actor, address=Address("$.from.me"), background_task_executor=executor)
 
     actor.tell(Address("$.to.you"), MessageDummy("Yeah!"), delay=123.456)
 

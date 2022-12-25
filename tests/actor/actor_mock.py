@@ -1,23 +1,17 @@
 from dataclasses import dataclass
 from typing import List
 
-from lyrid import VanillaActor
+from lyrid import AbstractActor
 from lyrid.core.messaging import Address, Message
 
 
-class MyActor(VanillaActor):
+class MyActor(AbstractActor):
 
     def on_receive(self, sender: Address, message: Message):
         pass
 
 
-class ChildActorWithContext(VanillaActor):
-
-    def on_receive(self, sender: Address, message: Message):
-        pass
-
-
-class ChildActor(VanillaActor):
+class ChildActor(AbstractActor):
 
     def on_receive(self, sender: Address, message: Message):
         pass
@@ -28,10 +22,8 @@ class StopDummy(Message):
     pass
 
 
-class WillStop(VanillaActor):
+class WillStop(AbstractActor):
     def __init__(self):
-        super(WillStop, self).__init__()
-
         self.on_receive__senders: List[Address] = []
         self.on_receive__messages: List[Message] = []
 
@@ -57,10 +49,8 @@ class FailDummy(Message):
     exception: Exception
 
 
-class WillFail(VanillaActor):
+class WillFail(AbstractActor):
     def __init__(self):
-        super(WillFail, self).__init__()
-
         self.on_receive__senders: List[Address] = []
         self.on_receive__messages: List[Message] = []
 

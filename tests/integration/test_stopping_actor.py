@@ -2,8 +2,8 @@ import time
 from dataclasses import dataclass
 from typing import List, Optional
 
-from lyrid import VanillaActor, ActorSystem, Address, Message, Ask, Placement, MatchAll, \
-    RoundRobin
+from lyrid import AbstractActor, ActorSystem, Address, Message, Ask, Placement, MatchAll, \
+    RoundRobin, ActorProcess
 
 
 # noinspection DuplicatedCode
@@ -38,7 +38,7 @@ class Log(Message):
     records: List[Message]
 
 
-class WillStopMyself(VanillaActor):
+class WillStopMyself(AbstractActor):
     def on_receive(self, sender: Address, message: Message):
         if isinstance(message, Stop):
             self.stop()
@@ -49,7 +49,7 @@ class WillStopMyself(VanillaActor):
         self.tell(Address("$.logger"), IAmStopping(self.address))
 
 
-class TellMeToStop(VanillaActor):
+class TellMeToStop(AbstractActor):
     def on_receive(self, sender: Address, message: Message):
         if isinstance(message, Ask) and isinstance(message.message, Ping):
             self.reply(sender, Pong(), ref_id=message.ref_id)
@@ -58,21 +58,21 @@ class TellMeToStop(VanillaActor):
         self.tell(Address("$.logger"), IAmStopping(self.address))
 
 
-class Parent(VanillaActor):
+class Parent(AbstractActor):
     def on_receive(self, sender: Address, message: Message):
         if isinstance(message, Start):
-            self.spawn("child1", WillStopMyself())
-            self.spawn("child2", TellMeToStop())
-            self.spawn("child3", TellMeToStop())
+            self.spawn("child1", ActorProcess(WillStopMyself()))
+            self.spawn("child2", ActorProcess(TellMeToStop()))
+            self.spawn("child3", ActorProcess(TellMeToStop()))
 
     def on_stop(self):
         self.tell(Address("$.logger"), IAmStopping(self.address))
 
 
-class Grandparent(VanillaActor):
+class Grandparent(AbstractActor):
     def on_receive(self, sender: Address, message: Message):
         if isinstance(message, Start):
-            self.spawn("parent", Parent(), initial_message=Start())
+            self.spawn("parent", ActorProcess(Parent()), initial_message=Start())
         elif isinstance(message, Stop):
             self.stop()
 
@@ -80,7 +80,7 @@ class Grandparent(VanillaActor):
         self.tell(Address("$.logger"), IAmStopping(self.address))
 
 
-class Logger(VanillaActor):
+class Logger(AbstractActor):
     def __init__(self):
         super().__init__()
 
@@ -105,8 +105,8 @@ class Logger(VanillaActor):
 def test_should_receive_all_stop_log():
     # noinspection DuplicatedCode
     system = ActorSystem(n_nodes=1, placement=[Placement(MatchAll(), RoundRobin())])
-    logger = system.spawn("logger", Logger())
-    grandparent = system.spawn("grandparent", Grandparent(), initial_message=Start())
+    logger = system.spawn("logger", ActorProcess(Logger()))
+    grandparent = system.spawn("grandparent", ActorProcess(Grandparent()), initial_message=Start())
     time.sleep(0.005)
     parent = grandparent.child("parent")
     system.ask(parent.child("child1"), Ping())

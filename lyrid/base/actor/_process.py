@@ -1,42 +1,19 @@
-from abc import ABC, abstractmethod
 from contextlib import suppress
-from typing import Optional, Callable, Tuple, SupportsFloat
 
-from lyrid.core.messaging import Address, Message, Reply
-from lyrid.core.process import Process, ProcessStoppedSignal, ChildStopped, SupervisorForceStop, \
-    ProcessContext
-from lyrid.core.system import SpawnChildMessage
+from lyrid.core.messaging import Address, Message
+from lyrid.core.process import Process, ProcessStoppedSignal, ChildStopped, SupervisorForceStop, ProcessContext
+from ._abstract import AbstractActor
 from ._context import ActorContext
 from ._status import ActorStatus
 
 
-class ActorProcess(Process, ABC):
+class ActorProcess(Process):
     _context: ActorContext
 
-    @property
-    def address(self) -> Address:
-        return self._context.address
+    def __init__(self, actor: AbstractActor):
+        self._actor = actor
 
-    def tell(self, receiver: Address, message: Message, *, delay: SupportsFloat = None):
-        if delay is None:
-            self._context.messenger.send(self._context.address, receiver, message)
-        else:
-            self._context.background_task_executor.execute_with_delay(self._context.messenger.send, delay=delay,
-                                                                      args=(self._context.address, receiver, message))
-
-    def reply(self, receiver: Address, message: Message, *, ref_id: str):
-        self.tell(receiver, Reply(message, ref_id=ref_id))
-
-    def spawn(self, key: str, process: Process, *, initial_message: Optional[Message] = None):
-        self._context.messenger.send(self._context.address, self._context.system_address,
-                                     SpawnChildMessage(key=key, initial_message=initial_message, process=process))
-        self._context.active_children.add(self._context.address.child(key))
-
-    def run_in_background(self, task: Callable, *, args: Tuple = ()) -> str:
-        task_id = self._context.id_generator.generate()
-        self._context.background_task_executor.execute(task_id, self.address, task, args=args)
-        return task_id
-
+    # noinspection DuplicatedCode
     def receive(self, sender: Address, message: Message):
         if isinstance(message, ChildStopped):
             self._context.active_children -= {message.child_address}
@@ -48,15 +25,12 @@ class ActorProcess(Process, ABC):
         elif self._context.status is ActorStatus.STOPPING:
             self._receive_when_stopping(sender, message)
 
-    def stop(self):
-        raise ProcessStoppedSignal()
-
-    @abstractmethod
     def on_receive(self, sender: Address, message: Message):
-        pass
+        self._actor.set_context(self._context)
+        return self._actor.on_receive(sender, message)
 
     def on_stop(self):
-        pass
+        self._actor.on_stop()
 
     def _receive_when_active(self, sender: Address, message: Message):
         try:
@@ -72,19 +46,22 @@ class ActorProcess(Process, ABC):
         self._context.status = ActorStatus.STOPPING
         self._context.stopped_message_to_report = ChildStopped(child_address=self._context.address, exception=exception)
         if not self._context.active_children:
-            self.tell(self._context.address.supervisor(), self._context.stopped_message_to_report)
+            self._context.messenger.send(self._context.address, self._context.address.supervisor(),
+                                         self._context.stopped_message_to_report)
             raise ProcessStoppedSignal()
         else:
             for child in self._context.active_children:
-                self.tell(child, SupervisorForceStop(address=child))
+                self._context.messenger.send(self._context.address, child, SupervisorForceStop(address=child))
 
     def _receive_when_stopping(self, _: Address, __: Message):
         if not self._context.active_children:
             if self._context.stopped_message_to_report is not None:
-                self.tell(self._context.address.supervisor(), self._context.stopped_message_to_report)
+                self._context.messenger.send(self._context.address, self._context.address.supervisor(),
+                                             self._context.stopped_message_to_report)
             raise ProcessStoppedSignal()
 
     def set_context(self, context: ProcessContext):
         self._context = ActorContext(
             context.address, context.messenger, context.background_task_executor, context.id_generator,
         )
+        self._actor.set_context(self._context)

@@ -1,8 +1,8 @@
 import time
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from typing import Optional, List
 
-from lyrid import Address, Message, field, ActorSystem, StatefulActor, Ask
+from lyrid import Address, Message, ActorSystem, Ask, AbstractActor, ActorProcess
 
 
 class Start(Message):
@@ -23,7 +23,8 @@ class HelloList(Message):
     data: List[Hello]
 
 
-class Greeter(StatefulActor):
+@dataclass
+class Greeter(AbstractActor):
     hello_list: List[Hello] = field(default_factory=list)
     reply_to: Optional[Address] = None
     ref_id: Optional[str] = None
@@ -45,7 +46,7 @@ class Greeter(StatefulActor):
 # noinspection DuplicatedCode
 def test_should_get_hello_2_before_hello_1():
     system = ActorSystem(n_nodes=1)
-    greeter = system.spawn("greeter", Greeter())
+    greeter = system.spawn("greeter", ActorProcess(Greeter()))
     time.sleep(0.05)
     system.tell(greeter, Start())
     time.sleep(0.05)

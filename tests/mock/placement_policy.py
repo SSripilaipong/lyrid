@@ -1,7 +1,6 @@
 from typing import List, Optional, Type
 
 from lyrid import Address, PlacementPolicy
-from lyrid.core.process import Process
 from lyrid.core.system import PlacementPolicyMatcher
 
 
@@ -22,8 +21,8 @@ class PlacementPolicyMatcherMock(PlacementPolicyMatcher):
     def __init__(self, match__return: bool = False):
         self._match__return = match__return
 
-        self.match__type: Optional[Type[Process]] = None
+        self.match__type: Optional[Type] = None
 
-    def match(self, type_: Type[Process]) -> bool:
+    def match(self, type_: Type) -> bool:
         self.match__type = type_
         return self._match__return

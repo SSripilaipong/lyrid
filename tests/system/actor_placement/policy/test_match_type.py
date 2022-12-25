@@ -1,4 +1,4 @@
-from lyrid import VanillaActor, Address, Message, MatchType
+from lyrid import Address, Message, MatchType, AbstractActor
 
 
 def test_should_return_true_when_type_is_matched():
@@ -13,12 +13,12 @@ def test_should_return_true_when_type_is_subclass():
     assert MatchType(ProcessDummyA).match(ProcessDummyASub) is True
 
 
-class ProcessDummyA(VanillaActor):
+class ProcessDummyA(AbstractActor):
     def on_receive(self, sender: Address, message: Message):
         pass
 
 
-class ProcessDummyB(VanillaActor):
+class ProcessDummyB(AbstractActor):
     def on_receive(self, sender: Address, message: Message):
         pass
 

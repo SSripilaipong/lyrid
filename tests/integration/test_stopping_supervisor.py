@@ -2,7 +2,7 @@ import time
 from dataclasses import dataclass
 from typing import List, Optional
 
-from lyrid import VanillaActor, ActorSystem, Address, Message, Ask, ChildStopped
+from lyrid import AbstractActor, ActorSystem, Address, Message, Ask, ChildStopped, ActorProcess
 
 
 # noinspection DuplicatedCode
@@ -37,7 +37,7 @@ class Log(Message):
     records: List[Message]
 
 
-class Child(VanillaActor):
+class Child(AbstractActor):
     def on_receive(self, sender: Address, message: Message):
         if isinstance(message, Ask) and isinstance(message.message, Ping):
             self.reply(sender, Pong(), ref_id=message.ref_id)
@@ -46,10 +46,10 @@ class Child(VanillaActor):
         self.tell(Address("$.logger"), IAmStopping(self.address))
 
 
-class Parent(VanillaActor):
+class Parent(AbstractActor):
     def on_receive(self, sender: Address, message: Message):
         if isinstance(message, Start):
-            self.spawn("child", Child())
+            self.spawn("child", ActorProcess(Child()))
         elif isinstance(message, Stop):
             self.stop()
 
@@ -57,15 +57,15 @@ class Parent(VanillaActor):
         self.tell(Address("$.logger"), IAmStopping(self.address))
 
 
-class Grandparent(VanillaActor):
+class Grandparent(AbstractActor):
     def on_receive(self, sender: Address, message: Message):
         if isinstance(message, Start):
-            self.spawn("parent", Parent(), initial_message=Start())
+            self.spawn("parent", ActorProcess(Parent()), initial_message=Start())
         elif isinstance(message, ChildStopped):
             self.tell(Address("$.logger"), message)
 
 
-class Logger(VanillaActor):
+class Logger(AbstractActor):
     def __init__(self):
         super().__init__()
 
@@ -90,8 +90,8 @@ class Logger(VanillaActor):
 def test_should_receive_all_stop_log():
     # noinspection DuplicatedCode
     system = ActorSystem(n_nodes=1)
-    logger = system.spawn("logger", Logger())
-    grandparent = system.spawn("grandparent", Grandparent(), initial_message=Start())
+    logger = system.spawn("logger", ActorProcess(Logger()))
+    grandparent = system.spawn("grandparent", ActorProcess(Grandparent()), initial_message=Start())
     time.sleep(0.008)
     parent = grandparent.child("parent")
     system.ask(parent.child("child"), Ping())

@@ -1,9 +1,9 @@
 from dataclasses import dataclass
 from typing import Optional
 
-from lyrid import StatefulActor, Switch, Message
+from lyrid import Switch, Message, AbstractActor
 from lyrid.core.messaging import Address
-from tests.factory.actor import create_actor
+from tests.factory.actor import create_actor_process
 
 
 @dataclass
@@ -16,7 +16,8 @@ class MessageB(Message):
     name: str
 
 
-class MyActor(StatefulActor):
+@dataclass
+class MyActor(AbstractActor):
     handle_a__sender: Optional[Address] = None
     handle_a__message: Optional[Message] = None
     handle_b__sender: Optional[Address] = None
@@ -37,18 +38,20 @@ class MyActor(StatefulActor):
 
 
 def test_should_call_handle_a():
-    actor = create_actor(MyActor)
+    actor = MyActor()
+    process = create_actor_process(actor)
 
-    actor.receive(Address("$.from.me"), MessageA(value=123))
+    process.receive(Address("$.from.me"), MessageA(value=123))
 
     assert actor.handle_a__sender == Address("$.from.me") and actor.handle_a__message == MessageA(value=123)
     assert actor.handle_b__sender is None and actor.handle_b__message is None
 
 
 def test_should_call_handle_b():
-    actor = create_actor(MyActor)
+    actor = MyActor()
+    process = create_actor_process(actor)
 
-    actor.receive(Address("$.someone"), MessageB(name="Shane"))
+    process.receive(Address("$.someone"), MessageB(name="Shane"))
 
     assert actor.handle_a__sender is None and actor.handle_a__message is None
     assert actor.handle_b__sender == Address("$.someone") and actor.handle_b__message == MessageB(name="Shane")
