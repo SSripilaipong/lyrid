@@ -13,6 +13,11 @@ class ActorProcess(Process):
     def __init__(self, initial_actor: AbstractActor):
         self._actor = initial_actor
 
+    def __eq__(self, other):
+        if not isinstance(other, ActorProcess):
+            return False
+        return self._actor is other._actor
+
     @property
     def actor(self) -> AbstractActor:
         return self._actor

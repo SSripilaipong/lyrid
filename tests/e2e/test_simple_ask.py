@@ -17,7 +17,7 @@ class Greeter(Actor):
 
 def test_should_should_reply_ask():
     system = ActorSystem(n_nodes=1)
-    greeter = system.spawn("greeter", Greeter())
+    greeter = system.spawn(Greeter(), key="greeter")
     reply = system.ask(greeter, Greeting("Hello there"))
     system.force_stop()
     assert reply == Greeting("Hi!")

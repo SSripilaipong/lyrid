@@ -92,9 +92,9 @@ def main():
     n_loop, message_size = 1_000, 10_000
 
     s = ActorSystem(n_nodes=3, placement=[Placement(MatchAll(), RoundRobin())])
-    ponger = s.spawn("ponger", Ponger())
+    ponger = s.spawn(Ponger(), key="ponger")
     time.sleep(0.1)
-    pinger = s.spawn("pinger", Pinger(), initial_message=Start(ponger, n_loop, message_size))
+    pinger = s.spawn(Pinger(), key="pinger", initial_message=Start(ponger, n_loop, message_size))
     time.sleep(0.1)
 
     result = s.ask(pinger, GetResult())

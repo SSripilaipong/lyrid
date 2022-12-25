@@ -73,7 +73,8 @@ class ActorSystemBase(ProcessManagingNode):
         node = self._root.choose_placement_node(command.process)
         self._messenger.send(self._address, node, msg)
 
-    def spawn(self, key: str, actor: Actor, *, initial_message: Optional[Message] = None) -> Address:
+    def spawn(self, actor: Actor, *, key: str = None, initial_message: Optional[Message] = None) -> Address:
+        key = key or self._id_generator.generate()
         process = ActorProcess(actor)
         self._processor.process(SystemSpawnActorCommand(key=key, process=process, initial_message=initial_message))
         reply: SystemSpawnActorCompletedReply = self._reply_queue.get()

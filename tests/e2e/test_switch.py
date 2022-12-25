@@ -43,7 +43,7 @@ class MyActor(Actor):
 
 def test_main():
     system = ActorSystem()
-    my_actor = system.spawn("my_actor", MyActor())
+    my_actor = system.spawn(MyActor(), key="my_actor")
 
     try:
         assert system.ask(my_actor, GetN()) == NValue(0)

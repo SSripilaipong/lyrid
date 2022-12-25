@@ -23,12 +23,9 @@ def test_should_let_processor_process_spawn_actor_command_when_spawn_is_called()
     system = create_actor_system(processor=processor, reply_queue=reply_queue)
 
     actor = ActorMock()
-    system.spawn("hello", actor)
+    system.spawn(actor, key="hello")
 
-    assert isinstance(processor.process__command, SystemSpawnActorCommand) and \
-           processor.process__command.key == "hello" and \
-           isinstance(processor.process__command.process, ActorProcess) and \
-           processor.process__command.process.actor == actor
+    assert processor.process__command == SystemSpawnActorCommand(key="hello", process=ActorProcess(actor))
 
 
 def test_should_let_processor_process_spawn_actor_command_with_initial_message_if_not_none():
@@ -38,13 +35,23 @@ def test_should_let_processor_process_spawn_actor_command_with_initial_message_i
     system = create_actor_system(processor=processor, reply_queue=reply_queue)
 
     actor = ActorMock()
-    system.spawn("hello", actor, initial_message=MessageDummy("Do It!"))
+    system.spawn(actor, key="hello", initial_message=MessageDummy("Do It!"))
 
-    assert isinstance(processor.process__command, SystemSpawnActorCommand) and \
-           processor.process__command.key == "hello" and \
-           processor.process__command.initial_message == MessageDummy("Do It!") and \
-           isinstance(processor.process__command.process, ActorProcess) and \
-           processor.process__command.process.actor == actor
+    assert processor.process__command == SystemSpawnActorCommand(key="hello", process=ActorProcess(actor),
+                                                                 initial_message=MessageDummy("Do It!"))
+
+
+def test_should_generate_random_key_when_not_specified():
+    processor = ProcessorMock()
+    reply_queue = queue.Queue()
+    reply_queue.put(SystemSpawnActorCompletedReply(address=Address("$.hello")))
+    system = create_actor_system(processor=processor, reply_queue=reply_queue,
+                                 id_generator=IdGeneratorMock(generate__return="GenId1234"))
+
+    actor = ActorMock()
+    system.spawn(actor)
+
+    assert processor.process__command == SystemSpawnActorCommand(key="GenId1234", process=ActorProcess(actor))
 
 
 def test_should_send_spawn_actor_message_to_manager_via_messenger_when_handling_spawn_actor_processor_command():
@@ -121,6 +128,6 @@ def test_should_get_reply_from_reply_queue_and_return_spawned_address():
     reply_queue.put(SystemSpawnActorCompletedReply(address=Address("$.new")))
     system = create_actor_system(reply_queue=reply_queue)
 
-    address = system.spawn("new", ActorMock())
+    address = system.spawn(ActorMock(), key="new")
 
     assert address == Address("$.new")

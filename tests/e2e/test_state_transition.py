@@ -47,7 +47,7 @@ def test_should_transit_state_back_and_forth():
     system = ActorSystem(n_nodes=1)
 
     try:
-        banner = system.spawn("banner", Banner())
+        banner = system.spawn(Banner(), key="banner")
         time.sleep(0.03)
 
         assert system.ask(banner, WhoAreYou()) == IAm('Banner')
