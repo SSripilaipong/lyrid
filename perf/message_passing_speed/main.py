@@ -1,13 +1,10 @@
 import random
 import string
 import time
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from typing import Optional, List
 
-from lyrid import (
-    Switch, Message, Address, field, ActorSystem, Placement, MatchAll, RoundRobin,
-    AbstractActor, ActorProcess,
-)
+from lyrid import Switch, Message, Address, ActorSystem, Placement, MatchAll, RoundRobin, AbstractActor, ActorProcess
 
 
 @dataclass
@@ -48,6 +45,7 @@ class Ponger(AbstractActor):
 
 
 # noinspection SpellCheckingInspection
+@dataclass
 class Pinger(AbstractActor):
     timestamp: float = .0
     ponger: Optional[Address] = None
