@@ -1,2 +1,1 @@
-from .spawnable import spawnable
-from .switch import Switch
+from .switch import use_switch, switch

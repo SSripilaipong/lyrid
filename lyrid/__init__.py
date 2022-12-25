@@ -1,5 +1,5 @@
 from lyrid._actor_system import ActorSystem
-from lyrid.api.actor import Switch, spawnable
+from lyrid.api.actor import switch, use_switch
 from lyrid.base import ActorProcess, Actor
 from lyrid.base.system.placement import MatchAll, MatchType, RoundRobin
 from lyrid.core.background_task import BackgroundTaskExited

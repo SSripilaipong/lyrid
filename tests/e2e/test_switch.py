@@ -1,6 +1,6 @@
 from dataclasses import dataclass
 
-from lyrid import Switch, Message, Address, ActorSystem, Actor
+from lyrid import Message, Address, ActorSystem, Actor, use_switch, switch
 
 
 @dataclass
@@ -23,12 +23,10 @@ class NValue(Message):
     n: int
 
 
+@use_switch
 @dataclass
 class MyActor(Actor):
     n: int = 0
-
-    switch = Switch()
-    on_receive = switch.on_receive
 
     @switch.message(type=IncreaseN)
     def increase_n(self, message: IncreaseN):

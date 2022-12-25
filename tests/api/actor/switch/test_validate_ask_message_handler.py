@@ -2,7 +2,7 @@ from typing import Optional
 
 from pytest import raises
 
-from lyrid import Switch, Message, Address, Ask, Actor
+from lyrid import Message, Address, Ask, Actor, use_switch, switch
 from lyrid.api.actor.switch.handle_policy.error_message import invalid_argument_for_method_error, \
     argument_in_method_must_be_included_as_type_error, argument_in_method_must_be_annotated_as_type_error
 from tests.factory.actor import create_actor_process
@@ -12,13 +12,11 @@ class CallHandleWithoutMessage(Message):
     pass
 
 
+@use_switch
 class MyActor(Actor):
     handle_without_message__sender: Optional[Address] = None
     handle_without_message__ref_id: Optional[str] = None
     handle_message_only__message: Optional[Message] = None
-
-    switch = Switch()
-    on_receive = switch.on_receive
 
     @switch.ask(type=CallHandleWithoutMessage)
     def handle_without_message(self, sender: Address, ref_id: str):
@@ -41,10 +39,8 @@ def test_should_raise_type_error_when_sender_argument_is_missing():
         pass
 
     with raises(TypeError) as e:
+        @use_switch
         class A(Actor):
-            switch = Switch()
-            on_receive = switch.on_receive
-
             @switch.ask(type=M1)
             def my_func(self, message: M1, ref_id: str):
                 pass
@@ -57,10 +53,8 @@ def test_should_raise_type_error_when_ref_id_argument_is_missing():
         pass
 
     with raises(TypeError) as e:
+        @use_switch
         class A(Actor):
-            switch = Switch()
-            on_receive = switch.on_receive
-
             @switch.ask(type=M1)
             def my_func_2(self, message: M1, sender: Address):
                 pass
@@ -70,10 +64,8 @@ def test_should_raise_type_error_when_ref_id_argument_is_missing():
 
 def test_should_raise_type_error_when_invalid_argument_name_is_specified():
     with raises(TypeError) as e:
+        @use_switch
         class A(Actor):
-            switch = Switch()
-            on_receive = switch.on_receive
-
             @switch.ask(type=Message)
             def fn(self, sender: Address, ref_id: str, bb: Message):
                 pass
@@ -83,10 +75,8 @@ def test_should_raise_type_error_when_invalid_argument_name_is_specified():
 
 def test_should_raise_type_error_when_sender_argument_is_specified_with_wrong_type_annotation():
     with raises(TypeError) as e:
+        @use_switch
         class A(Actor):
-            switch = Switch()
-            on_receive = switch.on_receive
-
             @switch.ask(type=Message)
             def fx(self, sender: str, message: Message, ref_id: str):
                 pass
@@ -102,10 +92,8 @@ def test_should_raise_type_error_when_message_argument_is_specified_with_wrong_t
         pass
 
     with raises(TypeError) as e:
+        @use_switch
         class A(Actor):
-            switch = Switch()
-            on_receive = switch.on_receive
-
             @switch.ask(type=Msg1)
             def my_func(self, sender: Address, message: Msg2, ref_id: str):
                 pass
@@ -118,10 +106,8 @@ def test_should_raise_type_error_when_ref_id_argument_is_specified_with_wrong_ty
         pass
 
     with raises(TypeError) as e:
+        @use_switch
         class A(Actor):
-            switch = Switch()
-            on_receive = switch.on_receive
-
             @switch.ask(type=Msg)
             def func(self, sender: Address, message: Msg, ref_id: int):
                 pass

@@ -3,7 +3,7 @@ from typing import Optional
 
 from pytest import raises
 
-from lyrid import Switch, Message, Address, Actor
+from lyrid import Message, Address, Actor, use_switch, switch
 from lyrid.api.actor.switch.handle_policy.error_message import invalid_argument_for_method_error, \
     argument_in_method_must_be_annotated_as_type_error
 from tests.factory.actor import create_actor_process
@@ -18,13 +18,11 @@ class CallHandleMessageOnly(Message):
     val: int
 
 
+@use_switch
 @dataclass
 class MyActor(Actor):
     handle_sender_only__sender: Optional[Address] = None
     handle_message_only__message: Optional[Message] = None
-
-    switch = Switch()
-    on_receive = switch.on_receive
 
     @switch.message(type=CallHandleSenderOnly)
     def handle_sender_only(self, sender: Address):
@@ -55,10 +53,8 @@ def test_should_allow_handler_with_message_parameter_only():
 
 def test_should_raise_type_error_when_invalid_argument_name_is_specified():
     with raises(TypeError) as e:
+        @use_switch
         class A(Actor):
-            switch = Switch()
-            on_receive = switch.on_receive
-
             @switch.message(type=Message)
             def func(self, aaa: Address):
                 pass
@@ -68,10 +64,8 @@ def test_should_raise_type_error_when_invalid_argument_name_is_specified():
 
 def test_should_raise_type_error_when_sender_argument_is_specified_with_wrong_type_annotation():
     with raises(TypeError) as e:
+        @use_switch
         class A(Actor):
-            switch = Switch()
-            on_receive = switch.on_receive
-
             @switch.message(type=Message)
             def my_func(self, sender: int, message: Message):
                 pass
@@ -87,10 +81,8 @@ def test_should_raise_type_error_when_message_argument_is_specified_with_wrong_t
         pass
 
     with raises(TypeError) as e:
+        @use_switch
         class A(Actor):
-            switch = Switch()
-            on_receive = switch.on_receive
-
             @switch.message(type=M1)
             def my_func_2(self, sender: Address, message: M2):
                 pass

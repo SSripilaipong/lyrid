@@ -1,7 +1,7 @@
 from dataclasses import dataclass
 from typing import Optional
 
-from lyrid import Switch, Message, Actor
+from lyrid import Message, Actor, switch, use_switch
 from lyrid.core.messaging import Address
 from tests.factory.actor import create_actor_process
 
@@ -16,15 +16,13 @@ class MessageB(Message):
     name: str
 
 
+@use_switch
 @dataclass
 class MyActor(Actor):
     handle_a__sender: Optional[Address] = None
     handle_a__message: Optional[Message] = None
     handle_b__sender: Optional[Address] = None
     handle_b__message: Optional[Message] = None
-
-    switch = Switch()
-    on_receive = switch.on_receive
 
     @switch.message(type=MessageA)
     def handle_a(self, sender: Address, message: MessageA):

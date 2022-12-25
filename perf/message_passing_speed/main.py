@@ -4,7 +4,7 @@ import time
 from dataclasses import dataclass, field
 from typing import Optional, List
 
-from lyrid import Switch, Message, Address, ActorSystem, Placement, MatchAll, RoundRobin, Actor
+from lyrid import Message, Address, ActorSystem, Placement, MatchAll, RoundRobin, Actor, use_switch, switch
 
 
 @dataclass
@@ -35,16 +35,15 @@ class Result(Message):
 
 
 # noinspection SpellCheckingInspection
+@use_switch
 class Ponger(Actor):
-    switch = Switch()
-    on_receive = switch.on_receive
-
     @switch.message(type=Ping)
     def pinged(self, sender: Address, message: Ping):
         self.tell(sender, Pong(payload=message.payload))
 
 
 # noinspection SpellCheckingInspection
+@use_switch
 @dataclass
 class Pinger(Actor):
     timestamp: float = .0
@@ -55,9 +54,6 @@ class Pinger(Actor):
 
     user: Optional[Address] = None
     user_ref: Optional[str] = None
-
-    switch = Switch()
-    on_receive = switch.on_receive
 
     @switch.message(type=Start)
     def start(self, message: Start):
