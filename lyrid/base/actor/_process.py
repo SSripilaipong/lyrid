@@ -1,4 +1,5 @@
 from contextlib import suppress
+from dataclasses import dataclass, field
 
 from lyrid.core.messaging import Address, Message
 from lyrid.core.process import Process, ProcessStoppedSignal, ChildStopped, SupervisorForceStop, ProcessContext
@@ -7,20 +8,10 @@ from ._actor import ActorContext
 from ._status import ActorStatus
 
 
+@dataclass
 class ActorProcess(Process):
-    _context: ActorContext
-
-    def __init__(self, initial_actor: AbstractActor):
-        self._actor = initial_actor
-
-    def __eq__(self, other):
-        if not isinstance(other, ActorProcess):
-            return False
-        return self._actor is other._actor
-
-    @property
-    def actor(self) -> AbstractActor:
-        return self._actor
+    _actor: AbstractActor
+    _context: ActorContext = field(init=False, compare=False)  # just for type hinting
 
     # noinspection DuplicatedCode
     def receive(self, sender: Address, message: Message):

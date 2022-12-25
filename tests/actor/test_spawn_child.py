@@ -4,6 +4,7 @@ from lyrid.core.system import SpawnChildMessage
 from tests.factory.actor import create_actor_process
 from tests.message_dummy import MessageDummy
 from tests.mock.actor import ActorMock
+from tests.mock.id_generator import IdGeneratorMock
 from tests.mock.messenger import MessengerMock
 
 
@@ -13,14 +14,25 @@ def test_should_send_actor_spawn_child_actor_message_to_system():
     _ = create_actor_process(actor, address=Address("$.supervisor.me"), messenger=messenger)
 
     child = ActorMock()
-    actor.spawn("my_child", child)
+    actor.spawn(child, key="my_child")
 
     assert messenger.send__sender == Address("$.supervisor.me") and \
            messenger.send__receiver == Address("$") and \
-           isinstance(messenger.send__message, SpawnChildMessage) and \
-           messenger.send__message.key == "my_child" and \
-           isinstance(messenger.send__message.process, ActorProcess) and \
-           messenger.send__message.process.actor == child
+           messenger.send__message == SpawnChildMessage(key="my_child", process=ActorProcess(child))
+
+
+def test_should_generate_random_key_when_not_specified():
+    messenger = MessengerMock()
+    actor = ActorMock()
+    _ = create_actor_process(actor, address=Address("$.parent"), messenger=messenger,
+                             id_gen=IdGeneratorMock(generate__return="Id999"))
+
+    child = ActorMock()
+    actor.spawn(child)
+
+    assert messenger.send__sender == Address("$.parent") and \
+           messenger.send__receiver == Address("$") and \
+           messenger.send__message == SpawnChildMessage(key="Id999", process=ActorProcess(child))
 
 
 def test_should_send_actor_spawn_child_actor_message_with_initial_message():
@@ -29,12 +41,9 @@ def test_should_send_actor_spawn_child_actor_message_with_initial_message():
     _ = create_actor_process(actor, address=Address("$.me"), messenger=messenger)
 
     child = ActorMock()
-    actor.spawn("my_child", child, initial_message=MessageDummy("Wake Up!"))
+    actor.spawn(child, key="my_child", initial_message=MessageDummy("Wake Up!"))
 
     assert messenger.send__sender == Address("$.me") and \
            messenger.send__receiver == Address("$") and \
-           isinstance(messenger.send__message, SpawnChildMessage) and \
-           messenger.send__message.initial_message == MessageDummy("Wake Up!") and \
-           messenger.send__message.key == "my_child" and \
-           isinstance(messenger.send__message.process, ActorProcess) and \
-           messenger.send__message.process.actor == child
+           messenger.send__message == SpawnChildMessage(key="my_child", process=ActorProcess(child),
+                                                        initial_message=MessageDummy("Wake Up!"))

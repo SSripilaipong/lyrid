@@ -37,7 +37,8 @@ class Actor(AbstractActor):
     def reply(self, receiver: Address, message: Message, *, ref_id: str):
         self.tell(receiver, Reply(message, ref_id=ref_id))
 
-    def spawn(self, key: str, actor: 'Actor', *, initial_message: Optional[Message] = None):
+    def spawn(self, actor: 'Actor', *, key: str = None, initial_message: Optional[Message] = None):
+        key = key or self._context.id_generator.generate()
         process = ActorProcess(actor)
         self._context.messenger.send(self._context.address, self._context.system_address,
                                      SpawnChildMessage(key=key, initial_message=initial_message, process=process))

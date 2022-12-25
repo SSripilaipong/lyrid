@@ -61,9 +61,9 @@ class TellMeToStop(Actor):
 class Parent(Actor):
     def on_receive(self, sender: Address, message: Message):
         if isinstance(message, Start):
-            self.spawn("child1", WillStopMyself())
-            self.spawn("child2", TellMeToStop())
-            self.spawn("child3", TellMeToStop())
+            self.spawn(WillStopMyself(), key="child1")
+            self.spawn(TellMeToStop(), key="child2")
+            self.spawn(TellMeToStop(), key="child3")
 
     def on_stop(self):
         self.tell(Address("$.logger"), IAmStopping(self.address))
@@ -72,7 +72,7 @@ class Parent(Actor):
 class Grandparent(Actor):
     def on_receive(self, sender: Address, message: Message):
         if isinstance(message, Start):
-            self.spawn("parent", Parent(), initial_message=Start())
+            self.spawn(Parent(), key="parent", initial_message=Start())
         elif isinstance(message, Stop):
             self.stop()
 
