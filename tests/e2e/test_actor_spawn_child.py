@@ -25,7 +25,7 @@ class First(Actor):
 
     def on_receive(self, sender: Address, message: Message):
         if isinstance(message, SpawnSecond):
-            self.spawn(Second(), key="second")
+            self.spawn(Second())
         elif isinstance(message, Ask) and isinstance(message.message, GreetSecond):
             self.reply_to = sender
             self.ref_id = message.ref_id
@@ -53,7 +53,7 @@ class Second(Actor):
 
 def test_should_spawn_and_ask_second_actor():
     system = ActorSystem(n_nodes=1)
-    first = system.spawn(First(), key="first", initial_message=SpawnSecond())
+    first = system.spawn(First(), initial_message=SpawnSecond())
 
     second_response = system.ask(first, GreetSecond())
 
