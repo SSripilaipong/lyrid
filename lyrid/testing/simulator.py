@@ -1,10 +1,10 @@
-from lyrid.base.actor import Actor
+from lyrid.base.actor import ActorProcess
 from lyrid.core.messaging import Message, Address
 
 
 class Simulator:
-    def __init__(self, actor: Actor):
-        self._actor = actor
+    def __init__(self, process: ActorProcess):
+        self._process = process
 
     def tell(self, message: Message, by: Address):
-        self._actor.on_receive(by, message)
+        self._process.receive(by, message)
