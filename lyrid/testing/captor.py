@@ -1,7 +1,7 @@
 from dataclasses import dataclass
 from typing import Optional, SupportsFloat, List
 
-from lyrid.core.messaging import Address, Message, LyridMessage
+from lyrid.core.messaging import Address, Message, LyridMessage, Reply
 from .probe import MessengerProbe, BackgroundTaskExecutorProbe
 from .probe.background_task_executor import ExecuteWithDelayEvent
 from .probe.messenger import SendEvent
@@ -18,6 +18,7 @@ class Captor:
     def __init__(self, messenger: MessengerProbe, bg_task_executor: BackgroundTaskExecutorProbe):
         self._messenger = messenger
         self._messages: List[CapturedMessage] = []
+        self._replies: List[Reply] = []
 
         self._messenger.send__subscribe(self.__messenger__send)
         bg_task_executor.execute_with_delay__subscribe(self.__background_task_executor__execute_with_delay)
@@ -28,10 +29,16 @@ class Captor:
     def clear_messages(self):
         self._messages = []
 
+    def get_reply(self, ref_id: str) -> Message:
+        return self._replies[0].message
+
     def __messenger__send(self, event: SendEvent):
-        if isinstance(event.message, LyridMessage):
+        if isinstance(event.message, Reply):
+            self._replies.append(event.message)
+        elif isinstance(event.message, LyridMessage):
             return
-        self._messages.append(CapturedMessage(event.receiver, event.message))
+        else:
+            self._messages.append(CapturedMessage(event.receiver, event.message))
 
     def __background_task_executor__execute_with_delay(self, event: ExecuteWithDelayEvent):
         if event.task != self._messenger.send:
