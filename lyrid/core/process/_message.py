@@ -1,7 +1,7 @@
 from dataclasses import dataclass
 from typing import Optional
 
-from lyrid.core.messaging import Message, Address, LyridMessage
+from lyrid.core.messaging import Address, LyridMessage
 
 
 @dataclass(frozen=True)
@@ -11,5 +11,5 @@ class ChildStopped(LyridMessage):
 
 
 @dataclass(frozen=True)
-class SupervisorForceStop(Message):
+class SupervisorForceStop(LyridMessage):
     address: Address

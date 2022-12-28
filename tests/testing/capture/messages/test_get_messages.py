@@ -73,3 +73,16 @@ def test_should_ignore_child_stopped_messages_when_stopping():
     assert tester.capture.get_messages() == [
         CapturedMessage(Address("$.you"), MessageDummy("Important"), delay=None),
     ]
+
+
+def test_should_ignore_supervisor_force_stop_messages_when_stopping():
+    actor = ActorMock()
+    tester = ActorTester(actor)
+
+    actor.tell(Address("$.you"), MessageDummy("Important"))
+    actor.spawn(ActorMock())
+    tester.simulate.tell(ActorMockStop(), Address("$.me"))
+
+    assert tester.capture.get_messages() == [
+        CapturedMessage(Address("$.you"), MessageDummy("Important"), delay=None),
+    ]
