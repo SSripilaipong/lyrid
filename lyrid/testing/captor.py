@@ -2,7 +2,9 @@ from dataclasses import dataclass
 from typing import Optional, SupportsFloat, List
 
 from lyrid.core.messaging import Address, Message
-from .mock import MessengerForTesting, BackgroundTaskExecutorForTesting
+from .probe import MessengerProbe, BackgroundTaskExecutorProbe
+from .probe.background_task_executor import ExecuteWithDelayEvent
+from .probe.messenger import SendEvent
 
 
 @dataclass(frozen=True)
@@ -13,26 +15,25 @@ class CapturedMessage:
 
 
 class Captor:
-    def __init__(self, messenger: MessengerForTesting, bg_task_executor: BackgroundTaskExecutorForTesting):
+    def __init__(self, messenger: MessengerProbe, bg_task_executor: BackgroundTaskExecutorProbe):
         self._messenger = messenger
-        self._bg_task_executor = bg_task_executor
+        self._messages: List[CapturedMessage] = []
+
+        self._messenger.send__subscribe(self.__messenger__send)
+        bg_task_executor.execute_with_delay__subscribe(self.__background_task_executor__execute_with_delay)
 
     def get_messages(self) -> List[CapturedMessage]:
-        result: List[CapturedMessage] = []
+        return list(self._messages)
 
-        executor = self._bg_task_executor
-        if executor.execute_with_delay__tasks:
-            delayed_tasks = zip(
-                executor.execute_with_delay__tasks, executor.execute_with_delay__delays,
-                executor.execute_with_delay__args,
-            )
-            result.extend(
-                CapturedMessage(receiver, message, delay=delay)
-                for task, delay, (_, receiver, message) in filter(lambda t: t[0] == self._messenger.send, delayed_tasks)
-            )
+    def clear_messages(self):
+        self._messages = []
 
-        receivers = self._messenger.send__receivers
-        messages = self._messenger.send__messages
+    def __messenger__send(self, event: SendEvent):
+        self._messages.append(CapturedMessage(event.receiver, event.message))
 
-        result.extend(CapturedMessage(receiver, message, delay=None) for receiver, message in zip(receivers, messages))
-        return result
+    def __background_task_executor__execute_with_delay(self, event: ExecuteWithDelayEvent):
+        if event.task != self._messenger.send:
+            return
+
+        _, receiver, message = event.args
+        self._messages.append(CapturedMessage(receiver, message, delay=event.delay))

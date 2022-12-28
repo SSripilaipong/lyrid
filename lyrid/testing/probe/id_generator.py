@@ -1,7 +1,7 @@
 from lyrid.core.common import IdGenerator
 
 
-class IdGeneratorForTesting(IdGenerator):
+class IdGeneratorForProbe(IdGenerator):
 
     def generate(self) -> str:
         pass

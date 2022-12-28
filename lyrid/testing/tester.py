@@ -1,19 +1,19 @@
 from lyrid.base.actor import Actor
 from .captor import Captor
-from .mock import BackgroundTaskExecutorForTesting, MessengerForTesting, IdGeneratorForTesting
+from .probe import BackgroundTaskExecutorProbe, MessengerProbe, IdGeneratorForProbe
 from .simulator import Simulator
 from .. import Address, ActorProcess, ProcessContext
 
 
 class ActorTester:
     def __init__(self, actor: Actor):
-        messenger = MessengerForTesting()
-        bg_task_executor = BackgroundTaskExecutorForTesting()
+        messenger = MessengerProbe()
+        bg_task_executor = BackgroundTaskExecutorProbe()
 
         self._process = ActorProcess(actor)
         self.capture: Captor = Captor(messenger, bg_task_executor)
         self.simulate: Simulator = Simulator(self._process)
 
         self._process.set_context(ProcessContext(
-            Address("$.tester.actor"), messenger, bg_task_executor, IdGeneratorForTesting(),
+            Address("$.tester.actor"), messenger, bg_task_executor, IdGeneratorForProbe(),
         ))
