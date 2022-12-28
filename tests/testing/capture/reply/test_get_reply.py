@@ -25,3 +25,13 @@ def test_should_return_reply_with_matched_ref_id():
     actor.reply(Address("$"), MessageDummy("This is B"), ref_id="B")
 
     assert tester.capture.get_reply("B") == MessageDummy("This is B")
+
+
+def test_should_ignore_reply_with_other_address_than_root():
+    actor = ActorMock()
+    tester = ActorTester(actor)
+
+    actor.reply(Address("$.someone"), MessageDummy("Ignore this"), ref_id="Ref123")
+    actor.reply(Address("$"), MessageDummy("The is the answer"), ref_id="Ref123")
+
+    assert tester.capture.get_reply("Ref123") == MessageDummy("The is the answer")

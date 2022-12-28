@@ -37,6 +37,8 @@ class Captor:
 
     def __messenger__send(self, event: SendEvent):
         if isinstance(event.message, Reply):
+            if event.receiver != Address("$"):
+                return
             self._replies.append(event.message)
         elif isinstance(event.message, LyridMessage):
             return
