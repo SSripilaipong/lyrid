@@ -1,11 +1,10 @@
 from dataclasses import dataclass
 from typing import Optional, SupportsFloat, List
 
-from lyrid.core.messaging import Address, Message, Reply
+from lyrid.core.messaging import Address, Message, LyridMessage
 from .probe import MessengerProbe, BackgroundTaskExecutorProbe
 from .probe.background_task_executor import ExecuteWithDelayEvent
 from .probe.messenger import SendEvent
-from ..core.system import SpawnChildMessage
 
 
 @dataclass(frozen=True)
@@ -30,7 +29,7 @@ class Captor:
         self._messages = []
 
     def __messenger__send(self, event: SendEvent):
-        if isinstance(event.message, (Reply, SpawnChildMessage)):
+        if isinstance(event.message, LyridMessage):
             return
         self._messages.append(CapturedMessage(event.receiver, event.message))
 

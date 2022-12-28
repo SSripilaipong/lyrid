@@ -1,6 +1,6 @@
 from dataclasses import dataclass
 
-from ._message import Message
+from ._message import Message, LyridMessage
 
 
 @dataclass
@@ -10,6 +10,6 @@ class Ask(Message):
 
 
 @dataclass
-class Reply(Message):
+class Reply(LyridMessage):
     message: Message
     ref_id: str

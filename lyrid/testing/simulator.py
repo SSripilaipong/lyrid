@@ -1,5 +1,8 @@
+from contextlib import suppress
+
 from lyrid.base.actor import ActorProcess
 from lyrid.core.messaging import Message, Address
+from lyrid.core.process import ProcessStoppedSignal
 
 
 class Simulator:
@@ -7,4 +10,5 @@ class Simulator:
         self._process = process
 
     def tell(self, message: Message, by: Address):
-        self._process.receive(by, message)
+        with suppress(ProcessStoppedSignal):
+            self._process.receive(by, message)

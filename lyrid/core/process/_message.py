@@ -1,11 +1,11 @@
 from dataclasses import dataclass
 from typing import Optional
 
-from lyrid.core.messaging import Message, Address
+from lyrid.core.messaging import Message, Address, LyridMessage
 
 
 @dataclass(frozen=True)
-class ChildStopped(Message):
+class ChildStopped(LyridMessage):
     child_address: Address
     exception: Optional[Exception] = None
 

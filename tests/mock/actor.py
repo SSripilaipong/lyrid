@@ -1,4 +1,4 @@
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from typing import List, Optional
 
 from lyrid import Actor
@@ -19,11 +19,9 @@ class ActorMockFail(Message):
 class ActorMock(Actor):
     name: Optional[str] = None
 
-    def __post_init__(self):
-        self.on_receive__senders: List[Address] = []
-        self.on_receive__messages: List[Message] = []
-
-        self.on_stop__is_called = False
+    on_receive__senders: List[Address] = field(default_factory=list, compare=False)
+    on_receive__messages: List[Message] = field(default_factory=list, compare=False)
+    on_stop__is_called: bool = False
 
     def on_receive(self, sender: Address, message: Message):
         self.on_receive__senders.append(sender)

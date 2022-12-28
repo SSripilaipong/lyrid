@@ -1,7 +1,7 @@
 from lyrid import Address
 from lyrid.testing import ActorTester, CapturedMessage
 from tests.message_dummy import MessageDummy
-from tests.mock.actor import ActorMock
+from tests.mock.actor import ActorMock, ActorMockStop
 
 
 def test_should_return_told_messages():
@@ -57,6 +57,18 @@ def test_should_ignore_spawn_messages():
 
     actor.tell(Address("$.you"), MessageDummy("Important"))
     actor.spawn(ActorMock())
+
+    assert tester.capture.get_messages() == [
+        CapturedMessage(Address("$.you"), MessageDummy("Important"), delay=None),
+    ]
+
+
+def test_should_ignore_child_stopped_messages_when_stopping():
+    actor = ActorMock()
+    tester = ActorTester(actor)
+
+    actor.tell(Address("$.you"), MessageDummy("Important"))
+    tester.simulate.tell(ActorMockStop(), Address("$.me"))
 
     assert tester.capture.get_messages() == [
         CapturedMessage(Address("$.you"), MessageDummy("Important"), delay=None),
