@@ -5,7 +5,7 @@ from lyrid.core.messaging import Address, Message
 from .mock import MessengerForTesting, BackgroundTaskExecutorForTesting
 
 
-@dataclass
+@dataclass(frozen=True)
 class CapturedMessage:
     receiver: Address
     message: Message
@@ -18,18 +18,21 @@ class Captor:
         self._bg_task_executor = bg_task_executor
 
     def get_messages(self) -> List[CapturedMessage]:
+        result: List[CapturedMessage] = []
+
         executor = self._bg_task_executor
         if executor.execute_with_delay__tasks:
             delayed_tasks = zip(
                 executor.execute_with_delay__tasks, executor.execute_with_delay__delays,
                 executor.execute_with_delay__args,
             )
-            return [
+            result.extend(
                 CapturedMessage(receiver, message, delay=delay)
                 for task, delay, (_, receiver, message) in filter(lambda t: t[0] == self._messenger.send, delayed_tasks)
-            ]
+            )
 
         receivers = self._messenger.send__receivers
         messages = self._messenger.send__messages
 
-        return [CapturedMessage(receiver, message, delay=None) for receiver, message in zip(receivers, messages)]
+        result.extend(CapturedMessage(receiver, message, delay=None) for receiver, message in zip(receivers, messages))
+        return result

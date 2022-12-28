@@ -24,3 +24,16 @@ def test_should_return_told_messages_with_delay():
     assert tester.capture.get_messages() == [
         CapturedMessage(Address("$.other"), MessageDummy("Hi later"), delay=123),
     ]
+
+
+def test_should_return_messages_with_or_without_delay_in_any_order():
+    actor = ActorMock()
+    tester = ActorTester(actor)
+
+    actor.tell(Address("$.to.you"), MessageDummy("Hi now"))
+    actor.tell(Address("$.other"), MessageDummy("Hi later"), delay=123)
+
+    assert set(tester.capture.get_messages()) == {
+        CapturedMessage(Address("$.other"), MessageDummy("Hi later"), delay=123),
+        CapturedMessage(Address("$.to.you"), MessageDummy("Hi now"), delay=None),
+    }
