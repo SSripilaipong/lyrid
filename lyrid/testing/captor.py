@@ -30,9 +30,10 @@ class Captor:
         self._messages = []
 
     def get_reply(self, ref_id: str) -> Optional[Message]:
-        if not self._replies:
-            return None
-        return self._replies[0].message
+        for reply in self._replies:
+            if reply.ref_id == ref_id:
+                return reply.message
+        return None
 
     def __messenger__send(self, event: SendEvent):
         if isinstance(event.message, Reply):

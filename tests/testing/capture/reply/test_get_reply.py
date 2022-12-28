@@ -15,3 +15,13 @@ def test_should_return_reply_with_ref_id():
 
 def test_should_return_none_if_the_reply_is_not_available():
     assert ActorTester(ActorMock()).capture.get_reply("Ref123") is None
+
+
+def test_should_return_reply_with_matched_ref_id():
+    actor = ActorMock()
+    tester = ActorTester(actor)
+
+    actor.reply(Address("$"), MessageDummy("This is A"), ref_id="A")
+    actor.reply(Address("$"), MessageDummy("This is B"), ref_id="B")
+
+    assert tester.capture.get_reply("B") == MessageDummy("This is B")
