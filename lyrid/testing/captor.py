@@ -16,7 +16,7 @@ class Captor:
     def __init__(self, messenger: MessengerForTesting):
         self._messenger = messenger
 
-    def get_told_messages(self) -> List[CapturedMessage]:
+    def get_messages(self) -> List[CapturedMessage]:
         receivers = self._messenger.send__receivers
         messages = self._messenger.send__messages
 

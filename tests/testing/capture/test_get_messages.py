@@ -10,6 +10,6 @@ def test_should_return_told_messages():
 
     actor.tell(Address("$.to.you"), MessageDummy("Hi now"))
 
-    assert tester.capture.get_told_messages() == [
+    assert tester.capture.get_messages() == [
         CapturedMessage(Address("$.to.you"), MessageDummy("Hi now"), delay=None),
     ]

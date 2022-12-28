@@ -10,8 +10,8 @@ class ActorTester:
         messenger = MessengerForTesting()
 
         self._process = ActorProcess(actor)
-        self.capture = Captor(messenger)
-        self.simulate = Simulator(self._process)
+        self.capture: Captor = Captor(messenger)
+        self.simulate: Simulator = Simulator(self._process)
 
         self._process.set_context(ProcessContext(
             Address("$.tester.actor"), messenger, BackgroundTaskExecutorForTesting(), IdGeneratorForTesting(),
