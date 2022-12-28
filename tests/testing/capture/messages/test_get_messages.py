@@ -37,3 +37,15 @@ def test_should_return_messages_with_or_without_delay_in_any_order():
         CapturedMessage(Address("$.other"), MessageDummy("Hi later"), delay=123),
         CapturedMessage(Address("$.to.you"), MessageDummy("Hi now"), delay=None),
     }
+
+
+def test_should_ignore_reply_messages():
+    actor = ActorMock()
+    tester = ActorTester(actor)
+
+    actor.tell(Address("$.to.you"), MessageDummy("Hi now"))
+    actor.reply(Address("$.user"), MessageDummy("Hey User!"), ref_id="RefId1234")
+
+    assert tester.capture.get_messages() == [
+        CapturedMessage(Address("$.to.you"), MessageDummy("Hi now"), delay=None),
+    ]
