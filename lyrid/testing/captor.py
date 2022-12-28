@@ -35,6 +35,9 @@ class Captor:
                 return reply.message
         return None
 
+    def clear_replies(self):
+        self._replies = []
+
     def __messenger__send(self, event: SendEvent):
         if isinstance(event.message, Reply):
             if event.receiver != Address("$"):
