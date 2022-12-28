@@ -5,6 +5,7 @@ from lyrid.core.messaging import Address, Message, Reply
 from .probe import MessengerProbe, BackgroundTaskExecutorProbe
 from .probe.background_task_executor import ExecuteWithDelayEvent
 from .probe.messenger import SendEvent
+from ..core.system import SpawnChildMessage
 
 
 @dataclass(frozen=True)
@@ -29,7 +30,7 @@ class Captor:
         self._messages = []
 
     def __messenger__send(self, event: SendEvent):
-        if isinstance(event.message, Reply):
+        if isinstance(event.message, (Reply, SpawnChildMessage)):
             return
         self._messages.append(CapturedMessage(event.receiver, event.message))
 

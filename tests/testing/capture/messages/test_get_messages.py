@@ -49,3 +49,15 @@ def test_should_ignore_reply_messages():
     assert tester.capture.get_messages() == [
         CapturedMessage(Address("$.to.you"), MessageDummy("Hi now"), delay=None),
     ]
+
+
+def test_should_ignore_spawn_messages():
+    actor = ActorMock()
+    tester = ActorTester(actor)
+
+    actor.tell(Address("$.you"), MessageDummy("Important"))
+    actor.spawn(ActorMock())
+
+    assert tester.capture.get_messages() == [
+        CapturedMessage(Address("$.you"), MessageDummy("Important"), delay=None),
+    ]
