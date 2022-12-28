@@ -11,3 +11,9 @@ def test_should_let_actor_receive_the_message():
 
     assert actor.on_receive__messages == [Ask(MessageDummy("Test Test 123"), ref_id=ref_id)] and \
            actor.on_receive__senders == [Address("$")]
+
+
+def test_should_generate_new_ref_id_each_time():
+    tester = ActorTester(ActorMock())
+
+    assert tester.simulate.ask(MessageDummy("")) != tester.simulate.ask(MessageDummy(""))

@@ -1,3 +1,4 @@
+import uuid
 from contextlib import suppress
 
 from lyrid import Ask
@@ -15,5 +16,6 @@ class Simulator:
             self._process.receive(by, message)
 
     def ask(self, message: Message) -> str:
-        self._process.receive(Address("$"), Ask(message, ref_id=""))
-        return ""
+        ref_id = uuid.uuid4().hex
+        self._process.receive(Address("$"), Ask(message, ref_id=ref_id))
+        return ref_id
