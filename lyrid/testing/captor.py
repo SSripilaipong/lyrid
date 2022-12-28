@@ -29,7 +29,9 @@ class Captor:
     def clear_messages(self):
         self._messages = []
 
-    def get_reply(self, ref_id: str) -> Message:
+    def get_reply(self, ref_id: str) -> Optional[Message]:
+        if not self._replies:
+            return None
         return self._replies[0].message
 
     def __messenger__send(self, event: SendEvent):
