@@ -19,8 +19,6 @@ class ActorProcess(Process):
     def receive(self, sender: Address, message: Message):
         if isinstance(message, ChildStopped):
             self._context.active_children -= {message.child_address}
-        elif isinstance(message, SupervisorForceStop):
-            self._handle_stopping(None)
 
         if self._context.status is ActorStatus.ACTIVE:
             self._receive_when_active(sender, message)
@@ -36,6 +34,8 @@ class ActorProcess(Process):
         self._actor.on_stop()
 
     def _receive_when_active(self, sender: Address, message: Message):
+        if isinstance(message, SupervisorForceStop):
+            self._handle_stopping(None)
         try:
             self.on_receive(sender, message)
         except ProcessStoppedSignal:

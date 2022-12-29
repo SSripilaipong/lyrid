@@ -1,10 +1,12 @@
+from contextlib import suppress
 from typing import List
 
 from lyrid import ActorProcess, Actor
 from lyrid.core.messaging import Address, Message
-from lyrid.core.process import SupervisorForceStop
+from lyrid.core.process import SupervisorForceStop, ProcessStoppedSignal
 from tests.actor.stopped_actor.assertion import assert_handle_stopped_actor
-from tests.mock.actor import ActorMock
+from tests.factory.actor import create_actor_process
+from tests.mock.actor import ActorMock, ActorMockStop
 
 
 def test_should_handle_stopped_actor_when_receive_supervisor_force_stop():
@@ -30,3 +32,18 @@ def test_should_handle_stopped_actor_when_receive_supervisor_force_stop():
 
     assert_handle_stopped_actor(ActorMock, stop, on_receive__clear_captures, on_receive__senders, on_receive__messages,
                                 on_stop__is_called)
+
+
+def test_should_not_call_on_stop_twice():
+    actor = ActorMock()
+
+    process = create_actor_process(actor, address=Address("$.supervisor.my_actor"))
+
+    with suppress(ProcessStoppedSignal):
+        process.receive(Address("$"), ActorMockStop())
+    actor.on_stop__is_called = False  # reset flag
+
+    with suppress(ProcessStoppedSignal):
+        process.receive(Address("$.supervisor"), SupervisorForceStop(address=Address("$.supervisor.my_actor")))
+
+    assert not actor.on_stop__is_called
