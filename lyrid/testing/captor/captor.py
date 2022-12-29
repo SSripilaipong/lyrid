@@ -66,7 +66,9 @@ class Captor:
         _, receiver, message = event.args
         self._messages.append(CapturedMessage(receiver, message, delay=event.delay))
 
-    def get_spawned_children(self) -> List[CapturedSpawnedChild]:
+    def get_spawned_children(self, address: Address = None) -> List[CapturedSpawnedChild]:
+        if address:
+            return [child for child in self._spawned_children if child.address == address]
         return list(self._spawned_children)
 
     def clear_spawned_children(self):

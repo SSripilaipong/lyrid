@@ -1,6 +1,6 @@
 from lyrid.testing import ActorTester
 from tests.mock.actor import ActorMock
-from tests.testing.spawn.child_actor import ChildActor
+from tests.testing.child.child_actor import ChildActor
 
 
 def test_should_clear_spawned_children():
