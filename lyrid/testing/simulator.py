@@ -48,5 +48,7 @@ class Simulator:
             task_id, return_value=return_value, exception=exception,
         ))
 
-    def child_stop(self, key: str):
-        self._process.receive(self._actor_address, ChildStopped(self._actor_address.child(key)))
+    def child_stop(self, key: str = None, address: Address = None):
+        if address is None:
+            address = self._actor_address.child(key)
+        self._process.receive(self._actor_address, ChildStopped(address))
