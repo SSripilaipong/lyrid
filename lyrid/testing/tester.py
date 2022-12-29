@@ -15,7 +15,7 @@ class ActorTester:
 
         self._process = ActorProcess(actor)
         self.capture: Captor = Captor(self._actor_address, messenger, bg_task_executor)
-        self.simulate: Simulator = Simulator(self._actor_address, self._process)
+        self.simulate: Simulator = Simulator(self._actor_address, self._process, self.capture)
 
         self._process.set_context(ProcessContext(
             self._actor_address, messenger, bg_task_executor, UUID4Generator(),

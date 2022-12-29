@@ -6,12 +6,14 @@ from lyrid.base.actor import ActorProcess
 from lyrid.core.messaging import Message, Address
 from lyrid.core.process import ProcessStoppedSignal
 from .background_task import BackgroundTask
+from .captor import Captor
 
 
 class Simulator:
-    def __init__(self, actor_address: Address, process: ActorProcess):
+    def __init__(self, actor_address: Address, process: ActorProcess, captor: Captor):
         self._actor_address = actor_address
         self._process = process
+        self._captor = captor
 
     def tell(self, message: Message, by: Address):
         with suppress(ProcessStoppedSignal):
@@ -31,3 +33,7 @@ class Simulator:
 
         if notify_actor:
             self._process.receive(self._actor_address, msg)
+
+    def run_all_background_tasks(self):
+        for background_task in self._captor.get_background_tasks():
+            self.run_background_task(background_task)
