@@ -23,5 +23,9 @@ class Simulator:
         return ref_id
 
     def run_background_task(self, background_task: BackgroundTask):
-        return_value = background_task.task(*background_task.args)
-        self._process.receive(self._actor_address, BackgroundTaskExited(background_task.task_id, return_value))
+        try:
+            return_value = background_task.task(*background_task.args)
+            msg = BackgroundTaskExited(background_task.task_id, return_value=return_value)
+        except Exception as e:
+            msg = BackgroundTaskExited(background_task.task_id, exception=e)
+        self._process.receive(self._actor_address, msg)

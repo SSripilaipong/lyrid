@@ -1,3 +1,5 @@
+from dataclasses import dataclass
+
 from lyrid import BackgroundTaskExited
 from lyrid.testing import ActorTester
 from lyrid.testing.background_task import BackgroundTask
@@ -25,3 +27,21 @@ def test_should_let_actor_receive_background_task_exited_message_with_return_val
 
     assert actor.on_receive__messages == [BackgroundTaskExited("TaskId123", return_value=999, exception=None)] and \
            actor.on_receive__senders == [tester.actor_address]
+
+
+def test_should_let_actor_receive_background_task_exited_message_with_exception_if_occurred():
+    actor = ActorMock()
+    tester = ActorTester(actor)
+
+    @dataclass
+    class MyError(Exception):
+        value: str
+
+    def will_fail():
+        raise MyError("Boom!")
+
+    tester.simulate.run_background_task(BackgroundTask("TaskId123", will_fail))
+
+    assert actor.on_receive__messages == [
+        BackgroundTaskExited("TaskId123", return_value=None, exception=MyError("Boom!")),
+    ] and actor.on_receive__senders == [tester.actor_address]
