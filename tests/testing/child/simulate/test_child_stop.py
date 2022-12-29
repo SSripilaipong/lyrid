@@ -2,7 +2,7 @@ import pytest
 
 from lyrid import ChildStopped, Address
 from lyrid.testing import ActorTester
-from lyrid.testing.error_message import key_or_address_of_child_must_be_specified
+from lyrid.testing.error_message import either_key_or_address_of_the_child_must_be_specified_and_not_both
 from tests.mock.actor import ActorMock
 
 
@@ -34,4 +34,13 @@ def test_should_raise_type_error_if_neither_key_nor_address_is_provided():
     with pytest.raises(TypeError) as e:
         tester.simulate.child_stop()
 
-    assert str(e.value) == key_or_address_of_child_must_be_specified
+    assert str(e.value) == either_key_or_address_of_the_child_must_be_specified_and_not_both
+
+
+def test_should_raise_type_error_if_both_key_and_address_is_provided():
+    tester = ActorTester(ActorMock())
+
+    with pytest.raises(TypeError) as e:
+        tester.simulate.child_stop(key="abc", address=Address("$.tester.actor.def"))
+
+    assert str(e.value) == either_key_or_address_of_the_child_must_be_specified_and_not_both
