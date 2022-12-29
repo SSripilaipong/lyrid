@@ -6,4 +6,4 @@ from typing import Callable, Tuple
 class BackgroundTask:
     task_id: str
     task: Callable
-    args: Tuple
+    args: Tuple = ()
