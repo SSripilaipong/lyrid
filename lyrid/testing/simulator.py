@@ -57,3 +57,6 @@ class Simulator:
         elif key is not None:
             raise TypeError(either_key_or_address_of_the_child_must_be_specified_and_not_both)
         self._process.receive(self._actor_address, ChildStopped(address, exception=exception))
+
+    def force_stop(self):
+        self._process.on_stop()
