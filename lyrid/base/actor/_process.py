@@ -36,6 +36,8 @@ class ActorProcess(Process):
     def _receive_when_active(self, sender: Address, message: Message):
         if isinstance(message, SupervisorForceStop):
             self._handle_stopping(None)
+            return
+
         try:
             self.on_receive(sender, message)
         except ProcessStoppedSignal:
