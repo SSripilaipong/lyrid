@@ -39,5 +39,7 @@ class Simulator:
         for background_task in self._captor.get_background_tasks():
             self.run_background_task(background_task, notify_actor=notify_actor)
 
-    def background_task_exit(self, task_id: str, *, return_value: Any = None):
-        self._process.receive(self._actor_address, BackgroundTaskExited(task_id, return_value=return_value))
+    def background_task_exit(self, task_id: str, *, return_value: Any = None, exception: Exception = None):
+        self._process.receive(self._actor_address, BackgroundTaskExited(
+            task_id, return_value=return_value, exception=exception,
+        ))
