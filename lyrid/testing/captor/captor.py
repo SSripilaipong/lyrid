@@ -6,7 +6,8 @@ from lyrid.core.system import SpawnChildMessage
 from lyrid.testing.probe import MessengerProbe, BackgroundTaskExecutorProbe
 from lyrid.testing.probe.background_task_executor import ExecuteWithDelayEvent, ExecuteEvent
 from lyrid.testing.probe.messenger import SendEvent
-from .data import CapturedMessage, CapturedSpawnedChild, CapturedBackgroundTask
+from .data import CapturedMessage, CapturedSpawnedChild
+from ..background_task import BackgroundTask
 
 
 class Captor:
@@ -17,7 +18,7 @@ class Captor:
         self._messages: List[CapturedMessage] = []
         self._replies: List[Reply] = []
         self._spawned_children: List[CapturedSpawnedChild] = []
-        self._background_tasks: List[CapturedBackgroundTask] = []
+        self._background_tasks: List[BackgroundTask] = []
 
         self._messenger.send__subscribe(self.__messenger__send)
         bg_task_executor.execute_with_delay__subscribe(self.__background_task_executor__execute_with_delay)
@@ -56,7 +57,7 @@ class Captor:
             self._messages.append(CapturedMessage(event.receiver, event.message))
 
     def __background_task_executor__execute(self, event: ExecuteEvent):
-        self._background_tasks.append(CapturedBackgroundTask(event.task_id, event.task, event.args))
+        self._background_tasks.append(BackgroundTask(event.task_id, event.task, event.args))
 
     def __background_task_executor__execute_with_delay(self, event: ExecuteWithDelayEvent):
         if event.task != self._messenger.send:
@@ -71,5 +72,5 @@ class Captor:
     def clear_spawned_children(self):
         self._spawned_children = []
 
-    def get_background_tasks(self) -> List[CapturedBackgroundTask]:
+    def get_background_tasks(self) -> List[BackgroundTask]:
         return list(self._background_tasks)

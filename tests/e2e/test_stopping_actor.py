@@ -107,7 +107,7 @@ def test_should_receive_all_stop_log():
     system = ActorSystem(n_nodes=1, placement=[Placement(MatchAll(), RoundRobin())])
     logger = system.spawn(Logger(), key="logger")
     grandparent = system.spawn(Grandparent(), key="grandparent", initial_message=Start())
-    time.sleep(0.005)
+    time.sleep(0.01)
     parent = grandparent.child("parent")
     system.ask(parent.child("child1"), Ping())
     system.ask(parent.child("child2"), Ping())

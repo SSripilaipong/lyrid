@@ -1,7 +1,7 @@
 from lyrid.testing import ActorTester, CapturedSpawnedChild
 from tests.message_dummy import MessageDummy
 from tests.mock.actor import ActorMock
-from tests.testing.capture.spawned_children.child_actor import ChildActor
+from tests.testing.spawn.child_actor import ChildActor
 
 
 def test_should_return_spawned_child():

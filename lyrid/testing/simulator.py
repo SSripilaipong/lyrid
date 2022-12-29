@@ -5,6 +5,7 @@ from lyrid import Ask
 from lyrid.base.actor import ActorProcess
 from lyrid.core.messaging import Message, Address
 from lyrid.core.process import ProcessStoppedSignal
+from .background_task import BackgroundTask
 
 
 class Simulator:
@@ -19,3 +20,7 @@ class Simulator:
         ref_id = uuid.uuid4().hex
         self._process.receive(Address("$"), Ask(message, ref_id=ref_id))
         return ref_id
+
+    @staticmethod
+    def run_background_task(background_task: BackgroundTask):
+        background_task.task(*background_task.args)
