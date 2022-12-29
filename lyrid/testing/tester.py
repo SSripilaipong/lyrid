@@ -24,3 +24,7 @@ class ActorTester:
     @property
     def actor_address(self) -> Address:
         return self._actor_address
+
+    @staticmethod
+    def is_running() -> bool:
+        return True
