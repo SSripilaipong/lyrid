@@ -74,3 +74,6 @@ class Captor:
 
     def get_background_tasks(self) -> List[BackgroundTask]:
         return list(self._background_tasks)
+
+    def clear_background_tasks(self):
+        self._background_tasks = []
