@@ -8,6 +8,7 @@ from lyrid.core.messaging import Message, Address
 from lyrid.core.process import ProcessStoppedSignal
 from .background_task import BackgroundTask
 from .captor import Captor
+from .error_message import specifying_both_return_value_and_exception_is_not_allowed
 
 
 class Simulator:
@@ -40,6 +41,9 @@ class Simulator:
             self.run_background_task(background_task, notify_actor=notify_actor)
 
     def background_task_exit(self, task_id: str, *, return_value: Any = None, exception: Exception = None):
+        if return_value is not None and exception is not None:
+            raise TypeError(specifying_both_return_value_and_exception_is_not_allowed)
+
         self._process.receive(self._actor_address, BackgroundTaskExited(
             task_id, return_value=return_value, exception=exception,
         ))
