@@ -62,3 +62,6 @@ class Captor:
 
     def get_spawned_children(self) -> List[CapturedSpawnedChild]:
         return list(self._spawned_children)
+
+    def clear_spawned_children(self):
+        self._spawned_children = []
