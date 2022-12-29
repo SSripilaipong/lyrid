@@ -3,6 +3,7 @@ from .captor import Captor
 from .probe import BackgroundTaskExecutorProbe, MessengerProbe
 from .simulator import Simulator
 from .. import Address, ActorProcess, ProcessContext
+from ..base.actor._status import ActorStatus
 from ..common import UUID4Generator
 
 
@@ -25,6 +26,5 @@ class ActorTester:
     def actor_address(self) -> Address:
         return self._actor_address
 
-    @staticmethod
-    def is_running() -> bool:
-        return True
+    def is_running(self) -> bool:
+        return self._process.actor.context.status == ActorStatus.ACTIVE

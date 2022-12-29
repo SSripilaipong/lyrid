@@ -3,25 +3,17 @@ from typing import SupportsFloat, Optional, Callable, Tuple
 from lyrid.core.messaging import Address, Message, Reply
 from lyrid.core.process import ProcessStoppedSignal
 from lyrid.core.system import SpawnChildMessage
-from ._abstract import AbstractActor, ActorContext
+from ._abstract import AbstractActor
 from ._process import ActorProcess
 
 
 class Actor(AbstractActor):
-    _context: ActorContext
 
     def on_receive(self, sender: Address, message: Message):
         pass
 
     def on_stop(self):
         pass
-
-    @property
-    def context(self) -> ActorContext:
-        return self._context
-
-    def set_context(self, context: ActorContext):
-        self._context = context
 
     @property
     def address(self) -> Address:

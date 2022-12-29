@@ -3,8 +3,7 @@ from dataclasses import dataclass, field
 
 from lyrid.core.messaging import Address, Message
 from lyrid.core.process import Process, ProcessStoppedSignal, ChildStopped, SupervisorForceStop, ProcessContext
-from ._abstract import AbstractActor
-from ._actor import ActorContext
+from ._abstract import AbstractActor, ActorContext
 from ._status import ActorStatus
 
 

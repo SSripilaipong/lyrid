@@ -19,6 +19,7 @@ class ActorContext(ProcessContext):
 
 
 class AbstractActor(ABC):
+    _context: ActorContext
 
     @abstractmethod
     def on_receive(self, sender: Address, message: Message):
@@ -28,6 +29,9 @@ class AbstractActor(ABC):
     def on_stop(self):
         pass
 
-    @abstractmethod
+    @property
+    def context(self) -> ActorContext:
+        return self._context
+
     def set_context(self, context: ActorContext):
-        pass
+        self._context = context
