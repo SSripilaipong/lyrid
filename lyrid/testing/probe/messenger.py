@@ -15,14 +15,9 @@ class SendEvent:
 class MessengerProbe(Messenger):
 
     def __init__(self):
-        self.send__receivers: List[Address] = []
-        self.send__messages: List[Message] = []
         self._send__subscribers: List[Callable[[SendEvent], Any]] = []
 
     def send(self, sender: Address, receiver: Address, message: Message):
-        self.send__receivers.append(receiver)
-        self.send__messages.append(message)
-
         for callback in self._send__subscribers:
             callback(SendEvent(sender, receiver, message))
 

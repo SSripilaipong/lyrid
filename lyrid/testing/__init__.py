@@ -1,2 +1,2 @@
-from .captor import CapturedMessage, CapturedSpawnedChild
+from .captor import CapturedMessage, CapturedSpawnedChild, CapturedBackgroundTask
 from .tester import ActorTester

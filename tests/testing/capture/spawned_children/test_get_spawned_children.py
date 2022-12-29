@@ -1,15 +1,7 @@
-from dataclasses import dataclass
-
-from lyrid import Actor
 from lyrid.testing import ActorTester, CapturedSpawnedChild
 from tests.message_dummy import MessageDummy
 from tests.mock.actor import ActorMock
-
-
-@dataclass(frozen=True)
-class ChildActor(Actor):
-    name: str
-    value: int
+from tests.testing.capture.spawned_children.child_actor import ChildActor
 
 
 def test_should_return_spawned_child():

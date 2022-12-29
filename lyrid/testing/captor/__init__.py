@@ -1,2 +1,2 @@
 from .captor import Captor
-from .data import CapturedSpawnedChild, CapturedMessage
+from .data import CapturedSpawnedChild, CapturedMessage, CapturedBackgroundTask

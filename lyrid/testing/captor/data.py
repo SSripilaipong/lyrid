@@ -1,5 +1,5 @@
 from dataclasses import dataclass
-from typing import Optional, SupportsFloat
+from typing import Optional, SupportsFloat, Callable, Tuple
 
 from lyrid.base.actor import AbstractActor
 from lyrid.core.messaging import Address, Message
@@ -17,3 +17,10 @@ class CapturedSpawnedChild:
     actor: AbstractActor
     address: Address
     initial_message: Optional[Message] = None
+
+
+@dataclass
+class CapturedBackgroundTask:
+    task_id: str
+    task: Callable
+    args: Tuple
