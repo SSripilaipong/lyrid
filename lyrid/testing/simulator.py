@@ -2,7 +2,7 @@ import uuid
 from contextlib import suppress
 from typing import Any
 
-from lyrid import Ask, BackgroundTaskExited
+from lyrid import Ask, BackgroundTaskExited, ChildStopped
 from lyrid.base.actor import ActorProcess
 from lyrid.core.messaging import Message, Address
 from lyrid.core.process import ProcessStoppedSignal
@@ -47,3 +47,6 @@ class Simulator:
         self._process.receive(self._actor_address, BackgroundTaskExited(
             task_id, return_value=return_value, exception=exception,
         ))
+
+    def child_stop(self, key: str):
+        self._process.receive(self._actor_address, ChildStopped(self._actor_address.child(key)))
