@@ -49,11 +49,11 @@ class Simulator:
             task_id, return_value=return_value, exception=exception,
         ))
 
-    def child_stop(self, key: str = None, address: Address = None):
+    def child_stop(self, key: str = None, address: Address = None, *, exception: Exception = None):
         if address is None:
             if key is None:
                 raise TypeError(either_key_or_address_of_the_child_must_be_specified_and_not_both)
             address = self._actor_address.child(key)
         elif key is not None:
             raise TypeError(either_key_or_address_of_the_child_must_be_specified_and_not_both)
-        self._process.receive(self._actor_address, ChildStopped(address))
+        self._process.receive(self._actor_address, ChildStopped(address, exception=exception))

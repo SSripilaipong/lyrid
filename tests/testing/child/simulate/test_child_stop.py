@@ -1,3 +1,5 @@
+from dataclasses import dataclass
+
 import pytest
 
 from lyrid import ChildStopped, Address
@@ -25,6 +27,21 @@ def test_should_let_actor_receive_child_stopped_message_using_address():
 
     assert actor.on_receive__messages == [
         ChildStopped(Address("$.tester.actor.child"), exception=None),
+    ] and actor.on_receive__senders == [tester.actor_address]
+
+
+def test_should_let_actor_receive_child_stopped_message_with_exception():
+    actor = ActorMock()
+    tester = ActorTester(actor)
+
+    @dataclass
+    class MyError(Exception):
+        value: str
+
+    tester.simulate.child_stop(key="a", exception=MyError("!!!"))
+
+    assert actor.on_receive__messages == [
+        ChildStopped(tester.actor_address.child("a"), exception=MyError("!!!")),
     ] and actor.on_receive__senders == [tester.actor_address]
 
 
