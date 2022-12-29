@@ -8,7 +8,8 @@ from lyrid.core.messaging import Message, Address
 from lyrid.core.process import ProcessStoppedSignal
 from .background_task import BackgroundTask
 from .captor import Captor
-from .error_message import specifying_both_return_value_and_exception_is_not_allowed
+from .error_message import specifying_both_return_value_and_exception_is_not_allowed, \
+    key_or_address_of_child_must_be_specified
 
 
 class Simulator:
@@ -50,5 +51,7 @@ class Simulator:
 
     def child_stop(self, key: str = None, address: Address = None):
         if address is None:
+            if key is None:
+                raise TypeError(key_or_address_of_child_must_be_specified)
             address = self._actor_address.child(key)
         self._process.receive(self._actor_address, ChildStopped(address))
