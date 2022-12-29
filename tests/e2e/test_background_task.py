@@ -67,7 +67,7 @@ class Greeter(Actor):
             self.return_reply_to = self.return_ref_id = None
 
     def delayed_hello(self, value: int):
-        time.sleep(0.01)
+        time.sleep(0.05)
         self.tell(self.address, Hello(value))
         return f"hello{value}"
 

@@ -43,8 +43,11 @@ class Captor:
             self._replies.append(event.message)
         elif isinstance(event.message, SpawnChildMessage):
             assert isinstance(event.message.process, ActorProcess)
-            self._spawned_children.append(
-                CapturedSpawnedChild(event.message.process.actor, self._actor_address.child(event.message.key)))
+            self._spawned_children.append(CapturedSpawnedChild(
+                event.message.process.actor,
+                self._actor_address.child(event.message.key),
+                initial_message=event.message.initial_message,
+            ))
         elif isinstance(event.message, LyridMessage):
             return
         else:

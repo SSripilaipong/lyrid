@@ -12,7 +12,7 @@ class CapturedMessage:
     delay: Optional[SupportsFloat] = None
 
 
-@dataclass
+@dataclass(frozen=True)
 class CapturedSpawnedChild:
     actor: AbstractActor
     address: Address
