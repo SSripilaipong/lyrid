@@ -1,24 +1,22 @@
-from dataclasses import dataclass
-from typing import Optional, SupportsFloat, List
+from typing import Optional, List
 
+from lyrid.base.actor import ActorProcess
 from lyrid.core.messaging import Address, Message, LyridMessage, Reply
-from .probe import MessengerProbe, BackgroundTaskExecutorProbe
-from .probe.background_task_executor import ExecuteWithDelayEvent
-from .probe.messenger import SendEvent
-
-
-@dataclass(frozen=True)
-class CapturedMessage:
-    receiver: Address
-    message: Message
-    delay: Optional[SupportsFloat] = None
+from lyrid.core.system import SpawnChildMessage
+from lyrid.testing.probe import MessengerProbe, BackgroundTaskExecutorProbe
+from lyrid.testing.probe.background_task_executor import ExecuteWithDelayEvent
+from lyrid.testing.probe.messenger import SendEvent
+from .data import CapturedMessage, CapturedSpawnedChild
 
 
 class Captor:
-    def __init__(self, messenger: MessengerProbe, bg_task_executor: BackgroundTaskExecutorProbe):
+    def __init__(self, actor_address: Address, messenger: MessengerProbe,
+                 bg_task_executor: BackgroundTaskExecutorProbe):
+        self._actor_address = actor_address
         self._messenger = messenger
         self._messages: List[CapturedMessage] = []
         self._replies: List[Reply] = []
+        self._spawned_children: List[CapturedSpawnedChild] = []
 
         self._messenger.send__subscribe(self.__messenger__send)
         bg_task_executor.execute_with_delay__subscribe(self.__background_task_executor__execute_with_delay)
@@ -43,6 +41,10 @@ class Captor:
             if event.receiver != Address("$"):
                 return
             self._replies.append(event.message)
+        elif isinstance(event.message, SpawnChildMessage):
+            assert isinstance(event.message.process, ActorProcess)
+            self._spawned_children.append(
+                CapturedSpawnedChild(event.message.process.actor, self._actor_address.child(event.message.key)))
         elif isinstance(event.message, LyridMessage):
             return
         else:
@@ -54,3 +56,6 @@ class Captor:
 
         _, receiver, message = event.args
         self._messages.append(CapturedMessage(receiver, message, delay=event.delay))
+
+    def get_spawned_children(self) -> List[CapturedSpawnedChild]:
+        return list(self._spawned_children)

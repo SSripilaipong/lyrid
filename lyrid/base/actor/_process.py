@@ -13,7 +13,10 @@ class ActorProcess(Process):
     _actor: AbstractActor
     _context: ActorContext = field(init=False, compare=False)  # just for type hinting
 
-    # noinspection DuplicatedCode
+    @property
+    def actor(self) -> AbstractActor:
+        return self._actor
+
     def receive(self, sender: Address, message: Message):
         if isinstance(message, ChildStopped):
             self._context.active_children -= {message.child_address}

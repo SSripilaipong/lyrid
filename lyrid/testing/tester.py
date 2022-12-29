@@ -11,10 +11,12 @@ class ActorTester:
         messenger = MessengerProbe()
         bg_task_executor = BackgroundTaskExecutorProbe()
 
+        actor_address = Address("$.tester.actor")
+
         self._process = ActorProcess(actor)
-        self.capture: Captor = Captor(messenger, bg_task_executor)
+        self.capture: Captor = Captor(actor_address, messenger, bg_task_executor)
         self.simulate: Simulator = Simulator(self._process)
 
         self._process.set_context(ProcessContext(
-            Address("$.tester.actor"), messenger, bg_task_executor, UUID4Generator(),
+            actor_address, messenger, bg_task_executor, UUID4Generator(),
         ))
