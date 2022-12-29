@@ -45,3 +45,12 @@ def test_should_let_actor_receive_background_task_exited_message_with_exception_
     assert actor.on_receive__messages == [
         BackgroundTaskExited("TaskId123", return_value=None, exception=MyError("Boom!")),
     ] and actor.on_receive__senders == [tester.actor_address]
+
+
+def test_should_allow_background_task_to_run_without_notifying_actor_when_exited():
+    actor = ActorMock()
+    tester = ActorTester(actor)
+
+    tester.simulate.run_background_task(BackgroundTask("", lambda: None), notify_actor=False)
+
+    assert actor.on_receive__messages == [] and actor.on_receive__senders == []

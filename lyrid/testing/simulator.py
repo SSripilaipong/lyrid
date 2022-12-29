@@ -22,10 +22,12 @@ class Simulator:
         self._process.receive(Address("$"), Ask(message, ref_id=ref_id))
         return ref_id
 
-    def run_background_task(self, background_task: BackgroundTask):
+    def run_background_task(self, background_task: BackgroundTask, notify_actor: bool = True):
         try:
             return_value = background_task.task(*background_task.args)
             msg = BackgroundTaskExited(background_task.task_id, return_value=return_value)
         except Exception as e:
             msg = BackgroundTaskExited(background_task.task_id, exception=e)
-        self._process.receive(self._actor_address, msg)
+
+        if notify_actor:
+            self._process.receive(self._actor_address, msg)
