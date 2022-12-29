@@ -59,4 +59,5 @@ class Simulator:
         self._process.receive(self._actor_address, ChildStopped(address, exception=exception))
 
     def force_stop(self):
-        self._process.on_stop()
+        with suppress(Exception):
+            self._process.on_stop()

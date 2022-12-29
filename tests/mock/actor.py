@@ -18,6 +18,7 @@ class ActorMockFail(Message):
 @dataclass
 class ActorMock(Actor):
     name: Optional[str] = None
+    on_stop__raise: Optional[Exception] = None
 
     on_receive__senders: List[Address] = field(default_factory=list, compare=False)
     on_receive__messages: List[Message] = field(default_factory=list, compare=False)
@@ -34,6 +35,8 @@ class ActorMock(Actor):
 
     def on_stop(self):
         self.on_stop__is_called = True
+        if self.on_stop__raise is not None:
+            raise self.on_stop__raise
 
     def on_receive__clear_captures(self):
         self.on_receive__senders = []
