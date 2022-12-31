@@ -1,5 +1,5 @@
 # noinspection PyPep8Naming
-from typing import Type, Callable
+from typing import Type, Callable, Optional
 
 from lyrid.core.messaging import Message
 from .handle_policy.ask_message_type import AskMessageTypeHandlePolicy
@@ -19,7 +19,7 @@ class switch:
         return MethodDecorator(policy=AskMessageTypeHandlePolicy(type_=type))
 
     @classmethod
-    def child_stopped(cls, *, exception: Type[Exception] = None):
+    def child_stopped(cls, *, exception: Optional[Type[Exception]]):
         return MethodDecorator(policy=ChildStoppedHandlePolicy(exception_type=exception))
 
 
