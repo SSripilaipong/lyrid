@@ -3,6 +3,7 @@ from typing import Type, Callable
 
 from lyrid.core.messaging import Message
 from .handle_policy.ask_message_type import AskMessageTypeHandlePolicy
+from .handle_policy.child_stopped import ChildStoppedHandlePolicy
 from .handle_policy.message_type import MessageTypeHandlePolicy
 from .handle_rule import HandlePolicy
 
@@ -16,6 +17,10 @@ class switch:
     @classmethod
     def ask(cls, *, type: Type[Message]):
         return MethodDecorator(policy=AskMessageTypeHandlePolicy(type_=type))
+
+    @classmethod
+    def child_stopped(cls, *, exception: Type[Exception] = None):
+        return MethodDecorator(policy=ChildStoppedHandlePolicy())
 
 
 class MethodDecorator:
