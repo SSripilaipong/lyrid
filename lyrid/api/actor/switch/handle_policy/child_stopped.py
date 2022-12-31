@@ -30,12 +30,16 @@ class ChildStoppedHandlePolicy(HandlePolicy):
                 continue
             elif name == "address":
                 if param.annotation is not Address:
-                    raise TypeError(argument_in_method_must_be_annotated_as_type_error(name, function_name, "Address"))
+                    raise argument_in_method_must_be_annotated_as_type_error(name, function_name, "Address")
                 required_params.address = True
             elif name == "exception":
+                if param.annotation is not self.exception_type:
+                    raise argument_in_method_must_be_annotated_as_type_error(
+                        name, function_name, self.exception_type.__name__,
+                    )
                 required_params.exception = True
             else:
-                raise TypeError(invalid_argument_for_method_error(name, function_name))
+                raise invalid_argument_for_method_error(name, function_name)
         return ChildStoppedHandleRule(self.exception_type, function, required_params)
 
 

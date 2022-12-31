@@ -25,3 +25,18 @@ def test_should_raise_type_error_when_address_argument_is_specified_with_wrong_t
                 pass
 
     assert str(e.value) == str(argument_in_method_must_be_annotated_as_type_error("address", "handle", "Address"))
+
+
+def test_should_raise_type_error_when_exception_argument_is_specified_with_wrong_type_annotation():
+    class MyException(Exception):
+        pass
+
+    with pytest.raises(TypeError) as e:
+        @use_switch
+        class A(Actor):
+            @switch.child_stopped(exception=MyException)
+            def handle_error(self, exception: ValueError):
+                pass
+
+    assert str(e.value) == str(
+        argument_in_method_must_be_annotated_as_type_error("exception", "handle_error", "MyException"))
