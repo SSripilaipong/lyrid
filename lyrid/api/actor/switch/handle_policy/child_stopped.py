@@ -2,7 +2,8 @@ import inspect
 from dataclasses import dataclass
 from typing import Callable, Optional, Type, Dict, Any
 
-from lyrid.api.actor.switch.handle_policy.error_message import invalid_argument_for_method_error
+from lyrid.api.actor.switch.handle_policy.error_message import invalid_argument_for_method_error, \
+    argument_in_method_must_be_annotated_as_type_error
 from lyrid.api.actor.switch.handle_rule import HandlePolicy, HandleRule
 from lyrid.base.actor import Actor
 from lyrid.core.messaging import Address, Message
@@ -28,6 +29,8 @@ class ChildStoppedHandlePolicy(HandlePolicy):
             if name == "self":
                 continue
             elif name == "address":
+                if param.annotation is not Address:
+                    raise TypeError(argument_in_method_must_be_annotated_as_type_error(name, function_name, "Address"))
                 required_params.address = True
             elif name == "exception":
                 required_params.exception = True
