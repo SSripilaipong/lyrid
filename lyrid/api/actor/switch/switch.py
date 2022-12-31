@@ -20,7 +20,7 @@ class switch:
 
     @classmethod
     def child_stopped(cls, *, exception: Type[Exception] = None):
-        return MethodDecorator(policy=ChildStoppedHandlePolicy())
+        return MethodDecorator(policy=ChildStoppedHandlePolicy(exception_type=exception))
 
 
 class MethodDecorator:

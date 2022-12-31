@@ -38,3 +38,15 @@ def test_should_call_handle_child_stopped():
 
     assert actor.handle_child_stopped__address == Address("$.me.child")
     assert actor.handle_child_stopped_with_exception__address is None
+
+
+def test_should_call_handle_child_stopped_with_exception():
+    actor = MyActor()
+    process = create_actor_process(actor, address=Address("$.me"))
+
+    child_address = actor.spawn(ActorMock(), key="child2")
+    process.receive(child_address, ChildStopped(child_address=child_address, exception=MyException("Boom!")))
+
+    assert actor.handle_child_stopped_with_exception__address == Address("$.me.child2") and \
+           actor.handle_child_stopped_with_exception__exception == MyException("Boom!")
+    assert actor.handle_child_stopped__address is None
