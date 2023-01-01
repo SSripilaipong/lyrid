@@ -25,7 +25,7 @@ class switch:
 
     @classmethod
     def background_task_exited(cls, *, exception: Optional[Type[Exception]]):
-        return MethodDecorator(policy=BackgroundTaskExitedHandlePolicy())
+        return MethodDecorator(policy=BackgroundTaskExitedHandlePolicy(exception))
 
 
 class MethodDecorator:

@@ -1,13 +1,14 @@
 from dataclasses import dataclass
+from email.headerregistry import Address
 from typing import Optional, Any
 
 from lyrid import use_switch, Actor, switch, BackgroundTaskExited
 from tests.factory.actor import create_actor_process
-from tests.mock.actor import ActorMock
 
 
+@dataclass
 class MyException(Exception):
-    pass
+    value: str
 
 
 @use_switch
@@ -31,11 +32,21 @@ class MyActor(Actor):
 
 def test_should_call_handle_task_exited():
     actor = MyActor()
-    process = create_actor_process(actor)
+    process = create_actor_process(actor, address=Address("$.me"))
 
-    child_address = actor.spawn(ActorMock(), key="child")
-    process.receive(child_address, BackgroundTaskExited(task_id="Id123", return_value="My result"))
+    process.receive(Address("$.me"), BackgroundTaskExited(task_id="Id123", return_value="My result"))
 
     assert actor.handle_task_exited__task_id == "Id123" and actor.handle_task_exited__result == "My result"
     assert actor.handle_task_exited_with_exception__task_id is None and \
            actor.handle_task_exited_with_exception__exception is None
+
+
+def test_should_call_handle_task_exited_with_exception():
+    actor = MyActor()
+    process = create_actor_process(actor, address=Address("$.me"))
+
+    process.receive(Address("$.me"), BackgroundTaskExited(task_id="Id456", exception=MyException("Boom!")))
+
+    assert actor.handle_task_exited_with_exception__task_id == "Id456" and \
+           actor.handle_task_exited_with_exception__exception == MyException("Boom!")
+    assert actor.handle_task_exited__task_id is None and actor.handle_task_exited__result is None
