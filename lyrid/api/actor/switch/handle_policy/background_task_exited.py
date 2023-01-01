@@ -1,6 +1,6 @@
 import inspect
 from dataclasses import dataclass
-from typing import Callable, Optional, Type
+from typing import Callable, Optional, Type, Dict, Any
 
 from lyrid.api.actor.switch.handle_policy.error_message import invalid_argument_for_method_error, \
     argument_in_method_must_be_annotated_as_type_error
@@ -36,6 +36,8 @@ class BackgroundTaskExitedHandlePolicy(HandlePolicy):
             elif name == "result":
                 required_params.result = True
             elif name == "exception":
+                if self.exception_type is None:
+                    raise invalid_argument_for_method_error(name, function_name)
                 if param.annotation is not self.exception_type:
                     raise argument_in_method_must_be_annotated_as_type_error(
                         name, function_name, self.exception_type.__name__,
@@ -64,7 +66,7 @@ class BackgroundTaskExitedHandleRule(HandleRule):
     def execute(self, actor: Actor, sender: Address, message: Message):
         assert isinstance(message, BackgroundTaskExited)
 
-        params = {}
+        params: Dict[str, Any] = {}
         if self.required_params.task_id:
             params["task_id"] = message.task_id
         if self.required_params.result:
