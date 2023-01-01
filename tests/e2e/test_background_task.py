@@ -2,7 +2,7 @@ import time
 from dataclasses import dataclass, field
 from typing import Optional, List
 
-from lyrid import Address, Message, ActorSystem, BackgroundTaskExited, Ask, Actor
+from lyrid import Address, Message, ActorSystem, Actor, use_switch, switch
 
 
 class Start(Message):
@@ -32,6 +32,7 @@ class ReturnValueList(Message):
     data: List
 
 
+@use_switch
 @dataclass
 class Greeter(Actor):
     hello_list: List[Hello] = field(default_factory=list)
@@ -42,22 +43,41 @@ class Greeter(Actor):
     return_reply_to: Optional[Address] = None
     return_ref_id: Optional[str] = None
 
-    def on_receive(self, sender: Address, message: Message):
-        if isinstance(message, Start):
-            self.run_in_background(self.delayed_hello, args=(1,))
-            time.sleep(0.005)
-            self.tell(self.address, Hello(2))
-        elif isinstance(message, Hello):
-            self.hello_list.append(message)
-        elif isinstance(message, Ask) and isinstance(message.message, GiveMeHelloList):
-            self.hello_reply_to = sender
-            self.hello_ref_id = message.ref_id
-        elif isinstance(message, BackgroundTaskExited):
-            self.return_list.append(message.return_value)
-        elif isinstance(message, Ask) and isinstance(message.message, GiveMeReturnValueList):
-            self.return_reply_to = sender
-            self.return_ref_id = message.ref_id
+    @switch.message(type=Start)
+    def start(self):
+        self.run_in_background(self.delayed_hello, args=(1,))
+        time.sleep(0.005)
+        self.tell(self.address, Hello(2))
 
+        self.after_receive()
+
+    @switch.message(type=Hello)
+    def hello(self, message: Hello):
+        self.hello_list.append(message)
+
+        self.after_receive()
+
+    @switch.ask(type=GiveMeHelloList)
+    def ask_for_hello_list(self, sender: Address, ref_id: str):
+        self.hello_reply_to = sender
+        self.hello_ref_id = ref_id
+
+        self.after_receive()
+
+    @switch.background_task_exited(exception=None)
+    def background_task_exited(self, result: str):
+        self.return_list.append(result)
+
+        self.after_receive()
+
+    @switch.ask(type=GiveMeReturnValueList)
+    def ask_for_return_value_list(self, sender: Address, ref_id: str):
+        self.return_reply_to = sender
+        self.return_ref_id = ref_id
+
+        self.after_receive()
+
+    def after_receive(self):
         if self.hello_ref_id is not None and self.hello_reply_to is not None and len(self.hello_list) == 2:
             self.reply(self.hello_reply_to, HelloList(self.hello_list), ref_id=self.hello_ref_id)
             # self.hello_reply_to = self.hello_ref_id = None  # comment this out to test ask reply with wrong ref id
