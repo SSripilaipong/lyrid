@@ -2,6 +2,7 @@ import inspect
 from dataclasses import dataclass
 from typing import Callable, Optional, Type
 
+from lyrid.api.actor.switch.handle_policy.error_message import invalid_argument_for_method_error
 from lyrid.api.actor.switch.handle_rule import HandlePolicy, HandleRule
 from lyrid.base.actor import Actor
 from lyrid.core.background_task import BackgroundTaskExited
@@ -20,16 +21,21 @@ class BackgroundTaskExitedHandlePolicy(HandlePolicy):
     exception: Optional[Type[Exception]]
 
     def create_handle_rule_with_function(self, function: Callable) -> HandleRule:
+        function_name = function.__name__
         signature = inspect.signature(function)
 
         required_params = _RequiredParams()
         for name, param in signature.parameters.items():
-            if name == "task_id":
+            if name == "self":
+                continue
+            elif name == "task_id":
                 required_params.task_id = True
             elif name == "result":
                 required_params.result = True
             elif name == "exception":
                 required_params.exception = True
+            else:
+                raise invalid_argument_for_method_error(name, function_name)
 
         return BackgroundTaskExitedHandleRule(self.exception, function, required_params)
 
