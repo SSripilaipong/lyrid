@@ -2,7 +2,8 @@ import inspect
 from dataclasses import dataclass
 from typing import Callable, Optional, Type
 
-from lyrid.api.actor.switch.handle_policy.error_message import invalid_argument_for_method_error
+from lyrid.api.actor.switch.handle_policy.error_message import invalid_argument_for_method_error, \
+    argument_in_method_must_be_annotated_as_type_error
 from lyrid.api.actor.switch.handle_rule import HandlePolicy, HandleRule
 from lyrid.base.actor import Actor
 from lyrid.core.background_task import BackgroundTaskExited
@@ -29,6 +30,8 @@ class BackgroundTaskExitedHandlePolicy(HandlePolicy):
             if name == "self":
                 continue
             elif name == "task_id":
+                if param.annotation is not str:
+                    raise argument_in_method_must_be_annotated_as_type_error(name, function_name, str.__name__)
                 required_params.task_id = True
             elif name == "result":
                 required_params.result = True
