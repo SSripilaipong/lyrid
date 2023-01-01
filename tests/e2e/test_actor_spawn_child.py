@@ -1,7 +1,7 @@
 from dataclasses import dataclass
 from typing import Optional
 
-from lyrid import ActorSystem, Address, Message, Ask, SpawnChildCompleted, Actor
+from lyrid import ActorSystem, Address, Message, Actor, switch, use_switch
 from tests.message_dummy import MessageDummy
 
 
@@ -15,28 +15,33 @@ class SpawnSecond(Message):
     pass
 
 
+@use_switch
+@dataclass
 class First(Actor):
-    def __init__(self):
-        super().__init__()
+    reply_to: Optional[Address] = None
+    ref_id: Optional[str] = None
+    second_address: Optional[Address] = None
 
-        self.reply_to: Optional[Address] = None
-        self.ref_id: Optional[str] = None
-        self.second_address: Optional[Address] = None
+    @switch.message(type=SpawnSecond)
+    def spawn_second(self):
+        self.spawn(Second())
 
-    def on_receive(self, sender: Address, message: Message):
-        if isinstance(message, SpawnSecond):
-            self.spawn(Second())
-        elif isinstance(message, Ask) and isinstance(message.message, GreetSecond):
-            self.reply_to = sender
-            self.ref_id = message.ref_id
-            self._try_greet_second()
-        elif isinstance(message, SpawnChildCompleted):
-            self.second_address = message.address
-            self._try_greet_second()
-        elif isinstance(message, MessageDummy) and sender == self.second_address:
-            assert self.reply_to is not None and self.ref_id is not None
-            self.reply(self.reply_to, MessageDummy("second said: " + message.text), ref_id=self.ref_id)
-            self.stop()
+    @switch.ask(type=GreetSecond)
+    def greet_second(self, sender: Address, ref_id: str):
+        self.reply_to = sender
+        self.ref_id = ref_id
+        self._try_greet_second()
+
+    @switch.child_spawned()
+    def child_spawned(self, address: Address):
+        self.second_address = address
+        self._try_greet_second()
+
+    @switch.message(type=MessageDummy)
+    def receive_message(self, message: MessageDummy):
+        assert self.reply_to is not None and self.ref_id is not None
+        self.reply(self.reply_to, MessageDummy("second said: " + message.text), ref_id=self.ref_id)
+        self.stop()
 
     def _try_greet_second(self):
         if self.reply_to is None or self.second_address is None:
@@ -44,11 +49,13 @@ class First(Actor):
         self.tell(self.second_address, MessageDummy("how are you"))
 
 
+@use_switch
 class Second(Actor):
-    def on_receive(self, sender: Address, message: Message):
-        if isinstance(message, MessageDummy) and message.text == "how are you":
-            self.tell(sender, MessageDummy("i'm good, thanks"))
-            self.stop()
+    @switch.message(type=MessageDummy)
+    def receive_message(self, sender: Address, message: MessageDummy):
+        assert message.text == "how are you"
+        self.tell(sender, MessageDummy("i'm good, thanks"))
+        self.stop()
 
 
 def test_should_spawn_and_ask_second_actor():
