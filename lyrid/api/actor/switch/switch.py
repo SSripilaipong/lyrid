@@ -3,6 +3,7 @@ from typing import Type, Callable, Optional
 
 from lyrid.core.messaging import Message
 from .handle_policy.ask_message_type import AskMessageTypeHandlePolicy
+from .handle_policy.background_task_exited import BackgroundTaskExitedHandlePolicy
 from .handle_policy.child_stopped import ChildStoppedHandlePolicy
 from .handle_policy.message_type import MessageTypeHandlePolicy
 from .handle_rule import HandlePolicy
@@ -21,6 +22,10 @@ class switch:
     @classmethod
     def child_stopped(cls, *, exception: Optional[Type[Exception]]):
         return MethodDecorator(policy=ChildStoppedHandlePolicy(exception_type=exception))
+
+    @classmethod
+    def background_task_exited(cls, *, exception: Optional[Type[Exception]]):
+        return MethodDecorator(policy=BackgroundTaskExitedHandlePolicy())
 
 
 class MethodDecorator:
