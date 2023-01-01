@@ -19,7 +19,7 @@ class _RequiredParams:
 
 @dataclass
 class BackgroundTaskExitedHandlePolicy(HandlePolicy):
-    exception: Optional[Type[Exception]]
+    exception_type: Optional[Type[Exception]]
 
     def create_handle_rule_with_function(self, function: Callable) -> HandleRule:
         function_name = function.__name__
@@ -36,11 +36,15 @@ class BackgroundTaskExitedHandlePolicy(HandlePolicy):
             elif name == "result":
                 required_params.result = True
             elif name == "exception":
+                if param.annotation is not self.exception_type:
+                    raise argument_in_method_must_be_annotated_as_type_error(
+                        name, function_name, self.exception_type.__name__,
+                    )
                 required_params.exception = True
             else:
                 raise invalid_argument_for_method_error(name, function_name)
 
-        return BackgroundTaskExitedHandleRule(self.exception, function, required_params)
+        return BackgroundTaskExitedHandleRule(self.exception_type, function, required_params)
 
 
 @dataclass

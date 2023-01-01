@@ -46,3 +46,18 @@ def test_should_raise_type_error_when_task_id_argument_is_specified_with_wrong_t
                 pass
 
     assert str(e.value) == str(argument_in_method_must_be_annotated_as_type_error("task_id", "my_handler", "str"))
+
+
+def test_should_raise_type_error_when_exception_argument_is_specified_with_wrong_type_annotation():
+    class ThisException(Exception):
+        pass
+
+    with pytest.raises(TypeError) as e:
+        @use_switch
+        class A(Actor):
+            @switch.background_task_exited(exception=ThisException)
+            def my_handler(self, exception: FileExistsError):
+                pass
+
+    assert str(e.value) == str(
+        argument_in_method_must_be_annotated_as_type_error("exception", "my_handler", "ThisException"))
