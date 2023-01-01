@@ -17,7 +17,7 @@ class ChildSpawnedHandleRule(HandleRule):
     function: Callable
 
     def match(self, sender: Address, message: Message) -> bool:
-        return True
+        return isinstance(message, SpawnChildCompleted)
 
     def execute(self, actor: Actor, sender: Address, message: Message):
         assert isinstance(message, SpawnChildCompleted)

@@ -3,6 +3,7 @@ from typing import Optional
 
 from lyrid import use_switch, Actor, switch, SpawnChildCompleted, Address
 from tests.factory.actor import create_actor_process
+from tests.message_dummy import MessageDummy
 from tests.mock.actor import ActorMock
 
 
@@ -24,3 +25,12 @@ def test_should_call_handle_child_spawned():
     process.receive(Address("$"), SpawnChildCompleted(key="child", address=child_address))
 
     assert actor.handle_child_spawned__address == Address("$.me.child")
+
+
+def test_should_not_call_handle_child_spawned_when_receiving_other_message_types():
+    actor = MyActor()
+    process = create_actor_process(actor, address=Address("$.me"))
+
+    process.receive(Address("$"), MessageDummy("Kidding!"))
+
+    assert actor.handle_child_spawned__address is None
