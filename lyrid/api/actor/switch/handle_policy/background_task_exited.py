@@ -34,6 +34,8 @@ class BackgroundTaskExitedHandlePolicy(HandlePolicy):
                     raise argument_in_method_must_be_annotated_as_type_error(name, function_name, str.__name__)
                 required_params.task_id = True
             elif name == "result":
+                if self.exception_type is not None:
+                    raise invalid_argument_for_method_error(name, function_name)
                 required_params.result = True
             elif name == "exception":
                 if self.exception_type is None:

@@ -71,5 +71,15 @@ def test_should_raise_type_error_when_exception_argument_is_specified_but_is_not
             def handler(self, exception: ValueError):
                 pass
 
-    assert str(e.value) == str(
-        invalid_argument_for_method_error("exception", "handler"))
+    assert str(e.value) == str(invalid_argument_for_method_error("exception", "handler"))
+
+
+def test_should_raise_type_error_when_result_argument_is_specified_but_is_not_expected():
+    with pytest.raises(TypeError) as e:
+        @use_switch
+        class A(Actor):
+            @switch.background_task_exited(exception=ValueError)
+            def my_handler(self, result: str):
+                pass
+
+    assert str(e.value) == str(invalid_argument_for_method_error("result", "my_handler"))
