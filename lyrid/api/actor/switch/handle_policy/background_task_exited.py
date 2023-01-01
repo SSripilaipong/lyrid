@@ -1,3 +1,4 @@
+import inspect
 from dataclasses import dataclass
 from typing import Callable, Optional, Type
 
@@ -8,17 +9,36 @@ from lyrid.core.messaging import Address, Message
 
 
 @dataclass
+class _RequiredParams:
+    task_id: bool = False
+    result: bool = False
+    exception: bool = False
+
+
+@dataclass
 class BackgroundTaskExitedHandlePolicy(HandlePolicy):
     exception: Optional[Type[Exception]]
 
     def create_handle_rule_with_function(self, function: Callable) -> HandleRule:
-        return BackgroundTaskExitedHandleRule(self.exception, function)
+        signature = inspect.signature(function)
+
+        required_params = _RequiredParams()
+        for name, param in signature.parameters.items():
+            if name == "task_id":
+                required_params.task_id = True
+            elif name == "result":
+                required_params.result = True
+            elif name == "exception":
+                required_params.exception = True
+
+        return BackgroundTaskExitedHandleRule(self.exception, function, required_params)
 
 
 @dataclass
 class BackgroundTaskExitedHandleRule(HandleRule):
     exception_type: Optional[Type[Exception]]
     function: Callable
+    required_params: _RequiredParams
 
     def match(self, sender: Address, message: Message) -> bool:
         if not isinstance(message, BackgroundTaskExited):
@@ -31,6 +51,12 @@ class BackgroundTaskExitedHandleRule(HandleRule):
     def execute(self, actor: Actor, sender: Address, message: Message):
         assert isinstance(message, BackgroundTaskExited)
 
-        if self.exception_type is None:
-            return self.function(actor, message.task_id, message.return_value)
-        return self.function(actor, message.task_id, message.exception)
+        params = {}
+        if self.required_params.task_id:
+            params["task_id"] = message.task_id
+        if self.required_params.result:
+            params["result"] = message.return_value
+        if self.required_params.exception:
+            params["exception"] = message.exception
+
+        return self.function(actor, **params)
