@@ -21,7 +21,8 @@ class BackgroundTaskExitedHandleRule(HandleRule):
     function: Callable
 
     def match(self, sender: Address, message: Message) -> bool:
-        assert isinstance(message, BackgroundTaskExited)
+        if not isinstance(message, BackgroundTaskExited):
+            return False
 
         if self.exception_type is None:
             return message.exception is None
