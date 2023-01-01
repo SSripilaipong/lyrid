@@ -26,7 +26,7 @@ class BackgroundTaskExitedHandleRule(HandleRule):
 
         if self.exception_type is None:
             return message.exception is None
-        return True
+        return isinstance(message.exception, self.exception_type)
 
     def execute(self, actor: Actor, sender: Address, message: Message):
         assert isinstance(message, BackgroundTaskExited)
