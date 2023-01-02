@@ -49,34 +49,25 @@ class Greeter(Actor):
         time.sleep(0.005)
         self.tell(self.address, Hello(2))
 
-        self.after_receive()
-
     @switch.message(type=Hello)
     def hello(self, message: Hello):
         self.hello_list.append(message)
-
-        self.after_receive()
 
     @switch.ask(type=GiveMeHelloList)
     def ask_for_hello_list(self, sender: Address, ref_id: str):
         self.hello_reply_to = sender
         self.hello_ref_id = ref_id
 
-        self.after_receive()
-
     @switch.background_task_exited(exception=None)
     def background_task_exited(self, result: str):
         self.return_list.append(result)
-
-        self.after_receive()
 
     @switch.ask(type=GiveMeReturnValueList)
     def ask_for_return_value_list(self, sender: Address, ref_id: str):
         self.return_reply_to = sender
         self.return_ref_id = ref_id
 
-        self.after_receive()
-
+    @switch.after_receive()
     def after_receive(self):
         if self.hello_ref_id is not None and self.hello_reply_to is not None and len(self.hello_list) == 2:
             self.reply(self.hello_reply_to, HelloList(self.hello_list), ref_id=self.hello_ref_id)
