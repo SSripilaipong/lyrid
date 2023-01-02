@@ -42,17 +42,18 @@ A = TypeVar("A", bound=Actor)
 
 def use_switch(actor: Type[A]) -> Type[A]:
     rules: List[HandleRule] = []
+    after_receive: Optional[Callable] = None
 
     for cls in inspect.getmro(actor):
         if not issubclass(cls, Actor) and cls is not Actor:
             continue
         for method in cls.__dict__.values():
             policy: Optional[HandlePolicy] = getattr(method, POLICY_PROPERTY, None)
-            if policy is None:
-                continue
-            rules.append(policy.create_handle_rule_with_function(method))
+            if policy is not None:
+                rules.append(policy.create_handle_rule_with_function(method))
 
-    after_receive = next((method for method in actor.__dict__.values()
-                          if getattr(method, AFTER_RECEIVE_PROPERTY, False)), None)
+            if getattr(method, AFTER_RECEIVE_PROPERTY, False):
+                after_receive = method
+
     setattr(actor, "on_receive", OnReceiveDescriptor(rules, after_receive))
     return actor
