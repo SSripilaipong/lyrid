@@ -28,11 +28,11 @@ class OnReceiveMethod:
         self._after_receive = after_receive
 
     def __call__(self, sender: Address, message: Message):
-        for rule in self._rules:
-            if rule.match(sender, message):
-                rule.execute(self._actor, sender, message)
-                break
+        matched_rule = next((rule for rule in self._rules if rule.match(sender, message)), None)
+        if matched_rule is None:
+            return
 
+        matched_rule.execute(self._actor, sender, message)
         if self._after_receive:
             self._after_receive(self._actor)
 

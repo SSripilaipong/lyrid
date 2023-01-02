@@ -36,3 +36,12 @@ def test_should_call_after_receive():
     process.receive(Address("$"), MessageA("Hey"))
 
     assert actor.after_receive__is_called
+
+
+def test_should_not_call_if_not_received():
+    actor = MyActor()
+    process = create_actor_process(actor)
+
+    process.receive(Address("$"), MessageB("Ignore this"))
+
+    assert not actor.after_receive__is_called
