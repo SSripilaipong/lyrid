@@ -52,7 +52,7 @@ def use_switch(actor: Type[A]) -> Type[A]:
             if policy is not None:
                 rules.append(policy.create_handle_rule_with_function(method))
 
-            if getattr(method, AFTER_RECEIVE_PROPERTY, False):
+            if after_receive is None and getattr(method, AFTER_RECEIVE_PROPERTY, False):
                 after_receive = method
 
     setattr(actor, "on_receive", OnReceiveDescriptor(rules, after_receive))
