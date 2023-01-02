@@ -5,7 +5,7 @@ with open('requirements.txt') as f:
     requirements = f.read().splitlines()
 
 NAME = 'lyrid'
-VERSION = '0.0.6'
+VERSION = '0.0.7'
 URL = 'https://github.com/SSripilaipong/lyrid'
 LICENSE = 'MIT'
 AUTHOR = 'SSripilaipong'
@@ -14,6 +14,8 @@ EMAIL = 'SHSnail@mail.com'
 setup(
     name=NAME,
     version=VERSION,
+    zip_safe=False,
+    package_data={"lyrid": ["py.typed"]},
     packages=[p for p in setuptools.find_packages() if p.startswith('lyrid.') or p == 'lyrid'],
     url=URL,
     license=LICENSE,
