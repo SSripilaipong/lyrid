@@ -12,6 +12,7 @@ class ActorTester:
         messenger = MessengerProbe()
         bg_task_executor = BackgroundTaskExecutorProbe()
 
+        self.current_actor = actor
         self._actor_address = Address("$.tester.actor")
 
         self._process = ActorProcess(actor)
