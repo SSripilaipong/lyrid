@@ -29,6 +29,7 @@ class ActorProcess(Process):
         self._actor = self._context.next_actor
         self._actor.set_context(self._context)
         self._actor.on_receive(sender, message)
+        self._actor = self._context.next_actor
 
     def on_stop(self):
         self._actor.on_stop()

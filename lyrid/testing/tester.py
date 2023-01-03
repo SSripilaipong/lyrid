@@ -1,4 +1,4 @@
-from lyrid.base.actor import Actor
+from lyrid.base.actor import Actor, AbstractActor
 from .captor import Captor
 from .probe import BackgroundTaskExecutorProbe, MessengerProbe
 from .simulator import Simulator
@@ -12,7 +12,6 @@ class ActorTester:
         messenger = MessengerProbe()
         bg_task_executor = BackgroundTaskExecutorProbe()
 
-        self.current_actor = actor
         self._actor_address = Address("$.tester.actor")
 
         self._process = ActorProcess(actor)
@@ -22,6 +21,10 @@ class ActorTester:
         self._process.set_context(ProcessContext(
             self._actor_address, messenger, bg_task_executor, UUID4Generator(),
         ))
+
+    @property
+    def current_actor(self) -> AbstractActor:
+        return self._process.actor
 
     @property
     def actor_address(self) -> Address:
