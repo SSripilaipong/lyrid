@@ -1,11 +1,11 @@
-import pypandoc
 import setuptools
 from setuptools import setup
 
 with open('requirements.txt') as f:
     requirements = f.read().splitlines()
 
-LONG_DESCRIPTION = pypandoc.convert_file('README.md', 'rst')
+with open('README.rst') as f:
+    LONG_DESCRIPTION = f.read()
 
 NAME = 'lyrid'
 VERSION = '0.0.10'
