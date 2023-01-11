@@ -8,7 +8,7 @@ with open('requirements.txt') as f:
 LONG_DESCRIPTION = pypandoc.convert_file('README.md', 'rst')
 
 NAME = 'lyrid'
-VERSION = '0.0.9'
+VERSION = '0.0.10'
 URL = 'https://github.com/SSripilaipong/lyrid'
 LICENSE = 'MIT'
 AUTHOR = 'SSripilaipong'
@@ -29,6 +29,7 @@ CLASSIFIERS = [
     'Programming Language :: Python :: 3.8',
     'Programming Language :: Python :: 3.9',
     'Programming Language :: Python :: 3.10',
+    'Programming Language :: Python :: 3.11',
     'Programming Language :: Python :: 3.12',
     'Topic :: Scientific/Engineering',
     'Topic :: Software Development :: Libraries :: Application Frameworks',
