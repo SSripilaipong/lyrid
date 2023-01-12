@@ -155,3 +155,63 @@ if __name__ == "__main__":
 
 **Caution** This style of pipeline might not be suit for processing big data in production, since it doesn't
 handle [back-pressure](https://www.youtube.com/watch?v=I6eZ4ZyI1Zg) and doesn't prepare for failures.
+
+# Demo: Background Task - run IO-bounded tasks concurrently
+
+For IO-bounded tasks, like http request or read/write file, you might find `Actor.run_in_background()` useful, since it
+runs the task in a new thread (from built-in `threading`) on the same process as the actor, meaning lower overhead.
+
+The example below use only 1 actor called `IOWorker` to run multiple IO tasks at the same time. IO tasks are represented
+by a function which runs `time.sleep()` and then return the assigned number of the task as a result back to the actor.
+The actor gather all results and reply back to the user outside the system.
+
+Please see [demo/background_task/](./demo/background_task) for the full script.
+
+```python
+
+...  # imports and message type definitions
+
+
+def io_task(number: int, sleep_time: int) -> int:
+    time.sleep(sleep_time / 2)
+    return number
+
+
+@use_switch
+@dataclass
+class IOWorker(Actor):
+    results: List[int] = field(default_factory=list)
+
+    user_address: Optional[Address] = None
+    user_ref_id: Optional[str] = None
+    expected_n_results: Optional[int] = None
+
+    @switch.ask(type=RunTasks)
+    def receive_run_tasks(self, message: RunTasks, sender: Address, ref_id: str):
+        n = message.n_tasks
+        for i in range(n):
+            self.run_in_background(io_task, args=(i, n - i,))
+
+        self.user_address = sender
+        self.user_ref_id = ref_id
+        self.expected_n_results = n
+
+    @switch.background_task_exited(exception=None)
+    def background_task_completed(self, result: int):
+        self.results.append(result)
+
+    @switch.after_receive()
+    def after_receive(self):
+        if self.expected_n_results <= len(self.results):
+            self.reply(self.user_address, Results(self.results), ref_id=self.user_ref_id)
+
+
+if __name__ == "__main__":
+    system = ActorSystem(n_nodes=1)
+    worker = system.spawn(IOWorker())
+    time.sleep(1)
+
+    results = system.ask(worker, RunTasks(n_tasks=5))
+    system.force_stop()
+    print(results)  # Output: Results(values=[4, 3, 2, 1, 0]); reversed order since they are all executed in background
+```
