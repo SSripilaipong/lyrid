@@ -43,15 +43,11 @@ pip install lyrid
 
 Here is how we can build a simple actor that sends back text message "world" when receives text message "hello".
 
+Please see [demo/hello_world/](./demo/hello_world) for the full script.
+
 ```python
-import time
-from dataclasses import dataclass
-from lyrid import ActorSystem, Actor, Address, Message, switch, use_switch
 
-
-@dataclass
-class TextMessage(Message):
-    value: str
+...  # imports and message type definitions
 
 
 @use_switch
@@ -83,3 +79,76 @@ while `@switch.ask()` is used for receiving `Ask` message from user outside the 
 
 For more detail about this demo,
 see [GitHub Wiki - Hello World](https://github.com/SSripilaipong/lyrid/wiki/2.-Hello-World).
+
+# Demo: Simple Worker System - parallel computing for CPU-bounded tasks
+
+Here is how we can build a simple worker system. Run this script, and monitor your CPU performance to see 4-5 of your
+CPU cores running at ~100% for some time, **showing that Lyrid provides real parallelism.**
+
+How this system works: 5 workers are spawned to nodes (with round-robin policy) to compute
+some tasks. Then, the user outside the system feeds tasks to the workers. After each worker computed each task, it sends
+the result to the result collector. The user outside the system waits for all the results to be collected
+
+Please see [demo/simple_worker_system/](./demo/simple_worker_system) for the full script.
+
+```python
+
+...  # imports and message type definitions
+
+
+@use_switch
+@dataclass
+class ResultCollector(Actor):
+    results: List[int] = field(default_factory=list)
+
+    user_address: Optional[Address] = None
+    user_ref_id: Optional[str] = None
+    expected_n_results: Optional[int] = None
+
+    @switch.message(type=Result)
+    def receive_data(self, message: Result):
+        self.results.append(message.value)
+
+    @switch.ask(type=AskForResults)
+    def user_ask_for_result(self, sender: Address, ref_id: str, message: AskForResults):
+        self.user_address = sender
+        self.user_ref_id = ref_id
+        self.expected_n_results = message.n_results
+
+    @switch.after_receive()
+    def after_receive(self):
+        if None in (self.user_ref_id, self.user_address, self.expected_n_results):
+            return
+
+        if self.expected_n_results <= len(self.results):
+            self.reply(self.user_address, Results(self.results), ref_id=self.user_ref_id)
+
+
+@use_switch
+@dataclass
+class Worker(Actor):
+    collector: Address
+
+    @switch.message(type=Task)
+    def receive_task(self, message: Task):
+        expo = message.base ** message.expo
+        self.tell(self.collector, Result(expo % message.mod))
+
+
+if __name__ == "__main__":
+    system = ActorSystem(n_nodes=7, placement=[Placement(MatchAll(), RoundRobin())])
+    collector = system.spawn(ResultCollector())
+    workers = [system.spawn(Worker(collector)) for _ in range(5)]
+    time.sleep(1)
+
+    print("Starting")
+    for i in range(300):
+        worker = workers[i % len(workers)]
+        system.tell(worker, Task(base=random.randint(10, 99),
+                                 expo=random.randint(100_000, 999_999),
+                                 mod=random.randint(10, 10_000)))
+
+    results = system.ask(collector, AskForResults(n_results=300))
+    system.force_stop()
+    print(results)
+```
