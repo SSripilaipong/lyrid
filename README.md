@@ -152,3 +152,6 @@ if __name__ == "__main__":
     system.force_stop()
     print(results)
 ```
+
+**Caution** This style of pipeline might not be suit for processing big data in production, since it doesn't
+handle [back-pressure](https://www.youtube.com/watch?v=I6eZ4ZyI1Zg) and doesn't prepare for failures.
