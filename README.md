@@ -39,6 +39,15 @@ pip install lyrid
 
 [GitHub Wiki](https://github.com/SSripilaipong/lyrid/wiki)
 
+# Demo
+
+- [Hello World](#demo-hello_world)
+- [Parallel computing](#demo-parallel_computing)
+- [Concurrent background task](#demo-concurrent_background_task)
+- [State machine](#demo-state_machine)
+
+<a name="demo-hello_world"></a>
+
 # Demo: Hello World Actor
 
 Here is how we can build a simple actor that sends back text message "world" when receives text message "hello".
@@ -79,6 +88,15 @@ while `@switch.ask()` is used for receiving `Ask` message from user outside the 
 
 For more detail about this demo,
 see [GitHub Wiki - Hello World](https://github.com/SSripilaipong/lyrid/wiki/2.-Hello-World).
+
+Reference:
+
+- [@switch.message()](https://github.com/SSripilaipong/lyrid/wiki/3.-API-Reference#switch-message)
+- [@switch.ask()](https://github.com/SSripilaipong/lyrid/wiki/3.-API-Reference#switch-ask)
+- [Actor.tell()](https://github.com/SSripilaipong/lyrid/wiki/3.-API-Reference#actor-tell)
+- [Actor.reply()](https://github.com/SSripilaipong/lyrid/wiki/3.-API-Reference#actor-reply)
+
+<a name="demo-parallel_computing"></a>
 
 # Demo: Simple Worker System - parallel computing for CPU-bounded tasks
 
@@ -156,6 +174,13 @@ if __name__ == "__main__":
 **Caution** This style of pipeline might not be suit for processing big data in production, since it doesn't
 handle [back-pressure](https://www.youtube.com/watch?v=I6eZ4ZyI1Zg) and doesn't prepare for failures.
 
+Reference:
+
+- [@switch.after_receive()](https://github.com/SSripilaipong/lyrid/wiki/3.-API-Reference#switch-after_receive)
+- [Actor System](https://github.com/SSripilaipong/lyrid/wiki/3.-API-Reference#actorsystem)
+
+<a name="demo-concurrent_background_task"></a>
+
 # Demo: Background Task - run IO-bounded tasks concurrently
 
 For IO-bounded tasks, like http request or read/write file, you might find `Actor.run_in_background()` useful, since it
@@ -216,6 +241,13 @@ if __name__ == "__main__":
     print(results)  # Output: Results(values=[4, 3, 2, 1, 0]); reversed order since they are all executed in background
 ```
 
+Reference:
+
+- [Actor.run_in_background()](https://github.com/SSripilaipong/lyrid/wiki/3.-API-Reference#actor-run_in_background)
+- [@switch.background_task_exited()](https://github.com/SSripilaipong/lyrid/wiki/3.-API-Reference#switch-background_task_exited)
+
+<a name="demo-state_machine"></a>
+
 # Demo: State Machine
 
 You can program an actor to be state-machine-like by using `Actor.become()`. An actor can use `Actor.become()` to
@@ -270,5 +302,6 @@ if __name__ == "__main__":
     system.force_stop()
 ```
 
-For more detail about `Actor.become()`,
-see [API Reference - Actor - Change State](https://github.com/SSripilaipong/lyrid/wiki/3.-API-Reference#change-state).
+Reference:
+
+- [Actor.become()](https://github.com/SSripilaipong/lyrid/wiki/3.-API-Reference#actor-become)
