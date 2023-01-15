@@ -215,3 +215,60 @@ if __name__ == "__main__":
     system.force_stop()
     print(results)  # Output: Results(values=[4, 3, 2, 1, 0]); reversed order since they are all executed in background
 ```
+
+# Demo: State Machine
+
+You can program an actor to be state-machine-like by using `Actor.become()`. An actor can use `Actor.become()` to
+specify the next actor to replace itself and handle the next messages.
+
+Please see [demo/state_machine/](./demo/state_machine) for the full script.
+
+```python
+
+...  # imports and message type definitions
+
+
+@dataclass
+class Base(Actor):
+    name: str
+
+    @switch.ask(type=WhoAreYou)
+    def who_are_you(self, sender: Address, ref_id: str):
+        self.reply(sender, IAm(name=self.name), ref_id=ref_id)
+
+
+@use_switch
+@dataclass
+class Banner(Base):
+
+    @switch.message(type=MakeHimAngry)
+    def make_him_angry(self):
+        self.become(Hulk(name="Hulk"))
+
+
+@use_switch
+@dataclass
+class Hulk(Base):
+
+    @switch.message(type=CalmDown)
+    def calm_down(self):
+        self.become(Banner(name="Banner"))
+
+
+if __name__ == "__main__":
+    system = ActorSystem(n_nodes=1)
+
+    actor = system.spawn(Banner(name="Banner"))
+    print(system.ask(actor, WhoAreYou()))  # Output: IAm(name='Banner')
+
+    system.tell(actor, MakeHimAngry())
+    print(system.ask(actor, WhoAreYou()))  # Output: IAm(name='Hulk')
+
+    system.tell(actor, CalmDown())
+    print(system.ask(actor, WhoAreYou()))  # Output: IAm(name='Banner')
+
+    system.force_stop()
+```
+
+For more detail about `Actor.become()`,
+see [API Reference - Actor - Change State](https://github.com/SSripilaipong/lyrid/wiki/3.-API-Reference#change-state).
