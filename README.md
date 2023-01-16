@@ -34,6 +34,7 @@ pip install lyrid
 # Documentation
 
 - [What is Actor Model?](https://github.com/SSripilaipong/lyrid/wiki/1.-What-is-Actor-Model)
+- [Actor vs Thread vs Process](https://github.com/SSripilaipong/lyrid/wiki/4.-How-Lyrid-implements-Actor-Model#actor-vs-thread-vs-process)
 - [Hello World in Lyrid](https://github.com/SSripilaipong/lyrid/wiki/2.-Hello-World)
 - [API Reference](https://github.com/SSripilaipong/lyrid/wiki/3.-API-Reference)
 - [GitHub Wiki](https://github.com/SSripilaipong/lyrid/wiki)
