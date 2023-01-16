@@ -15,6 +15,7 @@ No thread/process/async/await, just actor. Implemented in pure Python.
 <br>
 
 [What is Actor Model?](https://github.com/SSripilaipong/lyrid/wiki/1.-What-is-Actor-Model)
+
 [Actor vs Thread vs Process](https://github.com/SSripilaipong/lyrid/wiki/4.-How-Lyrid-implements-Actor-Model#actor-vs-thread-vs-process)
 
 # Requirements
