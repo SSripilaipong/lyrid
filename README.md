@@ -16,6 +16,8 @@ No thread/process/async/await, just actor. Implemented in pure Python.
 
 [What is Actor Model?](https://github.com/SSripilaipong/lyrid/wiki/1.-What-is-Actor-Model)
 
+[Actor vs Thread vs Process](https://github.com/SSripilaipong/lyrid/wiki/4.-How-Lyrid-implements-Actor-Model#actor-vs-thread-vs-process)
+
 # Requirements
 
 - Python 3.8+
@@ -31,13 +33,20 @@ pip install lyrid
 
 # Documentation
 
-[What is Actor Model?](https://github.com/SSripilaipong/lyrid/wiki/1.-What-is-Actor-Model)
+- [What is Actor Model?](https://github.com/SSripilaipong/lyrid/wiki/1.-What-is-Actor-Model)
+- [Actor vs Thread vs Process](https://github.com/SSripilaipong/lyrid/wiki/4.-How-Lyrid-implements-Actor-Model#actor-vs-thread-vs-process)
+- [Hello World in Lyrid](https://github.com/SSripilaipong/lyrid/wiki/2.-Hello-World)
+- [API Reference](https://github.com/SSripilaipong/lyrid/wiki/3.-API-Reference)
+- [GitHub Wiki](https://github.com/SSripilaipong/lyrid/wiki)
 
-[Hello World in Lyrid](https://github.com/SSripilaipong/lyrid/wiki/2.-Hello-World)
+# Demo
 
-[API Reference](https://github.com/SSripilaipong/lyrid/wiki/3.-API-Reference)
+- [Hello World](#demo-hello_world)
+- [Parallel computing](#demo-parallel_computing)
+- [Concurrent background task](#demo-concurrent_background_task)
+- [State machine](#demo-state_machine)
 
-[GitHub Wiki](https://github.com/SSripilaipong/lyrid/wiki)
+<a name="demo-hello_world"></a>
 
 # Demo: Hello World Actor
 
@@ -79,6 +88,15 @@ while `@switch.ask()` is used for receiving `Ask` message from user outside the 
 
 For more detail about this demo,
 see [GitHub Wiki - Hello World](https://github.com/SSripilaipong/lyrid/wiki/2.-Hello-World).
+
+Reference:
+
+- [@switch.message()](https://github.com/SSripilaipong/lyrid/wiki/3.-API-Reference#switch-message)
+- [@switch.ask()](https://github.com/SSripilaipong/lyrid/wiki/3.-API-Reference#switch-ask)
+- [Actor.tell()](https://github.com/SSripilaipong/lyrid/wiki/3.-API-Reference#actor-tell)
+- [Actor.reply()](https://github.com/SSripilaipong/lyrid/wiki/3.-API-Reference#actor-reply)
+
+<a name="demo-parallel_computing"></a>
 
 # Demo: Simple Worker System - parallel computing for CPU-bounded tasks
 
@@ -152,3 +170,138 @@ if __name__ == "__main__":
     system.force_stop()
     print(results)
 ```
+
+**Caution** This style of pipeline might not be suit for processing big data in production, since it doesn't
+handle [back-pressure](https://www.youtube.com/watch?v=I6eZ4ZyI1Zg) and doesn't prepare for failures.
+
+Reference:
+
+- [@switch.after_receive()](https://github.com/SSripilaipong/lyrid/wiki/3.-API-Reference#switch-after_receive)
+- [Actor System](https://github.com/SSripilaipong/lyrid/wiki/3.-API-Reference#actorsystem)
+
+<a name="demo-concurrent_background_task"></a>
+
+# Demo: Background Task - run IO-bounded tasks concurrently
+
+For IO-bounded tasks, like http request or read/write file, you might find `Actor.run_in_background()` useful, since it
+runs the task in a new thread (from built-in `threading`) on the same process as the actor, meaning lower overhead.
+
+The example below use only 1 actor called `IOWorker` to run multiple IO tasks at the same time. IO tasks are represented
+by a function which runs `time.sleep()` and then return the assigned number of the task as a result back to the actor.
+The actor gather all results and reply back to the user outside the system.
+
+Please see [demo/background_task/](./demo/background_task) for the full script.
+
+```python
+
+...  # imports and message type definitions
+
+
+def io_task(number: int, sleep_time: int) -> int:
+    time.sleep(sleep_time / 2)
+    return number
+
+
+@use_switch
+@dataclass
+class IOWorker(Actor):
+    results: List[int] = field(default_factory=list)
+
+    user_address: Optional[Address] = None
+    user_ref_id: Optional[str] = None
+    expected_n_results: Optional[int] = None
+
+    @switch.ask(type=RunTasks)
+    def receive_run_tasks(self, message: RunTasks, sender: Address, ref_id: str):
+        n = message.n_tasks
+        for i in range(n):
+            self.run_in_background(io_task, args=(i, n - i,))  # earlier task sleeps longer than latter task
+
+        self.user_address = sender
+        self.user_ref_id = ref_id
+        self.expected_n_results = n
+
+    @switch.background_task_exited(exception=None)
+    def background_task_completed(self, result: int):
+        self.results.append(result)
+
+    @switch.after_receive()
+    def after_receive(self):
+        if self.expected_n_results <= len(self.results):
+            self.reply(self.user_address, Results(self.results), ref_id=self.user_ref_id)
+
+
+if __name__ == "__main__":
+    system = ActorSystem(n_nodes=1)
+    worker = system.spawn(IOWorker())
+    time.sleep(1)
+
+    results = system.ask(worker, RunTasks(n_tasks=5))
+    system.force_stop()
+    print(results)  # Output: Results(values=[4, 3, 2, 1, 0]); reversed order since they are all executed in background
+```
+
+Reference:
+
+- [Actor.run_in_background()](https://github.com/SSripilaipong/lyrid/wiki/3.-API-Reference#actor-run_in_background)
+- [@switch.background_task_exited()](https://github.com/SSripilaipong/lyrid/wiki/3.-API-Reference#switch-background_task_exited)
+
+<a name="demo-state_machine"></a>
+
+# Demo: State Machine
+
+You can program an actor to be state-machine-like by using `Actor.become()`. An actor can use `Actor.become()` to
+specify the next actor to replace itself and handle the next messages.
+
+Please see [demo/state_machine/](./demo/state_machine) for the full script.
+
+```python
+
+...  # imports and message type definitions
+
+
+@dataclass
+class Base(Actor):
+    name: str
+
+    @switch.ask(type=WhoAreYou)
+    def who_are_you(self, sender: Address, ref_id: str):
+        self.reply(sender, IAm(name=self.name), ref_id=ref_id)
+
+
+@use_switch
+@dataclass
+class Banner(Base):
+
+    @switch.message(type=MakeHimAngry)
+    def make_him_angry(self):
+        self.become(Hulk(name="Hulk"))
+
+
+@use_switch
+@dataclass
+class Hulk(Base):
+
+    @switch.message(type=CalmDown)
+    def calm_down(self):
+        self.become(Banner(name="Banner"))
+
+
+if __name__ == "__main__":
+    system = ActorSystem(n_nodes=1)
+
+    actor = system.spawn(Banner(name="Banner"))
+    print(system.ask(actor, WhoAreYou()))  # Output: IAm(name='Banner')
+
+    system.tell(actor, MakeHimAngry())
+    print(system.ask(actor, WhoAreYou()))  # Output: IAm(name='Hulk')
+
+    system.tell(actor, CalmDown())
+    print(system.ask(actor, WhoAreYou()))  # Output: IAm(name='Banner')
+
+    system.force_stop()
+```
+
+Reference:
+
+- [Actor.become()](https://github.com/SSripilaipong/lyrid/wiki/3.-API-Reference#actor-become)

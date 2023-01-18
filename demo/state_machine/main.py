@@ -1,4 +1,3 @@
-import time
 from dataclasses import dataclass
 
 from lyrid import Actor, Address, Message, ActorSystem, switch, use_switch
@@ -48,26 +47,16 @@ class Hulk(Base):
         self.become(Banner(name="Banner"))
 
 
-def test_should_transit_state_back_and_forth():
+if __name__ == "__main__":
     system = ActorSystem(n_nodes=1)
 
-    try:
-        banner = system.spawn(Banner(name="Banner"), key="banner")
-        time.sleep(0.03)
+    actor = system.spawn(Banner(name="Banner"))
+    print(system.ask(actor, WhoAreYou()))  # Output: IAm(name='Banner')
 
-        assert system.ask(banner, WhoAreYou()) == IAm('Banner')
+    system.tell(actor, MakeHimAngry())
+    print(system.ask(actor, WhoAreYou()))  # Output: IAm(name='Hulk')
 
-        system.tell(banner, MakeHimAngry())
-        time.sleep(0.03)
-        assert system.ask(banner, WhoAreYou()) == IAm('Hulk')
+    system.tell(actor, CalmDown())
+    print(system.ask(actor, WhoAreYou()))  # Output: IAm(name='Banner')
 
-        system.tell(banner, CalmDown())
-        time.sleep(0.03)
-        assert system.ask(banner, WhoAreYou()) == IAm('Banner')
-
-        system.tell(banner, MakeHimAngry())
-        time.sleep(0.03)
-        assert system.ask(banner, WhoAreYou()) == IAm('Hulk')
-
-    finally:
-        system.force_stop()
+    system.force_stop()
