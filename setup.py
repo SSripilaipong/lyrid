@@ -8,7 +8,7 @@ with open('README.rst') as f:
     LONG_DESCRIPTION = f.read()
 
 NAME = 'lyrid'
-VERSION = '0.0.10'
+VERSION = '0.0.11'
 URL = 'https://github.com/SSripilaipong/lyrid'
 LICENSE = 'MIT'
 AUTHOR = 'SSripilaipong'
